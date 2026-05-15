@@ -1,2 +1,2 @@
 [start]
-cmd = "php artisan migrate --force && php artisan db:seed --force || true && supervisord -c /etc/supervisor.conf"
+cmd = "php artisan migrate --force && (php artisan db:seed --force || true) && php artisan serve --host 0.0.0.0 --port 8000"
