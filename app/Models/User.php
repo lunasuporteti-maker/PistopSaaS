@@ -1,0 +1,68 @@
+<?php
+
+namespace App\Models;
+
+use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+
+class User extends Authenticatable
+{
+    /** @use HasFactory<UserFactory> */
+    use HasFactory, Notifiable, HasApiTokens;
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'perfil',
+        'ativo',
+        'tentativas_login',
+        'bloqueado_ate',
+    ];
+
+    protected $hidden = ['password', 'remember_token'];
+
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password'          => 'hashed',
+            'ativo'             => 'boolean',
+            'bloqueado_ate'     => 'datetime',
+        ];
+    }
+
+    public function estaBloqueado(): bool
+    {
+        return $this->bloqueado_ate !== null && $this->bloqueado_ate->isFuture();
+    }
+
+    public function registrarTentativaFalha(): void
+    {
+        $tentativas = $this->tentativas_login + 1;
+
+        if ($tentativas >= 3) {
+            $this->update([
+                'tentativas_login' => $tentativas,
+                'bloqueado_ate'    => now()->addMinutes(30),
+            ]);
+        } else {
+            $this->update(['tentativas_login' => $tentativas]);
+        }
+    }
+
+    public function resetarBloqueio(): void
+    {
+        $this->update([
+            'tentativas_login' => 0,
+            'bloqueado_ate'    => null,
+        ]);
+    }
+
+    public function isAdmin(): bool    { return $this->perfil === 'admin'; }
+    public function isGerente(): bool  { return in_array($this->perfil, ['admin', 'gerente']); }
+    public function isOperador(): bool { return $this->perfil === 'operador'; }
+}

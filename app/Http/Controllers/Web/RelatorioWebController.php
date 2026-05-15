@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Http\Controllers\Web;
+
+use App\Http\Controllers\Controller;
+use App\Models\PagamentoOs;
+use App\Models\PagamentoSaida;
+use App\Models\OrcamentoServico;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
+class RelatorioWebController extends Controller
+{
+    public function financeiro(Request $request)
+    {
+        $inicio = Carbon::parse($request->inicio ?? now()->startOfMonth());
+        $fim    = Carbon::parse($request->fim    ?? now()->endOfDay());
+
+        $entradas = PagamentoOs::whereBetween('created_at', [$inicio, $fim])->sum('valor');
+        $saidas   = PagamentoSaida::whereBetween('data_pagamento', [$inicio, $fim])->sum('valor');
+
+        return view('pitstop.relatorios.financeiro', compact('entradas', 'saidas', 'inicio', 'fim'));
+    }
+
+    public function fluxoCaixa(Request $request)
+    {
+        $meses = (int) ($request->meses ?? 6);
+
+        $entradas = PagamentoOs::select(DB::raw("DATE_FORMAT(created_at, '%Y-%m') as mes"), DB::raw('SUM(valor) as total'))
+            ->where('created_at', '>=', now()->subMonths($meses))
+            ->groupBy('mes')->orderBy('mes')->pluck('total', 'mes');
+
+        $saidas = PagamentoSaida::select(DB::raw("DATE_FORMAT(data_pagamento, '%Y-%m') as mes"), DB::raw('SUM(valor) as total'))
+            ->where('data_pagamento', '>=', now()->subMonths($meses))
+            ->groupBy('mes')->orderBy('mes')->pluck('total', 'mes');
+
+        return view('pitstop.relatorios.fluxo-caixa', compact('entradas', 'saidas', 'meses'));
+    }
+
+    public function lucroServico(Request $request)
+    {
+        $inicio = Carbon::parse($request->inicio ?? now()->startOfMonth());
+        $fim    = Carbon::parse($request->fim    ?? now()->endOfDay());
+
+        $servicos = OrcamentoServico::select('servico_nome', DB::raw('COUNT(*) as quantidade'), DB::raw('SUM(valor) as total'))
+            ->whereHas('orcamento', fn($q) => $q->where('status', 'concluido')->whereBetween('concluido_em', [$inicio, $fim]))
+            ->groupBy('servico_nome')->orderByDesc('total')->get();
+
+        return view('pitstop.relatorios.lucro-servico', compact('servicos', 'inicio', 'fim'));
+    }
+}
