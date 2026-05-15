@@ -14,11 +14,14 @@ echo "Banco de dados pronto."
 # Roda migrations
 php artisan migrate --force
 
-# Optimiza para produção
+# Optimiza para produção (|| true = não falha se der erro)
 php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-php artisan event:cache
+php artisan route:cache || echo "⚠️  route:cache ignorado"
+php artisan view:cache  || echo "⚠️  view:cache ignorado"
+php artisan event:cache || echo "⚠️  event:cache ignorado"
+
+# Roda seeders
+php artisan db:seed --force || echo "⚠️  seed ignorado (já executado)"
 
 # Cria link simbólico de storage (se não existir)
 php artisan storage:link 2>/dev/null || true
