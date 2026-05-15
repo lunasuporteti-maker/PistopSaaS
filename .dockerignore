@@ -15,3 +15,4 @@ Makefile
 *.md
 .editorconfig
 .phpunit.cache
+docker/
