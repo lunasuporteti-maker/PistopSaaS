@@ -19,12 +19,15 @@ use App\Http\Controllers\Api\RelatorioController;
 use App\Http\Controllers\Api\SyncController;
 use App\Http\Controllers\Api\PortalController;
 
-// ── Health check (para Docker/Coolify) ────────────────────────
+// ── Health check (para Docker/Coolify) — sem tenant ───────────
 Route::get('health', function () {
     return response()->json(['status' => 'ok', 'timestamp' => now()->toIso8601String()]);
 });
 
-// ── Rota pública ──────────────────────────────────────────────
+// ── Rotas com identificação de tenant ─────────────────────────
+Route::middleware('tenant')->group(function () {
+
+// ── Rota pública (cliente acompanhar OS) ──────────────────────
 Route::get('acompanhar/{numeroOs}', [PortalController::class, 'acompanhar']);
 
 // ── Autenticação ──────────────────────────────────────────────
@@ -106,4 +109,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('pull',   [SyncController::class, 'pull']);
         Route::post('push',  [SyncController::class, 'push']);
     });
-});
+
+}); // auth:sanctum
+
+}); // tenant

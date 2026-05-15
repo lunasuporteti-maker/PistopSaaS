@@ -20,7 +20,7 @@ use App\Http\Controllers\Web\KanbanController;
 
 Route::get('/', fn() => redirect()->route('dashboard'));
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['tenant', 'auth'])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

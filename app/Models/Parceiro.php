@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Parceiro extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToTenant;
 
-    protected $fillable = ['nome', 'servico_prestado', 'telefone', 'ativo'];
+    protected $fillable = ['tenant_id', 'nome', 'servico_prestado', 'telefone', 'ativo'];
 
     protected $casts = ['ativo' => 'boolean'];
 

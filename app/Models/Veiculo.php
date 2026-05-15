@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Veiculo extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToTenant;
 
     protected $fillable = [
-        'cliente_id', 'marca', 'modelo', 'ano',
+        'tenant_id', 'cliente_id', 'marca', 'modelo', 'ano',
         'placa', 'cor', 'km_atual',
     ];
 

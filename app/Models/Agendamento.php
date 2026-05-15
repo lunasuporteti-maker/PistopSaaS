@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Agendamento extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToTenant;
 
     protected $fillable = [
-        'cliente_id', 'veiculo_id', 'data_hora',
+        'tenant_id', 'cliente_id', 'veiculo_id', 'data_hora',
         'servico', 'status', 'observacao', 'resultado',
     ];
 

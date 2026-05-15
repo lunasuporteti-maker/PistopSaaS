@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Peca extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToTenant;
 
     protected $fillable = [
-        'nome', 'quantidade', 'preco_custo', 'preco_venda', 'estoque_minimo',
+        'tenant_id', 'nome', 'quantidade', 'preco_custo', 'preco_venda', 'estoque_minimo',
     ];
 
     protected $casts = [

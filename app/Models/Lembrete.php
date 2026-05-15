@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 
 class Lembrete extends Model
 {
+    use BelongsToTenant;
+
     protected $fillable = [
-        'cliente_id', 'veiculo_id', 'os_id',
+        'tenant_id', 'cliente_id', 'veiculo_id', 'os_id',
         'servico_nome', 'data_servico', 'data_lembrete', 'status',
     ];
 

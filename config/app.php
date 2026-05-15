@@ -13,7 +13,10 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'PitStop'),
+
+    // Slug do tenant padrão para desenvolvimento local (localhost)
+    'default_tenant_slug' => env('DEFAULT_TENANT_SLUG', 'demo'),
 
     /*
     |--------------------------------------------------------------------------

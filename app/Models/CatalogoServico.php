@@ -2,17 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CatalogoServico extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToTenant;
 
     protected $table = 'catalogo_servicos';
 
     protected $fillable = [
-        'nome', 'descricao', 'preco_sugerido',
+        'tenant_id', 'nome', 'descricao', 'preco_sugerido',
         'tempo_estimado_horas', 'dias_lembrete', 'ativo',
     ];
 

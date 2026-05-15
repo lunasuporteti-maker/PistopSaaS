@@ -2,17 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PagamentoSaida extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToTenant;
 
     protected $table = 'pagamentos_saida';
 
     protected $fillable = [
-        'tipo', 'descricao', 'valor',
+        'tenant_id', 'tipo', 'descricao', 'valor',
         'funcionario_id', 'parceiro_id',
         'data_pagamento', 'mes_referencia', 'categoria',
     ];

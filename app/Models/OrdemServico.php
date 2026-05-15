@@ -2,17 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OrdemServico extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToTenant;
 
     protected $table = 'ordens_servico';
 
     protected $fillable = [
-        'numero_os', 'orcamento_id', 'cliente_id', 'veiculo_id',
+        'tenant_id', 'numero_os', 'orcamento_id', 'cliente_id', 'veiculo_id',
         'descricao', 'valor_total', 'garantia_dias', 'finalizado_em',
     ];
 

@@ -2,17 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MaoDeObra extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToTenant;
 
     protected $table = 'mao_de_obra';
 
     protected $fillable = [
-        'nome', 'descricao', 'preco', 'tempo_estimado_horas', 'ativo',
+        'tenant_id', 'nome', 'descricao', 'preco', 'tempo_estimado_horas', 'ativo',
     ];
 
     protected $casts = [

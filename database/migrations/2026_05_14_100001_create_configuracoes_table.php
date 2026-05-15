@@ -17,14 +17,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // Valores padrão
-        DB::table('configuracoes')->insert([
-            ['chave' => 'google_review_link', 'valor' => '', 'descricao' => 'Link para avaliação no Google (Google Maps / Google Meu Negócio)', 'created_at' => now(), 'updated_at' => now()],
-            ['chave' => 'nome_oficina',        'valor' => 'PitStop',     'descricao' => 'Nome da oficina exibido nos PDFs e mensagens', 'created_at' => now(), 'updated_at' => now()],
-            ['chave' => 'telefone_oficina',    'valor' => '',            'descricao' => 'Telefone/WhatsApp da oficina', 'created_at' => now(), 'updated_at' => now()],
-            ['chave' => 'endereco_oficina',    'valor' => '',            'descricao' => 'Endereço completo da oficina', 'created_at' => now(), 'updated_at' => now()],
-            ['chave' => 'mensagem_review',     'valor' => 'Ficamos felizes em atender você! Poderia nos avaliar no Google? Sua opinião é muito importante para nós 🙏', 'descricao' => 'Mensagem de convite para avaliação Google', 'created_at' => now(), 'updated_at' => now()],
-        ]);
+        // Configurações padrão são criadas via ConfiguracaoSeeder (por tenant)
     }
 
     public function down(): void

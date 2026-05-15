@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Orcamento extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToTenant;
 
     protected $fillable = [
-        'cliente_id', 'veiculo_id', 'status', 'observacao',
+        'tenant_id', 'cliente_id', 'veiculo_id', 'status', 'observacao',
         'valor_total', 'posicao_fila', 'km_entrada',
         'queixa_cliente', 'parecer_tecnico',
         'aprovado_em', 'iniciado_em', 'concluido_em',

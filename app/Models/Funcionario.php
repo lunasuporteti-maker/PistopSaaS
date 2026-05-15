@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Funcionario extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToTenant;
 
-    protected $fillable = ['nome', 'cargo', 'salario_base', 'telefone', 'ativo'];
+    protected $fillable = ['tenant_id', 'nome', 'cargo', 'salario_base', 'telefone', 'ativo'];
 
     protected $casts = [
         'salario_base' => 'decimal:2',

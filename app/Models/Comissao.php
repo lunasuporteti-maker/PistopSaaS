@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 
 class Comissao extends Model
 {
+    use BelongsToTenant;
+
     protected $fillable = [
-        'funcionario_id', 'os_id',
+        'tenant_id', 'funcionario_id', 'os_id',
         'percentual', 'valor', 'data_pagamento', 'pago',
     ];
 
