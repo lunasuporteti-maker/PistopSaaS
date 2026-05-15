@@ -11,12 +11,13 @@ RUN apk add --no-cache \
     libjpeg-turbo-dev \
     freetype-dev \
     libzip-dev \
+    postgresql-client \
+    postgresql-dev \
     zip \
     unzip \
     git \
-    mysql-client \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_mysql gd zip opcache bcmath pcntl
+    && docker-php-ext-install pdo pdo_pgsql pgsql gd zip opcache bcmath pcntl
 
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer

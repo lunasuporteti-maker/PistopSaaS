@@ -27,11 +27,11 @@ class RelatorioWebController extends Controller
     {
         $meses = (int) ($request->meses ?? 6);
 
-        $entradas = PagamentoOs::select(DB::raw("DATE_FORMAT(created_at, '%Y-%m') as mes"), DB::raw('SUM(valor) as total'))
+        $entradas = PagamentoOs::select(DB::raw("TO_CHAR(created_at, 'YYYY-MM') as mes"), DB::raw('SUM(valor) as total'))
             ->where('created_at', '>=', now()->subMonths($meses))
             ->groupBy('mes')->orderBy('mes')->pluck('total', 'mes');
 
-        $saidas = PagamentoSaida::select(DB::raw("DATE_FORMAT(data_pagamento, '%Y-%m') as mes"), DB::raw('SUM(valor) as total'))
+        $saidas = PagamentoSaida::select(DB::raw("TO_CHAR(data_pagamento, 'YYYY-MM') as mes"), DB::raw('SUM(valor) as total'))
             ->where('data_pagamento', '>=', now()->subMonths($meses))
             ->groupBy('mes')->orderBy('mes')->pluck('total', 'mes');
 

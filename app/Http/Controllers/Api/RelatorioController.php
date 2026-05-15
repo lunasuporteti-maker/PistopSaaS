@@ -31,10 +31,11 @@ class RelatorioController extends Controller
 
     public function fluxoCaixa(Request $request)
     {
-        $meses = $request->meses ?? 6;
+        $meses = (int) ($request->meses ?? 6);
 
+        // TO_CHAR é compatível com PostgreSQL; para MySQL usar DATE_FORMAT
         $entradas = PagamentoOs::select(
-                DB::raw('DATE_FORMAT(created_at, "%Y-%m") as mes'),
+                DB::raw("TO_CHAR(created_at, 'YYYY-MM') as mes"),
                 DB::raw('SUM(valor) as total')
             )
             ->where('created_at', '>=', Carbon::now()->subMonths($meses))
@@ -43,7 +44,7 @@ class RelatorioController extends Controller
             ->pluck('total', 'mes');
 
         $saidas = PagamentoSaida::select(
-                DB::raw('DATE_FORMAT(data_pagamento, "%Y-%m") as mes'),
+                DB::raw("TO_CHAR(data_pagamento, 'YYYY-MM') as mes"),
                 DB::raw('SUM(valor) as total')
             )
             ->where('data_pagamento', '>=', Carbon::now()->subMonths($meses))

@@ -3,10 +3,11 @@ set -e
 
 cd /var/www/html
 
-# Aguarda MySQL estar pronto
+# Aguarda PostgreSQL estar pronto
 echo "Aguardando banco de dados..."
 until php artisan db:show > /dev/null 2>&1; do
-    sleep 2
+    echo "DB não disponível ainda, aguardando..."
+    sleep 3
 done
 echo "Banco de dados pronto."
 
