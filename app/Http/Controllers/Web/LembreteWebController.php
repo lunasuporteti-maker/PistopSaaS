@@ -9,40 +9,50 @@ use Illuminate\Http\Request;
 
 class LembreteWebController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $lembretes = Lembrete::with(['cliente', 'veiculo'])
-            ->where('status', 'pendente')
-            ->orderBy('data_lembrete')
-            ->paginate(20);
+        $filtroStatus = $request->get('status', 'pendente');
 
-        $clientes = Cliente::orderBy('nome')->get();
+        $query = Lembrete::with(['cliente', 'veiculo'])
+            ->orderBy('data_lembrete');
 
-        return view('pitstop.lembretes.index', compact('lembretes', 'clientes'));
+        if ($filtroStatus !== 'todos') {
+            $query->where('status', $filtroStatus);
+        }
+
+        $lembretes = $query->paginate(30)->withQueryString();
+        $clientes  = Cliente::orderBy('nome')->get();
+
+        $contadores = [
+            'pendente'  => Lembrete::where('status', 'pendente')->count(),
+            'concluido' => Lembrete::where('status', 'concluido')->count(),
+        ];
+
+        return view('pitstop.lembretes.index', compact('lembretes', 'clientes', 'filtroStatus', 'contadores'));
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
-            'cliente_id'   => 'required|exists:clientes,id',
+            'titulo'       => 'required|string|max:200',
+            'cliente_id'   => 'nullable|exists:clientes,id',
             'veiculo_id'   => 'nullable|exists:veiculos,id',
-            'servico_nome' => 'required|string|max:200',
-            'data_lembrete'=> 'required|date|after_or_equal:today',
-        ], [
-            'data_lembrete.after_or_equal' => 'A data do lembrete não pode ser no passado.',
+            'observacao'   => 'nullable|string|max:500',
+            'data_lembrete'=> 'required|date',
         ]);
 
         $data['status']       = 'pendente';
-        $data['servico_nome'] = strtoupper($data['servico_nome']);
+        $data['titulo']       = strtoupper($data['titulo']);
+        $data['servico_nome'] = $data['titulo']; // mantém compatibilidade
 
         Lembrete::create($data);
 
-        return back()->with('success', 'Lembrete cadastrado com sucesso!');
+        return back()->with('success', 'Lembrete cadastrado!');
     }
 
     public function update(Request $request, Lembrete $lembrete)
     {
-        $request->validate(['status' => 'required|in:pendente,enviado,cancelado']);
+        $request->validate(['status' => 'required|in:pendente,concluido,cancelado']);
         $lembrete->update(['status' => $request->status]);
         return back()->with('success', 'Lembrete atualizado.');
     }
