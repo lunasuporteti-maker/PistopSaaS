@@ -2,55 +2,85 @@
 @section('title', 'Relatório Financeiro')
 
 @section('content_header')
-    <h1>Relatório Financeiro</h1>
+<h1 class="m-0"><i class="fas fa-chart-bar mr-2 text-danger"></i>Relatório Financeiro</h1>
 @endsection
 
 @section('content')
-<div class="card">
-    <div class="card-header">
-        <form method="GET" class="form-inline">
-            <div class="form-group mr-3">
-                <label class="mr-2">De:</label>
-                <input type="date" name="inicio" class="form-control" value="{{ $inicio->toDateString() }}">
+@include('pitstop._partials.alerts')
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body py-2">
+        <form method="GET" class="form-inline flex-wrap" style="gap:8px">
+            <div class="form-group mr-2"><label class="mr-2 font-weight-600">De:</label>
+                <input type="date" name="inicio" class="form-control form-control-sm" value="{{ $inicio->toDateString() }}">
             </div>
-            <div class="form-group mr-3">
-                <label class="mr-2">Até:</label>
-                <input type="date" name="fim" class="form-control" value="{{ $fim->toDateString() }}">
+            <div class="form-group mr-2"><label class="mr-2 font-weight-600">Até:</label>
+                <input type="date" name="fim" class="form-control form-control-sm" value="{{ $fim->toDateString() }}">
             </div>
-            <button class="btn btn-danger"><i class="fas fa-search"></i> Gerar</button>
+            <button class="btn btn-sm btn-danger"><i class="fas fa-search mr-1"></i>Gerar</button>
         </form>
     </div>
-    <div class="card-body">
-        <div class="row text-center">
-            <div class="col-md-4">
-                <div class="info-box bg-success">
-                    <span class="info-box-icon"><i class="fas fa-arrow-up"></i></span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">Entradas</span>
-                        <span class="info-box-number">R$ {{ number_format($entradas, 2, ',', '.') }}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="info-box bg-danger">
-                    <span class="info-box-icon"><i class="fas fa-arrow-down"></i></span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">Saídas</span>
-                        <span class="info-box-number">R$ {{ number_format($saidas, 2, ',', '.') }}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="info-box bg-{{ ($entradas - $saidas) >= 0 ? 'info' : 'warning' }}">
-                    <span class="info-box-icon"><i class="fas fa-balance-scale"></i></span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">Lucro / Prejuízo</span>
-                        <span class="info-box-number">R$ {{ number_format($entradas - $saidas, 2, ',', '.') }}</span>
-                    </div>
-                </div>
-            </div>
+</div>
+
+@php $lucro = $entradas - $saidas; @endphp
+
+<div class="row mb-3">
+    <div class="col-md-4">
+        <div class="card card-outline card-success shadow-sm text-center py-3">
+            <div class="text-success" style="font-size:2rem;font-weight:800">R$ {{ number_format($entradas, 2, ',', '.') }}</div>
+            <div class="text-muted small mt-1"><i class="fas fa-arrow-up mr-1"></i>Entradas (OS pagas)</div>
         </div>
-        <p class="text-muted text-center mt-2">Período: {{ $inicio->format('d/m/Y') }} a {{ $fim->format('d/m/Y') }}</p>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-outline card-danger shadow-sm text-center py-3">
+            <div class="text-danger" style="font-size:2rem;font-weight:800">R$ {{ number_format($saidas, 2, ',', '.') }}</div>
+            <div class="text-muted small mt-1"><i class="fas fa-arrow-down mr-1"></i>Saídas (lançamentos)</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-outline card-{{ $lucro >= 0 ? 'info' : 'warning' }} shadow-sm text-center py-3">
+            <div class="{{ $lucro >= 0 ? 'text-info' : 'text-warning' }}" style="font-size:2rem;font-weight:800">
+                {{ $lucro >= 0 ? '+' : '' }}R$ {{ number_format($lucro, 2, ',', '.') }}
+            </div>
+            <div class="text-muted small mt-1"><i class="fas fa-balance-scale mr-1"></i>{{ $lucro >= 0 ? 'Saldo positivo' : 'Saldo negativo' }}</div>
+        </div>
     </div>
 </div>
+
+<div class="card shadow-sm">
+    <div class="card-header"><h5 class="card-title mb-0">Comparativo Visual</h5></div>
+    <div class="card-body">
+        <canvas id="chartFinanceiro" height="80"></canvas>
+    </div>
+</div>
+
+<div class="text-muted text-center mt-2 small">
+    Período: {{ $inicio->format('d/m/Y') }} a {{ $fim->format('d/m/Y') }}
+</div>
 @endsection
+
+@push('js')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+new Chart(document.getElementById('chartFinanceiro'), {
+    type: 'bar',
+    data: {
+        labels: ['Entradas', 'Saídas', 'Resultado'],
+        datasets: [{
+            label: 'R$',
+            data: [{{ $entradas }}, {{ $saidas }}, {{ $lucro }}],
+            backgroundColor: ['rgba(39,174,96,.7)', 'rgba(192,57,43,.7)', '{{ $lucro >= 0 ? "rgba(23,162,184,.7)" : "rgba(243,156,18,.7)" }}'],
+            borderColor:     ['#27ae60','#c0392b','{{ $lucro >= 0 ? "#17a2b8" : "#f39c12" }}'],
+            borderWidth: 2,
+            borderRadius: 6,
+        }]
+    },
+    options: {
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { ticks: { callback: v => 'R$ ' + v.toLocaleString('pt-BR', {minimumFractionDigits:2}) }, grid: { color: '#f0f0f0' } }
+        }
+    }
+});
+</script>
+@endpush

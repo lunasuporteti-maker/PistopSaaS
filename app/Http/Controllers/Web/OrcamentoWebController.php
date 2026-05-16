@@ -14,6 +14,7 @@ use App\Models\CatalogoServico;
 use App\Models\Lembrete;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class OrcamentoWebController extends Controller
 {
@@ -80,8 +81,10 @@ class OrcamentoWebController extends Controller
 
     public function aprovar(Orcamento $orcamento)
     {
-        $orcamento->update(['status' => 'aprovado', 'aprovado_em' => now()]);
-        return back()->with('success', 'Orçamento aprovado.');
+        // Gera token público para o cliente acompanhar o andamento
+        $token = $orcamento->token_publico ?? Str::random(48);
+        $orcamento->update(['status' => 'aprovado', 'aprovado_em' => now(), 'token_publico' => $token]);
+        return back()->with('success', 'Orçamento aprovado! Link de acompanhamento gerado para o cliente.');
     }
 
     public function gerarOs(Orcamento $orcamento)

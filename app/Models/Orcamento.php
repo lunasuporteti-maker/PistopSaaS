@@ -14,7 +14,7 @@ class Orcamento extends Model
         'tenant_id', 'cliente_id', 'veiculo_id', 'status', 'observacao',
         'valor_total', 'posicao_fila', 'km_entrada',
         'queixa_cliente', 'parecer_tecnico',
-        'aprovado_em', 'iniciado_em', 'concluido_em', 'arquivado_em',
+        'aprovado_em', 'iniciado_em', 'concluido_em', 'arquivado_em', 'token_publico',
     ];
 
     protected $casts = [

@@ -18,6 +18,12 @@ use App\Http\Controllers\Web\RelatorioWebController;
 use App\Http\Controllers\Web\UsuarioWebController;
 use App\Http\Controllers\Web\KanbanController;
 use App\Http\Controllers\Web\PerfilWebController;
+use App\Http\Controllers\Web\CaixaWebController;
+use App\Http\Controllers\Web\PdfController;
+use App\Http\Controllers\Web\AcompanhamentoPublicoController;
+
+// Rota pública — acompanhamento do serviço (sem login) #17
+Route::get('/acompanhar/{token}', [AcompanhamentoPublicoController::class, 'show'])->name('acompanhar.publico');
 
 Route::get('/', fn() => redirect()->route('dashboard'));
 
@@ -81,6 +87,15 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico'])->gr
     Route::get('/financeiro',            [FinanceiroWebController::class, 'index'])->name('financeiro.index');
     Route::post('/financeiro',           [FinanceiroWebController::class, 'store'])->name('financeiro.store');
     Route::delete('/financeiro/{item}',  [FinanceiroWebController::class, 'destroy'])->name('financeiro.destroy');
+
+    // Caixa — abertura e fechamento (#13)
+    Route::get('/caixa',              [CaixaWebController::class, 'index'])->name('caixa.index');
+    Route::post('/caixa/abrir',       [CaixaWebController::class, 'abrir'])->name('caixa.abrir');
+    Route::post('/caixa/{caixa}/fechar', [CaixaWebController::class, 'fechar'])->name('caixa.fechar');
+
+    // PDFs (#20, #21)
+    Route::get('/orcamentos/{orcamento}/pdf', [PdfController::class, 'orcamento'])->name('orcamentos.pdf');
+    Route::get('/ordens/{ordem}/pdf',         [PdfController::class, 'ordemServico'])->name('ordens.pdf');
     Route::get('/lembretes',              [LembreteWebController::class, 'index'])->name('lembretes.index');
     Route::post('/lembretes',             [LembreteWebController::class, 'store'])->name('lembretes.store');
     Route::patch('/lembretes/{lembrete}', [LembreteWebController::class, 'update'])->name('lembretes.update');

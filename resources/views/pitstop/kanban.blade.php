@@ -184,6 +184,11 @@
                     <a href="/orcamentos/{{ $orc->id }}" target="_blank" class="btn-ver">
                         <i class="fas fa-eye"></i> Ver
                     </a>
+                    @if($orc->token_publico)
+                    <a href="/acompanhar/{{ $orc->token_publico }}" target="_blank" class="btn-ver" title="Link do cliente">
+                        <i class="fas fa-share-alt"></i>
+                    </a>
+                    @endif
                     @if($status === 'concluido')
                     <button class="btn-arquivar" data-id="{{ $orc->id }}" title="Arquivar e remover do painel">
                         <i class="fas fa-archive"></i>

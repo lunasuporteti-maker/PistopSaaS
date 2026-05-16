@@ -26,6 +26,18 @@
                 <i class="fas fa-eye"></i> OS {{ $orcamento->ordemServico->numero_os }}
             </a>
             @endif
+            <a href="{{ route('orcamentos.pdf', $orcamento) }}" class="btn btn-outline-danger btn-sm ml-1" target="_blank">
+                <i class="fas fa-file-pdf"></i> PDF
+            </a>
+            @if($orcamento->cliente->telefone)
+            @php
+                $waTextOrc = urlencode("Olá {$orcamento->cliente->nome}! Segue o link para baixar seu orçamento #{$orcamento->id} da AutoFix:\n" . route('orcamentos.pdf', $orcamento));
+                $waOrcUrl = 'https://wa.me/55' . preg_replace('/\D/', '', $orcamento->cliente->telefone) . '?text=' . $waTextOrc;
+            @endphp
+            <a href="{{ $waOrcUrl }}" target="_blank" class="btn btn-success btn-sm ml-1">
+                <i class="fab fa-whatsapp"></i> Enviar WhatsApp
+            </a>
+            @endif
             <a href="{{ route('orcamentos.edit', $orcamento) }}" class="btn btn-secondary btn-sm ml-1">
                 <i class="fas fa-edit"></i> Editar
             </a>

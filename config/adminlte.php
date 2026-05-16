@@ -402,9 +402,15 @@ return [
         ['header' => 'FINANCEIRO', 'can' => 'acima_de_mecanico'],
 
         [
+            'text' => 'Caixa',
+            'url'  => 'caixa',
+            'icon' => 'fas fa-fw fa-cash-register',
+            'can'  => 'acima_de_mecanico',
+        ],
+        [
             'text' => 'Lançamentos',
             'url'  => 'financeiro',
-            'icon' => 'fas fa-fw fa-cash-register',
+            'icon' => 'fas fa-fw fa-file-invoice-dollar',
             'can'  => 'acima_de_mecanico',
         ],
         [
