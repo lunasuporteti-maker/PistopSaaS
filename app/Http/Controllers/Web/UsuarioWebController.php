@@ -86,9 +86,14 @@ class UsuarioWebController extends Controller
             'name.regex' => 'O nome deve conter apenas letras e espaços.',
         ]);
 
-        // Gerente não pode editar o próprio perfil nem de admins
+        // Gerente não pode editar admins
         if (auth()->user()->perfil === 'gerente' && $usuario->perfil === 'admin') {
             return back()->with('error', 'Você não tem permissão para editar um Administrador.');
+        }
+
+        // Gerente não pode promover ninguém a admin
+        if (auth()->user()->perfil === 'gerente' && ($data['perfil'] ?? '') === 'admin') {
+            return back()->with('error', 'Você não pode atribuir o perfil de Administrador.');
         }
 
         // Não permite se auto-editar o perfil para outro nível
@@ -145,10 +150,11 @@ class UsuarioWebController extends Controller
             ];
         }
 
-        // Gerente cria mecânicos e operadores
+        // Gerente cria e edita mecânicos, operadores e outros gerentes
         return [
             'mecanico' => 'Mecânico',
             'operador' => 'Operador',
+            'gerente'  => 'Gerente',
         ];
     }
 }
