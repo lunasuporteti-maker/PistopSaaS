@@ -86,9 +86,10 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico'])->gr
     Route::resource('parceiros',         ParceiroWebController::class)->except(['show']);
 
     // Financeiro
-    Route::get('/financeiro',            [FinanceiroWebController::class, 'index'])->name('financeiro.index');
-    Route::post('/financeiro',           [FinanceiroWebController::class, 'store'])->name('financeiro.store');
-    Route::delete('/financeiro/{item}',  [FinanceiroWebController::class, 'destroy'])->name('financeiro.destroy');
+    Route::get('/financeiro',             [FinanceiroWebController::class, 'index'])->name('financeiro.index');
+    Route::post('/financeiro',            [FinanceiroWebController::class, 'store'])->name('financeiro.store');
+    Route::put('/financeiro/{item}',      [FinanceiroWebController::class, 'update'])->name('financeiro.update');
+    Route::delete('/financeiro/{item}',   [FinanceiroWebController::class, 'destroy'])->name('financeiro.destroy');
 
     // Caixa — abertura e fechamento (#13)
     Route::get('/caixa',              [CaixaWebController::class, 'index'])->name('caixa.index');

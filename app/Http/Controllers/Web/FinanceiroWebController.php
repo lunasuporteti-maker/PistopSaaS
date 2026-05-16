@@ -42,6 +42,22 @@ class FinanceiroWebController extends Controller
         return back()->with('success', 'Lançamento registrado.');
     }
 
+    public function update(Request $request, PagamentoSaida $item)
+    {
+        $data = $request->validate([
+            'tipo'           => 'required|string|max:30',
+            'descricao'      => 'nullable|string|max:200',
+            'valor'          => 'required|numeric|min:0.01',
+            'funcionario_id' => 'nullable|exists:funcionarios,id',
+            'parceiro_id'    => 'nullable|exists:parceiros,id',
+            'data_pagamento' => 'required|date',
+            'categoria'      => 'nullable|string|max:30',
+        ]);
+
+        $item->update($data);
+        return back()->with('success', 'Lançamento atualizado.');
+    }
+
     public function destroy(PagamentoSaida $item)
     {
         $item->delete();
