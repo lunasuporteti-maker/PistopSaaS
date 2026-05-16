@@ -83,12 +83,10 @@
                             @endforeach
                         </select>
                         <small class="text-muted">
+                            <strong>Operador</strong>: Kanban, Fila e Agendamentos &nbsp;|&nbsp;
+                            <strong>Gerente</strong>: Acesso completo exceto Configurações &nbsp;|&nbsp;
                             @if(auth()->user()->isAdmin())
-                                <strong>Operador</strong>: Fila e Agendamentos &nbsp;|&nbsp;
-                                <strong>Gerente</strong>: Tudo exceto Usuários &nbsp;|&nbsp;
-                                <strong>Admin</strong>: Acesso total
-                            @else
-                                Você pode criar apenas usuários com perfil <strong>Operador</strong>.
+                            <strong>Admin</strong>: Acesso total
                             @endif
                         </small>
                         @error('perfil')<div class="invalid-feedback">{{ $message }}</div>@enderror
