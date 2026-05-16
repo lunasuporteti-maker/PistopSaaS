@@ -31,8 +31,9 @@
             </a>
             @if($orcamento->cliente->telefone)
             @php
-                $waTextOrc = urlencode("Olá {$orcamento->cliente->nome}! Segue o link para baixar seu orçamento #{$orcamento->id} da AutoFix:\n" . route('orcamentos.pdf', $orcamento));
-                $waOrcUrl = 'https://wa.me/55' . preg_replace('/\D/', '', $orcamento->cliente->telefone) . '?text=' . $waTextOrc;
+                $pdfPublico = route('orcamentos.pdf.publico', $orcamento->token_publico);
+                $waTextOrc  = urlencode("Olá {$orcamento->cliente->nome}! Segue o link para baixar seu orçamento #{$orcamento->id} da AutoFix:\n" . $pdfPublico);
+                $waOrcUrl   = 'https://wa.me/55' . preg_replace('/\D/', '', $orcamento->cliente->telefone) . '?text=' . $waTextOrc;
             @endphp
             <a href="{{ $waOrcUrl }}" target="_blank" class="btn btn-success btn-sm ml-1">
                 <i class="fab fa-whatsapp"></i> Enviar WhatsApp

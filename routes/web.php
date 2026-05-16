@@ -22,8 +22,9 @@ use App\Http\Controllers\Web\CaixaWebController;
 use App\Http\Controllers\Web\PdfController;
 use App\Http\Controllers\Web\AcompanhamentoPublicoController;
 
-// Rota pública — acompanhamento do serviço (sem login) #17
+// Rotas públicas — sem login
 Route::get('/acompanhar/{token}', [AcompanhamentoPublicoController::class, 'show'])->name('acompanhar.publico');
+Route::get('/publico/orcamento/{token}/pdf', [PdfController::class, 'orcamentoPublico'])->name('orcamentos.pdf.publico');
 
 Route::get('/', fn() => redirect()->route('dashboard'));
 

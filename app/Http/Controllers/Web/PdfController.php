@@ -30,6 +30,18 @@ class PdfController extends Controller
         return $pdf->download("orcamento-{$orcamento->id}.pdf");
     }
 
+    public function orcamentoPublico(string $token)
+    {
+        $orcamento = Orcamento::where('token_publico', $token)->firstOrFail();
+        $orcamento->load(['cliente', 'veiculo', 'servicos', 'pecas.peca', 'maoDeObra.maoDeObra']);
+        $empresa = $this->empresa;
+
+        $pdf = Pdf::loadView('pitstop.pdf.orcamento', compact('orcamento', 'empresa'))
+            ->setPaper('a4', 'portrait');
+
+        return $pdf->download("orcamento-{$orcamento->id}.pdf");
+    }
+
     public function ordemServico(OrdemServico $ordem)
     {
         $ordem->load(['cliente', 'veiculo', 'pecas.peca', 'pagamentos', 'orcamento.servicos']);

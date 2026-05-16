@@ -46,12 +46,16 @@ class OrcamentoWebController extends Controller
             'queixa_cliente' => 'nullable|string',
         ]);
 
-        $orcamento = Orcamento::create($data + ['status' => 'orcamento', 'valor_total' => 0]);
+        $orcamento = Orcamento::create($data + ['status' => 'orcamento', 'valor_total' => 0, 'token_publico' => Str::random(48)]);
         return redirect()->route('orcamentos.show', $orcamento)->with('success', 'Orçamento criado.');
     }
 
     public function show(Orcamento $orcamento)
     {
+        if (!$orcamento->token_publico) {
+            $orcamento->update(['token_publico' => Str::random(48)]);
+        }
+
         $orcamento->load(['cliente', 'veiculo', 'servicos', 'pecas.peca', 'maoDeObra.maoDeObra', 'ordemServico']);
         $pecas = Peca::orderBy('nome')->get();
         $maos  = MaoDeObra::where('ativo', true)->orderBy('nome')->get();
