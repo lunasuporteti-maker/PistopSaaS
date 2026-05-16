@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Orcamento;
+use App\Models\OrcamentoServico;
 use App\Models\Cliente;
 use App\Models\Veiculo;
 use App\Models\Peca;
@@ -128,6 +129,28 @@ class OrcamentoWebController extends Controller
         });
 
         return redirect()->route('ordens.index')->with('success', 'OS gerada com sucesso.');
+    }
+
+    public function addServico(Request $request, Orcamento $orcamento)
+    {
+        $data = $request->validate([
+            'servico_nome' => 'required|string|max:200',
+            'valor'        => 'required|numeric|min:0',
+        ]);
+
+        $orcamento->servicos()->create($data);
+        $orcamento->update(['valor_total' => $orcamento->servicos()->sum('valor') + $orcamento->pecas()->sum(DB::raw('quantidade * preco_unitario'))]);
+
+        return back()->with('success', 'Serviço adicionado.');
+    }
+
+    public function removeServico(Orcamento $orcamento, OrcamentoServico $servico)
+    {
+        abort_if($servico->orcamento_id !== $orcamento->id, 403);
+        $servico->delete();
+        $orcamento->update(['valor_total' => $orcamento->servicos()->sum('valor') + $orcamento->pecas()->sum(DB::raw('quantidade * preco_unitario'))]);
+
+        return back()->with('success', 'Serviço removido.');
     }
 
     public function destroy(Orcamento $orcamento)

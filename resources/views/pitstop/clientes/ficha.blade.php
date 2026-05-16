@@ -32,12 +32,34 @@
             <div class="card-header"><h3 class="card-title"><i class="fas fa-user mr-1"></i> Dados</h3></div>
             <div class="card-body">
                 <dl class="row mb-0">
-                    <dt class="col-5">Telefone</dt><dd class="col-7">{{ $cliente->telefone ?? '—' }}</dd>
+                    <dt class="col-5">Telefone</dt>
+                    <dd class="col-7">
+                        @if($cliente->telefone)
+                        <a href="https://wa.me/55{{ preg_replace('/\D/','',$cliente->telefone) }}" target="_blank" class="text-success">
+                            <i class="fab fa-whatsapp mr-1"></i>{{ $cliente->telefone }}
+                        </a>
+                        @else —
+                        @endif
+                    </dd>
                     <dt class="col-5">E-mail</dt><dd class="col-7">{{ $cliente->email ?? '—' }}</dd>
                     <dt class="col-5">CPF</dt><dd class="col-7">{{ $cliente->cpf ?? '—' }}</dd>
-                    <dt class="col-5">Endereço</dt><dd class="col-7">{{ $cliente->endereco ?? '—' }}</dd>
+                    <dt class="col-5">Endereço</dt>
+                    <dd class="col-7">{{ $cliente->logradouro ? $cliente->enderecoCompleto() : ($cliente->endereco ?? '—') }}</dd>
                     <dt class="col-5">Cadastro</dt><dd class="col-7">{{ $cliente->created_at->format('d/m/Y') }}</dd>
                 </dl>
+                <hr>
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="text-danger font-weight-bold" style="font-size:1.4rem">{{ $cliente->ordensServico->count() }}</div>
+                        <small class="text-muted">OS Realizadas</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-success font-weight-bold" style="font-size:1.1rem">
+                            R$ {{ number_format($cliente->ordensServico->sum('valor_total'), 2, ',', '.') }}
+                        </div>
+                        <small class="text-muted">Total Gasto</small>
+                    </div>
+                </div>
             </div>
         </div>
 

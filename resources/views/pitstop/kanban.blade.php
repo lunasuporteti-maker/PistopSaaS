@@ -91,6 +91,11 @@
             transition: background .2s;
         }
         .btn-ver:hover { background: rgba(255,255,255,0.2); color: #fff; text-decoration: none; }
+        .btn-arquivar {
+            background: rgba(100,116,139,.2); color: #64748b; border: none; border-radius: 6px;
+            padding: 4px 8px; font-size: .75rem; cursor: pointer; transition: all .2s;
+        }
+        .btn-arquivar:hover { background: rgba(100,116,139,.4); color: #e2e8f0; }
 
         /* Toast de feedback */
         #toast {
@@ -179,6 +184,11 @@
                     <a href="/orcamentos/{{ $orc->id }}" target="_blank" class="btn-ver">
                         <i class="fas fa-eye"></i> Ver
                     </a>
+                    @if($status === 'concluido')
+                    <button class="btn-arquivar" data-id="{{ $orc->id }}" title="Arquivar e remover do painel">
+                        <i class="fas fa-archive"></i>
+                    </button>
+                    @endif
                 </div>
             </div>
             @empty
@@ -214,6 +224,36 @@ function updateCount() {
     });
     document.getElementById('totalCards').textContent = total + ' cards';
 }
+
+// ── Arquivar card concluído ──────────────────────────────────
+document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.btn-arquivar');
+    if (!btn) return;
+    if (!confirm('Arquivar este serviço concluído? Ele sairá do Kanban.')) return;
+
+    var id   = btn.dataset.id;
+    var card = btn.closest('.kanban-card');
+    btn.disabled = true;
+
+    fetch('/kanban/' + id + '/arquivar', {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.ok) {
+            card.style.transition = 'opacity .3s, transform .3s';
+            card.style.opacity    = '0';
+            card.style.transform  = 'scale(.9)';
+            setTimeout(() => { card.remove(); updateCount(); }, 300);
+            toast('✓ Arquivado com sucesso');
+        } else {
+            toast(data.msg || 'Erro ao arquivar.', true);
+            btn.disabled = false;
+        }
+    })
+    .catch(() => { toast('Erro de conexão.', true); btn.disabled = false; });
+});
 
 // Inicializar SortableJS em cada coluna
 document.querySelectorAll('.kanban-lista').forEach(lista => {

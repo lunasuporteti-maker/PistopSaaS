@@ -14,13 +14,14 @@ class Orcamento extends Model
         'tenant_id', 'cliente_id', 'veiculo_id', 'status', 'observacao',
         'valor_total', 'posicao_fila', 'km_entrada',
         'queixa_cliente', 'parecer_tecnico',
-        'aprovado_em', 'iniciado_em', 'concluido_em',
+        'aprovado_em', 'iniciado_em', 'concluido_em', 'arquivado_em',
     ];
 
     protected $casts = [
         'aprovado_em'   => 'datetime',
         'iniciado_em'   => 'datetime',
         'concluido_em'  => 'datetime',
+        'arquivado_em'  => 'datetime',
         'valor_total'   => 'decimal:2',
     ];
 

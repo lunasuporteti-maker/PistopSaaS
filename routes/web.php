@@ -30,8 +30,9 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico'])->gr
     Route::put('/perfil',  [PerfilWebController::class, 'update'])->name('perfil.update');
 
     // Kanban
-    Route::get('/kanban',                      [KanbanController::class, 'index'])->name('kanban');
-    Route::patch('/kanban/{orcamento}/status', [KanbanController::class, 'updateStatus'])->name('kanban.status');
+    Route::get('/kanban',                        [KanbanController::class, 'index'])->name('kanban');
+    Route::patch('/kanban/{orcamento}/status',   [KanbanController::class, 'updateStatus'])->name('kanban.status');
+    Route::post('/kanban/{orcamento}/arquivar',  [KanbanController::class, 'arquivar'])->name('kanban.arquivar');
 
     // Rotas JSON para selects dinâmicos (sessão web, sem token)
     Route::get('/json/veiculos-por-cliente/{clienteId}', function ($clienteId) {
@@ -57,8 +58,10 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico'])->gr
     Route::get('/fila',       [OrdemServicoWebController::class, 'fila'])->name('fila');
     Route::resource('agendamentos',  AgendamentoWebController::class);
     Route::resource('orcamentos',    OrcamentoWebController::class);
-    Route::post('orcamentos/{orcamento}/aprovar',  [OrcamentoWebController::class, 'aprovar'])->name('orcamentos.aprovar');
-    Route::post('orcamentos/{orcamento}/gerar-os', [OrcamentoWebController::class, 'gerarOs'])->name('orcamentos.gerar-os');
+    Route::post('orcamentos/{orcamento}/aprovar',    [OrcamentoWebController::class, 'aprovar'])->name('orcamentos.aprovar');
+    Route::post('orcamentos/{orcamento}/gerar-os',   [OrcamentoWebController::class, 'gerarOs'])->name('orcamentos.gerar-os');
+    Route::post('orcamentos/{orcamento}/servicos',   [OrcamentoWebController::class, 'addServico'])->name('orcamentos.servicos.add');
+    Route::delete('orcamentos/{orcamento}/servicos/{servico}', [OrcamentoWebController::class, 'removeServico'])->name('orcamentos.servicos.remove');
     Route::resource('ordens', OrdemServicoWebController::class)
         ->except(['create', 'store'])
         ->parameters(['ordens' => 'ordem']);
@@ -78,8 +81,10 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico'])->gr
     Route::get('/financeiro',            [FinanceiroWebController::class, 'index'])->name('financeiro.index');
     Route::post('/financeiro',           [FinanceiroWebController::class, 'store'])->name('financeiro.store');
     Route::delete('/financeiro/{item}',  [FinanceiroWebController::class, 'destroy'])->name('financeiro.destroy');
-    Route::get('/lembretes',             [LembreteWebController::class, 'index'])->name('lembretes.index');
-    Route::patch('/lembretes/{lembrete}',[LembreteWebController::class, 'update'])->name('lembretes.update');
+    Route::get('/lembretes',              [LembreteWebController::class, 'index'])->name('lembretes.index');
+    Route::post('/lembretes',             [LembreteWebController::class, 'store'])->name('lembretes.store');
+    Route::patch('/lembretes/{lembrete}', [LembreteWebController::class, 'update'])->name('lembretes.update');
+    Route::delete('/lembretes/{lembrete}',[LembreteWebController::class, 'destroy'])->name('lembretes.destroy');
 
     // Relatórios
     Route::prefix('relatorios')->name('relatorios.')->group(function () {
