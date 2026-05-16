@@ -140,21 +140,25 @@
         <div class="col-body kanban-lista" data-status="{{ $status }}">
             @forelse($itens as $orc)
             @php
-                $nomeCliente = $orc->cliente->nome ?? 'Cliente';
-                $nomeVeiculo = trim(($orc->veiculo->marca ?? '') . ' ' . ($orc->veiculo->modelo ?? ''));
-                $telefone    = preg_replace('/\D/', '', $orc->cliente->telefone ?? '');
-                $msg         = str_replace(
-                    ['{nome}', '{veiculo}'],
-                    [$nomeCliente, $nomeVeiculo ?: 'veículo'],
+                $nomeCliente  = $orc->cliente->nome ?? 'Cliente';
+                $nomeVeiculo  = trim(($orc->veiculo->marca ?? '') . ' ' . ($orc->veiculo->modelo ?? ''));
+                $telefone     = preg_replace('/\D/', '', $orc->cliente->telefone ?? '');
+                $linkPublico  = $orc->token_publico
+                    ? url('/acompanhar/' . $orc->token_publico)
+                    : url('/acompanhar/indisponivel');
+                $msg = str_replace(
+                    ['{nome}', '{veiculo}', '{link}'],
+                    [$nomeCliente, $nomeVeiculo ?: 'veiculo', $linkPublico],
                     $mensagens[$status]
                 );
                 $waUrl = $telefone
-                    ? 'https://wa.me/55' . $telefone . '?text=' . urlencode($msg)
+                    ? 'https://wa.me/55' . $telefone . '?text=' . rawurlencode($msg)
                     : null;
             @endphp
             <div class="kanban-card"
                  data-id="{{ $orc->id }}"
                  data-status="{{ $status }}"
+                 data-token="{{ $orc->token_publico }}"
                  draggable="true">
                 <div class="card-cliente">{{ $nomeCliente }}</div>
                 <div class="card-veiculo">
@@ -209,6 +213,43 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script>
 const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+// ── Auto-refresh: verifica mudancas a cada 30 segundos ────────
+var hashAtual = null;
+function verificarEstado() {
+    fetch('/kanban/estado', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(r => r.json())
+        .then(data => {
+            if (hashAtual === null) {
+                hashAtual = data.hash;
+            } else if (data.hash !== hashAtual) {
+                // Algo mudou no board — recarrega preservando scroll
+                var scrollX = window.scrollX;
+                sessionStorage.setItem('kanban_scroll', scrollX);
+                location.reload();
+            }
+        })
+        .catch(() => {});
+}
+setInterval(verificarEstado, 30000);
+verificarEstado();
+
+// Restaurar scroll após reload
+var savedScroll = sessionStorage.getItem('kanban_scroll');
+if (savedScroll) {
+    sessionStorage.removeItem('kanban_scroll');
+    window.scrollTo(parseInt(savedScroll), 0);
+}
+
+// Indicador visual de auto-refresh
+var refreshDot = document.createElement('span');
+refreshDot.id = 'refresh-dot';
+refreshDot.title = 'Auto-refresh ativo (30s)';
+refreshDot.style.cssText = 'width:8px;height:8px;background:#4ade80;border-radius:50%;display:inline-block;margin-left:8px;animation:pulse 2s infinite';
+document.getElementById('totalCards').appendChild(refreshDot);
+var style = document.createElement('style');
+style.textContent = '@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}';
+document.head.appendChild(style);
 
 function toast(msg, erro = false) {
     const el = document.getElementById('toast');
@@ -291,10 +332,13 @@ document.querySelectorAll('.kanban-lista').forEach(lista => {
             .then(data => {
                 if (data.ok) {
                     card.dataset.status = novoStatus;
-                    toast('✓ Status atualizado para "' + novoStatus.replace('_', ' ') + '"');
+                    // Atualiza o token no card se o servidor gerou um novo
+                    if (data.token) card.dataset.token = data.token;
+                    // Atualiza o hash local para nao recarregar logo apos o drag
+                    hashAtual = null;
+                    toast('Status atualizado: ' + novoStatus.replace('_', ' '));
                 } else {
                     toast('Erro ao salvar.', true);
-                    // Reverter: move o card de volta
                     evt.from.appendChild(card);
                 }
             })

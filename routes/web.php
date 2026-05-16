@@ -37,6 +37,7 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico'])->gr
 
     // Kanban
     Route::get('/kanban',                        [KanbanController::class, 'index'])->name('kanban');
+    Route::get('/kanban/estado',                 [KanbanController::class, 'estado'])->name('kanban.estado');
     Route::patch('/kanban/{orcamento}/status',   [KanbanController::class, 'updateStatus'])->name('kanban.status');
     Route::post('/kanban/{orcamento}/arquivar',  [KanbanController::class, 'arquivar'])->name('kanban.arquivar');
 
