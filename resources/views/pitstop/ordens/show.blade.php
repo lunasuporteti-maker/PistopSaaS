@@ -17,7 +17,11 @@
             <button class="btn btn-success" data-toggle="modal" data-target="#modalFinalizar">
                 <i class="fas fa-check-double mr-1"></i> Finalizar OS
             </button>
+            @endif
             @can('acima_de_mecanico')
+            <a href="{{ route('ordens.edit', $ordem) }}" class="btn btn-secondary">
+                <i class="fas fa-edit mr-1"></i> Editar
+            </a>
             <form method="POST" action="{{ route('ordens.destroy', $ordem) }}" class="d-inline"
                   onsubmit="return confirm('Excluir esta OS? O estoque das peças será devolvido.')">
                 @csrf @method('DELETE')
@@ -26,7 +30,6 @@
                 </button>
             </form>
             @endcan
-            @endif
             @if($ordem->cliente->telefone)
             @php
                 $srvHdr   = $ordem->orcamento?->servicos->pluck('servico_nome')->join(', ') ?? '';

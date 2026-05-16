@@ -57,11 +57,29 @@ class OrdemServicoWebController extends Controller
             ->with('show_whatsapp', true);
     }
 
+    public function edit(OrdemServico $ordem)
+    {
+        $this->authorize('acima_de_mecanico');
+        return view('pitstop.ordens.edit', compact('ordem'));
+    }
+
+    public function update(Request $request, OrdemServico $ordem)
+    {
+        $this->authorize('acima_de_mecanico');
+
+        $data = $request->validate([
+            'descricao'    => 'nullable|string',
+            'valor_total'  => 'required|numeric|min:0',
+            'garantia_dias'=> 'nullable|integer|min:0',
+        ]);
+
+        $ordem->update($data);
+        return redirect()->route('ordens.show', $ordem)->with('success', 'OS atualizada.');
+    }
+
     public function destroy(OrdemServico $ordem)
     {
-        if ($ordem->finalizado_em) {
-            return back()->with('error', 'OS finalizada não pode ser excluída.');
-        }
+        $this->authorize('acima_de_mecanico');
 
         foreach ($ordem->pecas as $item) {
             $item->peca->increment('quantidade', $item->quantidade);
