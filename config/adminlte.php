@@ -138,7 +138,7 @@ return [
     'usermenu_header_class' => 'bg-primary',
     'usermenu_image' => false,
     'usermenu_desc' => false,
-    'usermenu_profile_url' => '/perfil',
+    'usermenu_profile_url' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -428,6 +428,11 @@ return [
 
         ['header' => 'SISTEMA'],
 
+        [
+            'text' => 'Meu Perfil',
+            'url'  => 'perfil',
+            'icon' => 'fas fa-fw fa-user-circle',
+        ],
         [
             'text' => 'Usuários',
             'url'  => 'usuarios',
