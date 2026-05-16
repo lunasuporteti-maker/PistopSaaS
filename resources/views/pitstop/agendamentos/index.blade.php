@@ -96,6 +96,13 @@ $statusLabel = [
                     </td>
                     <td class="text-right pr-3" style="white-space:nowrap">
                         @if(in_array($ag->status, ['agendado', 'confirmado']))
+                        <form method="POST" action="{{ route('agendamentos.iniciar-servico', $ag) }}" class="d-inline">
+                            @csrf
+                            <button class="btn btn-xs btn-warning" title="Iniciar Serviço — cria orçamento na fila"
+                                    onclick="return confirm('Iniciar serviço? Um orçamento será criado na fila do Kanban.')">
+                                <i class="fas fa-play"></i>
+                            </button>
+                        </form>
                         <form method="POST" action="{{ route('agendamentos.concluir', $ag) }}" class="d-inline">
                             @csrf @method('PATCH')
                             <button class="btn btn-xs btn-outline-success" title="Marcar como Concluído">

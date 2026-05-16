@@ -25,6 +25,7 @@ class RestrictMecanico
         'agendamentos.update',
         'agendamentos.destroy',
         'agendamentos.concluir',
+        'agendamentos.iniciar-servico',
         'perfil.edit',
         'perfil.update',
         'perfil.update.dados',

@@ -17,6 +17,15 @@
             <button class="btn btn-success" data-toggle="modal" data-target="#modalFinalizar">
                 <i class="fas fa-check-double mr-1"></i> Finalizar OS
             </button>
+            @can('acima_de_mecanico')
+            <form method="POST" action="{{ route('ordens.destroy', $ordem) }}" class="d-inline"
+                  onsubmit="return confirm('Excluir esta OS? O estoque das peças será devolvido.')">
+                @csrf @method('DELETE')
+                <button class="btn btn-outline-danger" title="Excluir OS">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </form>
+            @endcan
             @endif
             @if($ordem->cliente->telefone)
             @php

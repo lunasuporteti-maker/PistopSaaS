@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Agendamento;
 use App\Models\Cliente;
+use App\Models\Orcamento;
 use App\Models\Veiculo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class AgendamentoWebController extends Controller
@@ -29,6 +31,29 @@ class AgendamentoWebController extends Controller
     {
         $agendamento->update(['status' => 'realizado']);
         return back()->with('success', 'Agendamento marcado como concluído.');
+    }
+
+    public function iniciarServico(Agendamento $agendamento)
+    {
+        if (! $agendamento->veiculo_id) {
+            return back()->with('error', 'O agendamento precisa ter um veículo associado para iniciar o serviço.');
+        }
+
+        $orcamento = Orcamento::create([
+            'cliente_id'     => $agendamento->cliente_id,
+            'veiculo_id'     => $agendamento->veiculo_id,
+            'status'         => 'aprovado',
+            'valor_total'    => 0,
+            'queixa_cliente' => $agendamento->servico,
+            'observacao'     => $agendamento->observacao,
+            'aprovado_em'    => now(),
+            'token_publico'  => Str::random(48),
+        ]);
+
+        $agendamento->update(['status' => 'realizado']);
+
+        return redirect()->route('orcamentos.show', $orcamento)
+            ->with('success', 'Serviço iniciado! Orçamento criado e adicionado à fila.');
     }
 
     public function create()

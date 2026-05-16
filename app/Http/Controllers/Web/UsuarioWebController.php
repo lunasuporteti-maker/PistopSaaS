@@ -12,9 +12,14 @@ class UsuarioWebController extends Controller
 {
     public function index(Request $request)
     {
-        $this->authorize('admin');
+        $this->authorize('gerente_ou_admin');
 
         $query = User::query();
+
+        // Gerente não vê usuários admin
+        if (auth()->user()->perfil === 'gerente') {
+            $query->where('perfil', '!=', 'admin');
+        }
 
         if ($busca = $request->get('busca')) {
             $query->where(function ($q) use ($busca) {
