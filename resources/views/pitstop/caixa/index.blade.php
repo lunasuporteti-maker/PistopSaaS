@@ -127,6 +127,8 @@
                             <th>Abertura</th>
                             <th>Fechamento</th>
                             <th>Diferença</th>
+                            <th>Aberto por</th>
+                            <th>Fechado por</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -145,6 +147,8 @@
                                 @else —
                                 @endif
                             </td>
+                            <td class="text-muted" style="font-size:.85rem">{{ $cx->abertoPor?->name ?? '—' }}</td>
+                            <td class="text-muted" style="font-size:.85rem">{{ $cx->fechadoPor?->name ?? '—' }}</td>
                             <td>
                                 <span class="badge badge-{{ $cx->status === 'aberto' ? 'success' : 'secondary' }}">
                                     {{ strtoupper($cx->status) }}
@@ -152,7 +156,7 @@
                             </td>
                         </tr>
                         @empty
-                        <tr><td colspan="5" class="text-center text-muted py-3">Nenhum caixa registrado.</td></tr>
+                        <tr><td colspan="7" class="text-center text-muted py-3">Nenhum caixa registrado.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

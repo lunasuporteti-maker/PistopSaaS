@@ -13,7 +13,7 @@ class CaixaWebController extends Controller
     public function index()
     {
         $caixaHoje    = Caixa::caixaAberto();
-        $ultimosCaixas = Caixa::orderBy('data', 'desc')->limit(10)->get();
+        $ultimosCaixas = Caixa::with(['abertoPor', 'fechadoPor'])->orderBy('data', 'desc')->limit(10)->get();
 
         $receitaHoje = 0;
         $saidaHoje   = 0;
@@ -38,9 +38,10 @@ class CaixaWebController extends Controller
         ]);
 
         Caixa::create(array_merge($data, [
-            'data'      => today(),
-            'status'    => 'aberto',
-            'aberto_em' => now(),
+            'data'               => today(),
+            'status'             => 'aberto',
+            'aberto_em'          => now(),
+            'aberto_por_user_id' => auth()->id(),
         ]));
 
         return back()->with('success', 'Caixa aberto com sucesso!');
@@ -58,8 +59,9 @@ class CaixaWebController extends Controller
         ]);
 
         $caixa->update(array_merge($data, [
-            'status'     => 'fechado',
-            'fechado_em' => now(),
+            'status'              => 'fechado',
+            'fechado_em'          => now(),
+            'fechado_por_user_id' => auth()->id(),
         ]));
 
         return back()->with('success', 'Caixa fechado com sucesso!');

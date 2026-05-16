@@ -13,6 +13,7 @@ class Caixa extends Model
         'tenant_id', 'data', 'saldo_inicial', 'saldo_final',
         'observacao_abertura', 'observacao_fechamento',
         'status', 'aberto_em', 'fechado_em',
+        'aberto_por_user_id', 'fechado_por_user_id',
     ];
 
     protected $casts = [
@@ -22,6 +23,16 @@ class Caixa extends Model
         'aberto_em'     => 'datetime',
         'fechado_em'    => 'datetime',
     ];
+
+    public function abertoPor()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'aberto_por_user_id');
+    }
+
+    public function fechadoPor()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'fechado_por_user_id');
+    }
 
     public static function caixaAberto(): ?static
     {
