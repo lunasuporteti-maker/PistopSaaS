@@ -14,9 +14,9 @@ return [
     |
     */
 
-    'title' => 'PitStop',
+    'title' => 'AutoFix',
     'title_prefix' => '',
-    'title_postfix' => ' | PitStop',
+    'title_postfix' => ' | AutoFix',
 
     /*
     |--------------------------------------------------------------------------
@@ -63,12 +63,12 @@ return [
     |
     */
 
-    'logo' => '<b>Pit</b>Stop',
-    'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
-    'logo_img_class' => 'brand-image img-circle elevation-3',
+    'logo' => '<img src="/images/logo_autofix.png" alt="AutoFix" style="height:32px;max-width:130px;object-fit:contain;">',
+    'logo_img' => 'images/logo_autofix.png',
+    'logo_img_class' => 'brand-image elevation-3',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
-    'logo_img_alt' => 'PitStop Logo',
+    'logo_img_alt' => 'AutoFix Logo',
 
     /*
     |--------------------------------------------------------------------------
@@ -84,13 +84,13 @@ return [
     */
 
     'auth_logo' => [
-        'enabled' => false,
+        'enabled' => true,
         'img' => [
-            'path' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
-            'alt' => 'Auth Logo',
+            'path' => 'images/logo_autofix.png',
+            'alt' => 'AutoFix',
             'class' => '',
-            'width' => 50,
-            'height' => 50,
+            'width' => 160,
+            'height' => 60,
         ],
     ],
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>PitStop — Login</title>
+    <title>AutoFix — Login</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -55,25 +55,13 @@
             text-align: center;
             margin-bottom: 28px;
         }
-        .login-brand .logo-icon {
-            width: 64px; height: 64px;
-            background: linear-gradient(135deg, #c0392b, #e74c3c);
-            border-radius: 16px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            color: #fff;
+        .login-brand .logo-img {
+            max-width: 180px;
+            max-height: 80px;
+            object-fit: contain;
             margin-bottom: 12px;
-            box-shadow: 0 8px 24px rgba(192,57,43,.4);
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,.4));
         }
-        .login-brand h1 {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #fff;
-            letter-spacing: 2px;
-        }
-        .login-brand h1 span { color: #e74c3c; }
         .login-brand p {
             color: rgba(255,255,255,.45);
             font-size: .82rem;
@@ -195,10 +183,7 @@
 
     {{-- Marca --}}
     <div class="login-brand">
-        <div class="logo-icon">
-            <i class="fas fa-wrench"></i>
-        </div>
-        <h1>Pit<span>Stop</span></h1>
+        <img src="/images/logo_autofix.png" alt="AutoFix" class="logo-img">
         <p>Sistema de Gestão para Oficinas Mecânicas</p>
     </div>
 
@@ -253,7 +238,7 @@
 
     {{-- Footer --}}
     <div class="login-footer">
-        <p>Desenvolvido por <a href="#">IAQueAtende</a> · Jonathan Luna</p>
+        <p>Desenvolvido por <a href="#">IAQueAtende</a></p>
         <p style="margin-top:4px">(81) 99811-4585</p>
     </div>
 
