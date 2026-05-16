@@ -99,6 +99,8 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico'])->gr
     Route::get('/ordens/{ordem}/pdf',         [PdfController::class, 'ordemServico'])->name('ordens.pdf');
     Route::get('/lembretes',              [LembreteWebController::class, 'index'])->name('lembretes.index');
     Route::post('/lembretes',             [LembreteWebController::class, 'store'])->name('lembretes.store');
+    Route::get('/lembretes/{lembrete}/edit', [LembreteWebController::class, 'edit'])->name('lembretes.edit');
+    Route::put('/lembretes/{lembrete}',   [LembreteWebController::class, 'update'])->name('lembretes.update.full');
     Route::patch('/lembretes/{lembrete}', [LembreteWebController::class, 'update'])->name('lembretes.update');
     Route::delete('/lembretes/{lembrete}',[LembreteWebController::class, 'destroy'])->name('lembretes.destroy');
 

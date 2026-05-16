@@ -9,6 +9,7 @@ body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #1a1a2e; ba
 .header h1 { font-size: 20px; font-weight: 700; }
 .header .os-num { font-size: 26px; font-weight: 800; color: #e74c3c; }
 .header .empresa-info { text-align: right; font-size: 9.5px; line-height: 1.6; }
+.header-logo { height: 52px; width: auto; margin-right: 14px; border-radius: 4px; background: #fff; padding: 3px; }
 .body { padding: 16px 20px; }
 .row2 { display: flex; gap: 14px; }
 .col { flex: 1; }
@@ -32,13 +33,16 @@ tr:nth-child(even) td { background: #fafafa; }
 <body>
 
 <div class="header">
-    <div>
+    <div style="display:flex;align-items:center">
+        <img src="{{ 'file://' . public_path('images/logo_autofix.png') }}" class="header-logo" alt="Logo">
+        <div>
         <h1>{{ $empresa['nome'] }}</h1>
         <div style="font-size:9px;opacity:.8;margin-top:2px">{{ $empresa['endereco'] }}</div>
         <div style="margin-top:6px">
             <span style="font-size:10px;opacity:.7">Ordem de Serviço</span>
             <div class="os-num">{{ $ordem->numero_os }}</div>
         </div>
+        </div>{{-- /inner --}}
     </div>
     <div class="empresa-info">
         <div><strong>CNPJ:</strong> {{ $empresa['cnpj'] }}</div>

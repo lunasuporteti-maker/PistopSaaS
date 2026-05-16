@@ -136,19 +136,22 @@
     }, 1000);
 
     function verificarStatus() {
-        fetch(window.location.href, { headers: { 'X-Requested-With': 'fetch' } })
+        // cache-busting via timestamp — evita que mobile sirva versao antiga
+        var url = window.location.href.split('?')[0] + '?_t=' + Date.now();
+        fetch(url, {
+            cache: 'no-store',
+            headers: { 'X-Requested-With': 'fetch', 'Cache-Control': 'no-cache' }
+        })
             .then(function (r) { return r.text(); })
             .then(function (html) {
-                // Extrai o status do HTML retornado
                 var match = html.match(/data-status="([^"]+)"/);
                 if (match && match[1] !== statusAtual) {
-                    // Status mudou — recarrega a página com suavidade
                     document.body.style.opacity = '0';
                     document.body.style.transition = 'opacity .4s';
                     setTimeout(function () { location.reload(); }, 400);
                 }
             })
-            .catch(function () {}); // falha silenciosa
+            .catch(function () {});
     }
 })();
 </script>

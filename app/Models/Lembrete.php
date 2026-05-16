@@ -12,7 +12,7 @@ class Lembrete extends Model
     protected $fillable = [
         'tenant_id', 'cliente_id', 'veiculo_id', 'os_id',
         'titulo', 'servico_nome', 'observacao',
-        'data_servico', 'data_lembrete', 'status',
+        'data_servico', 'data_lembrete', 'hora_lembrete', 'status',
     ];
 
     protected $casts = [

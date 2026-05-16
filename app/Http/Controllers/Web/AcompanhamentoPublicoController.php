@@ -27,6 +27,10 @@ class AcompanhamentoPublicoController extends Controller
         $ordem   = ['orcamento', 'aprovado', 'em_servico', 'concluido'];
         $posAtual = array_search($orcamento->status, $ordem);
 
-        return view('pitstop.acompanhamento', compact('orcamento', 'etapa', 'etapas', 'ordem', 'posAtual'));
+        return response()
+            ->view('pitstop.acompanhamento', compact('orcamento', 'etapa', 'etapas', 'ordem', 'posAtual'))
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 }

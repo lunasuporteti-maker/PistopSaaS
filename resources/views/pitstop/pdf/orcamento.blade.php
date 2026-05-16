@@ -9,6 +9,7 @@ body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #1a1a2e; ba
 .header h1 { font-size: 22px; font-weight: 700; letter-spacing: 1px; }
 .header .sub { font-size: 10px; opacity: .85; margin-top: 2px; }
 .header .empresa-info { text-align: right; font-size: 9.5px; line-height: 1.5; }
+.header-logo { height: 52px; width: auto; margin-right: 14px; border-radius: 4px; background: #fff; padding: 3px; }
 .doc-title { background: #f8f9fa; border-left: 4px solid #c0392b; padding: 8px 20px; margin: 0; }
 .doc-title h2 { font-size: 14px; color: #c0392b; font-weight: 700; }
 .doc-title .doc-info { font-size: 10px; color: #666; }
@@ -39,9 +40,12 @@ tr:nth-child(even) td { background: #fafafa; }
 <body>
 
 <div class="header">
-    <div>
-        <h1>{{ $empresa['nome'] }}</h1>
-        <div class="sub">{{ $empresa['endereco'] }}</div>
+    <div style="display:flex;align-items:center">
+        <img src="{{ 'file://' . public_path('images/logo_autofix.png') }}" class="header-logo" alt="Logo">
+        <div>
+            <h1>{{ $empresa['nome'] }}</h1>
+            <div class="sub">{{ $empresa['endereco'] }}</div>
+        </div>
     </div>
     <div class="empresa-info">
         <div><strong>CNPJ:</strong> {{ $empresa['cnpj'] }}</div>
