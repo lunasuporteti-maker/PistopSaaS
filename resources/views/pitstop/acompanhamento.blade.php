@@ -68,7 +68,7 @@
     </div>
 
     {{-- Status atual --}}
-    <div class="status-card" style="border-color: {{ $etapa['cor'] }}40">
+    <div class="status-card" data-status="{{ $orcamento->status }}" style="border-color: {{ $etapa['cor'] }}40">
         <div class="status-icon">{{ $etapa['icone'] }}</div>
         <div class="status-title">{{ $etapa['titulo'] }}</div>
         <div class="status-desc">{{ $etapa['desc'] }}</div>
@@ -111,8 +111,46 @@
     <div class="footer-txt">
         <p>AutoFix · (84) 99672-2453 · AutoFix.atendimento@gmail.com</p>
         <p style="margin-top:4px">Sistema desenvolvido por IAQueAtende</p>
+        <p id="refresh-timer" style="margin-top:8px;color:rgba(255,255,255,.2);font-size:.7rem">
+            Atualizando em <span id="countdown">30</span>s
+        </p>
     </div>
 
 </div>
+
+<script>
+(function () {
+    var statusAtual = '{{ $orcamento->status }}';
+    var intervalo   = 30; // segundos
+    var conta       = intervalo;
+    var el          = document.getElementById('countdown');
+
+    // Contagem regressiva visual
+    var timer = setInterval(function () {
+        conta--;
+        if (el) el.textContent = conta;
+        if (conta <= 0) {
+            conta = intervalo;
+            verificarStatus();
+        }
+    }, 1000);
+
+    function verificarStatus() {
+        fetch(window.location.href, { headers: { 'X-Requested-With': 'fetch' } })
+            .then(function (r) { return r.text(); })
+            .then(function (html) {
+                // Extrai o status do HTML retornado
+                var match = html.match(/data-status="([^"]+)"/);
+                if (match && match[1] !== statusAtual) {
+                    // Status mudou — recarrega a página com suavidade
+                    document.body.style.opacity = '0';
+                    document.body.style.transition = 'opacity .4s';
+                    setTimeout(function () { location.reload(); }, 400);
+                }
+            })
+            .catch(function () {}); // falha silenciosa
+    }
+})();
+</script>
 </body>
 </html>
