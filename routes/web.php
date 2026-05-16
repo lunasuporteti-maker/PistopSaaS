@@ -113,9 +113,12 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico'])->gr
 
     // Relatórios
     Route::prefix('relatorios')->name('relatorios.')->group(function () {
-        Route::get('/financeiro',    [RelatorioWebController::class, 'financeiro'])->name('financeiro');
-        Route::get('/fluxo-caixa',   [RelatorioWebController::class, 'fluxoCaixa'])->name('fluxo-caixa');
-        Route::get('/lucro-servico', [RelatorioWebController::class, 'lucroServico'])->name('lucro-servico');
+        Route::get('/financeiro',            [RelatorioWebController::class, 'financeiro'])->name('financeiro');
+        Route::get('/financeiro/export',     [RelatorioWebController::class, 'exportFinanceiro'])->name('financeiro.export');
+        Route::get('/fluxo-caixa',           [RelatorioWebController::class, 'fluxoCaixa'])->name('fluxo-caixa');
+        Route::get('/fluxo-caixa/export',    [RelatorioWebController::class, 'exportFluxoCaixa'])->name('fluxo-caixa.export');
+        Route::get('/lucro-servico',         [RelatorioWebController::class, 'lucroServico'])->name('lucro-servico');
+        Route::get('/lucro-servico/export',  [RelatorioWebController::class, 'exportLucroServico'])->name('lucro-servico.export');
     });
 
     // Usuários

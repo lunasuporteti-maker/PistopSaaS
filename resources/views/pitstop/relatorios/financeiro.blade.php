@@ -18,6 +18,10 @@
                 <input type="date" name="fim" class="form-control form-control-sm" value="{{ $fim->toDateString() }}">
             </div>
             <button class="btn btn-sm btn-danger"><i class="fas fa-search mr-1"></i>Gerar</button>
+            <a href="{{ route('relatorios.financeiro.export', ['inicio' => $inicio->toDateString(), 'fim' => $fim->toDateString()]) }}"
+               class="btn btn-sm btn-success ml-2">
+                <i class="fas fa-file-excel mr-1"></i>Excel
+            </a>
         </form>
     </div>
 </div>

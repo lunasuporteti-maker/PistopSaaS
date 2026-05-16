@@ -7,7 +7,7 @@
 
 @section('content')
 <div class="card">
-    <div class="card-header">
+    <div class="card-header d-flex align-items-center" style="gap:12px">
         <form method="GET" class="form-inline">
             <label class="mr-2">Últimos:</label>
             <select name="meses" class="form-control mr-2" onchange="this.form.submit()">
@@ -16,6 +16,10 @@
                 @endforeach
             </select>
         </form>
+        <a href="{{ route('relatorios.fluxo-caixa.export', ['meses' => $meses]) }}"
+           class="btn btn-sm btn-success">
+            <i class="fas fa-file-excel mr-1"></i>Excel
+        </a>
     </div>
     <div class="card-body p-0">
         <table class="table table-sm mb-0">
