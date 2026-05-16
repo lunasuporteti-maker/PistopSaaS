@@ -7,6 +7,7 @@ use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -33,9 +34,9 @@ class LoginRequest extends FormRequest
 
         $username = trim($this->string('username'));
 
-        // Busca o usuário pelo nome (case-insensitive, ignora tenant no login)
+        // Busca pelo campo username (case-insensitive, ignora tenant no login)
         $user = User::withoutGlobalScope('tenant')
-            ->whereRaw('LOWER(name) = ?', [mb_strtolower($username)])
+            ->whereRaw('LOWER(username) = ?', [mb_strtolower($username)])
             ->first();
 
         if ($user && $user->estaBloqueado()) {
@@ -45,8 +46,7 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        // Autentica usando o email real do usuário encontrado
-        if (! $user || ! Auth::attempt(['email' => $user->email, 'password' => $this->string('password')], $this->boolean('remember'))) {
+        if (! $user || ! Hash::check($this->string('password'), $user->password)) {
             RateLimiter::hit($this->throttleKey(), 1800);
 
             if ($user) {
@@ -57,6 +57,14 @@ class LoginRequest extends FormRequest
                 'username' => 'Usuário ou senha incorretos.' . ($user ? " Tentativa {$user->fresh()->tentativas_login}/3." : ''),
             ]);
         }
+
+        if (! $user->ativo) {
+            throw ValidationException::withMessages([
+                'username' => 'Esta conta está desativada. Contate o Administrador.',
+            ]);
+        }
+
+        Auth::login($user, $this->boolean('remember'));
 
         if ($user) {
             $user->resetarBloqueio();

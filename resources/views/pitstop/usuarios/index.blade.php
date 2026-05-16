@@ -46,8 +46,8 @@
         <table class="table table-hover table-striped mb-0">
             <thead class="bg-gradient-dark text-white">
                 <tr>
-                    <th class="pl-3">Usuário</th>
-                    <th>E-mail</th>
+                    <th class="pl-3">Nome</th>
+                    <th>Login</th>
                     <th>Perfil</th>
                     <th>Status</th>
                     <th>Tentativas</th>
@@ -70,7 +70,7 @@
                             </div>
                         </div>
                     </td>
-                    <td class="text-muted small">{{ $u->email }}</td>
+                    <td class="text-muted small"><i class="fas fa-at mr-1 text-muted"></i>{{ $u->username }}</td>
                     <td>
                         @php $badge = ['admin'=>['danger','Administrador'],'gerente'=>['warning','Gerente'],'operador'=>['info','Operador'],'mecanico'=>['success','Mecânico']] @endphp
                         <span class="badge badge-{{ $badge[$u->perfil][0] ?? 'secondary' }} px-2 py-1">

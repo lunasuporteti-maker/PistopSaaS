@@ -45,13 +45,31 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="font-weight-600 text-dark">E-mail <span class="text-danger">*</span></label>
+                        <label class="font-weight-600 text-dark">Login (usuário de acesso) <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-at"></i></span>
+                            </div>
+                            <input type="text" name="username"
+                                   class="form-control form-control-lg @error('username') is-invalid @enderror"
+                                   value="{{ old('username', $usuario->username) }}"
+                                   placeholder="login_do_usuario"
+                                   maxlength="50"
+                                   data-no-upper
+                                   required autocomplete="off">
+                            @error('username')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <small class="text-muted">Sem espaços. Letras, números, hífen e underscore. Ex: joao_silva</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="font-weight-600 text-dark">E-mail <small class="font-weight-normal text-muted">(opcional)</small></label>
                         <input type="email" name="email"
                                class="form-control form-control-lg @error('email') is-invalid @enderror"
                                value="{{ old('email', $usuario->email) }}"
-                               placeholder="usuario@email.com"
+                               placeholder="usuario@email.com (opcional)"
                                maxlength="120"
-                               required autocomplete="off">
+                               autocomplete="off">
                         @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
 

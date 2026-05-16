@@ -20,8 +20,10 @@
             </div>
             <div class="card-body">
                 <dl class="row mb-0">
-                    <dt class="col-sm-4 text-muted">Usuário</dt>
+                    <dt class="col-sm-4 text-muted">Nome</dt>
                     <dd class="col-sm-8 font-weight-bold">{{ $usuario->name }}</dd>
+                    <dt class="col-sm-4 text-muted">Login</dt>
+                    <dd class="col-sm-8"><code>{{ $usuario->username }}</code></dd>
                     <dt class="col-sm-4 text-muted">Perfil</dt>
                     <dd class="col-sm-8">
                         @php $badge = ['admin'=>['danger','Administrador'],'gerente'=>['warning','Gerente'],'operador'=>['info','Operador'],'mecanico'=>['success','Mecânico']] @endphp

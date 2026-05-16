@@ -17,12 +17,14 @@ class User extends Authenticatable
     protected $fillable = [
         'tenant_id',
         'name',
+        'username',
         'email',
         'password',
         'perfil',
         'ativo',
         'tentativas_login',
         'bloqueado_ate',
+        'session_token',
     ];
 
     protected $hidden = ['password', 'remember_token'];

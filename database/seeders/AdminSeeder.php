@@ -26,16 +26,22 @@ class AdminSeeder extends Seeder
         );
 
         // Bypassa o global scope pois ainda não há tenant no contexto do seeder
-        User::withoutGlobalScope('tenant')->firstOrCreate(
+        $admin = User::withoutGlobalScope('tenant')->firstOrCreate(
             ['email' => $email],
             [
                 'tenant_id' => $tenant->id,
                 'name'      => 'Administrador',
+                'username'  => 'administrador',
                 'email'     => $email,
                 'password'  => Hash::make($password),
                 'perfil'    => 'admin',
                 'ativo'     => true,
             ]
         );
+
+        // Garante que o username existe mesmo para admin já criado sem ele
+        if (empty($admin->username)) {
+            $admin->update(['username' => 'administrador']);
+        }
     }
 }
