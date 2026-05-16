@@ -13,25 +13,46 @@
 <div class="row justify-content-center">
     <div class="col-md-6">
 
-        {{-- Dados do usuário --}}
+        {{-- Editar dados da conta --}}
         <div class="card card-outline card-danger shadow-sm mb-4">
             <div class="card-header">
                 <h5 class="card-title mb-0"><i class="fas fa-id-card mr-2"></i>Dados da Conta</h5>
             </div>
             <div class="card-body">
-                <dl class="row mb-0">
-                    <dt class="col-sm-4 text-muted">Nome</dt>
-                    <dd class="col-sm-8 font-weight-bold">{{ $usuario->name }}</dd>
-                    <dt class="col-sm-4 text-muted">Login</dt>
-                    <dd class="col-sm-8"><code>{{ $usuario->username }}</code></dd>
-                    <dt class="col-sm-4 text-muted">Perfil</dt>
-                    <dd class="col-sm-8">
+                <form method="POST" action="{{ route('perfil.update.dados') }}">
+                    @csrf @method('PATCH')
+                    <div class="form-group">
+                        <label class="font-weight-600">Nome Completo <span class="text-danger">*</span></label>
+                        <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
+                               value="{{ old('name', $usuario->name) }}" required maxlength="100">
+                        @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-600">Login (username) <span class="text-danger">*</span></label>
+                        <input type="text" name="username" class="form-control @error('username') is-invalid @enderror"
+                               value="{{ old('username', $usuario->username) }}" required maxlength="50">
+                        @error('username')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-600">E-mail</label>
+                        <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
+                               value="{{ old('email', $usuario->email) }}" maxlength="100">
+                        @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="form-group mb-0">
+                        <label class="text-muted">Perfil</label>
                         @php $badge = ['admin'=>['danger','Administrador'],'gerente'=>['warning','Gerente'],'operador'=>['info','Operador'],'mecanico'=>['success','Mecânico']] @endphp
-                        <span class="badge badge-{{ $badge[$usuario->perfil][0] ?? 'secondary' }} px-2">
-                            {{ $badge[$usuario->perfil][1] ?? ucfirst($usuario->perfil) }}
-                        </span>
-                    </dd>
-                </dl>
+                        <div>
+                            <span class="badge badge-{{ $badge[$usuario->perfil][0] ?? 'secondary' }} px-2">
+                                {{ $badge[$usuario->perfil][1] ?? ucfirst($usuario->perfil) }}
+                            </span>
+                        </div>
+                    </div>
+                    <hr>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-save mr-1"></i> Salvar Dados
+                    </button>
+                </form>
             </div>
         </div>
 

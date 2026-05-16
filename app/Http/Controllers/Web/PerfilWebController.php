@@ -15,6 +15,23 @@ class PerfilWebController extends Controller
         return view('pitstop.perfil.edit', ['usuario' => auth()->user()]);
     }
 
+    public function updateDados(Request $request)
+    {
+        $user = auth()->user();
+
+        $data = $request->validate([
+            'name'     => 'required|string|max:100',
+            'username' => 'required|string|max:50|unique:users,username,' . $user->id,
+            'email'    => 'nullable|email|max:100|unique:users,email,' . $user->id,
+        ], [
+            'username.unique' => 'Este login já está em uso.',
+            'email.unique'    => 'Este e-mail já está em uso.',
+        ]);
+
+        $user->update($data);
+        return back()->with('success', 'Dados atualizados com sucesso!');
+    }
+
     public function update(Request $request)
     {
         $user = auth()->user();

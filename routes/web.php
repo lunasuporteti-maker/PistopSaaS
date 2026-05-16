@@ -33,8 +33,9 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico'])->gr
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Perfil do usuário logado
-    Route::get('/perfil',  [PerfilWebController::class, 'edit'])->name('perfil.edit');
-    Route::put('/perfil',  [PerfilWebController::class, 'update'])->name('perfil.update');
+    Route::get('/perfil',    [PerfilWebController::class, 'edit'])->name('perfil.edit');
+    Route::patch('/perfil',  [PerfilWebController::class, 'updateDados'])->name('perfil.update.dados');
+    Route::put('/perfil',    [PerfilWebController::class, 'update'])->name('perfil.update');
 
     // Kanban
     Route::get('/kanban',                        [KanbanController::class, 'index'])->name('kanban');
