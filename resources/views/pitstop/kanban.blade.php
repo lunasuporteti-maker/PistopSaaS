@@ -92,12 +92,10 @@
         }
         .btn-ver:hover { background: rgba(255,255,255,0.2); color: #fff; text-decoration: none; }
         .btn-arquivar {
-            background: rgba(250,204,21,.15); color: #fbbf24; border: 1px solid rgba(250,204,21,.3);
-            border-radius: 6px; padding: 4px 10px; font-size: .75rem; font-weight: 600;
-            cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 4px;
+            background: rgba(100,116,139,.2); color: #64748b; border: none; border-radius: 6px;
+            padding: 4px 8px; font-size: .75rem; cursor: pointer; transition: all .2s;
         }
-        .btn-arquivar:hover { background: rgba(250,204,21,.3); color: #fde68a; }
-        .card-actions-bottom { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,.07); }
+        .btn-arquivar:hover { background: rgba(100,116,139,.4); color: #e2e8f0; }
 
         /* Toast de feedback */
         #toast {
@@ -195,14 +193,12 @@
                         <i class="fas fa-share-alt"></i>
                     </a>
                     @endif
-                </div>
-                @if($status === 'concluido')
-                <div class="card-actions-bottom">
+                    @if($status === 'concluido')
                     <button class="btn-arquivar" data-id="{{ $orc->id }}" title="Arquivar e remover do painel">
-                        <i class="fas fa-archive"></i> Arquivar
+                        <i class="fas fa-archive"></i>
                     </button>
+                    @endif
                 </div>
-                @endif
             </div>
             @empty
             <div class="empty-col"><i class="fas fa-inbox mb-1 d-block" style="font-size:1.5rem"></i>Vazio</div>
