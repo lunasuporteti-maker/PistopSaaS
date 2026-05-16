@@ -28,7 +28,7 @@
                     <label class="font-weight-600">Nome da Oficina <span class="text-danger">*</span></label>
                     <input type="text" name="nome_oficina"
                            class="form-control @error('nome_oficina') is-invalid @enderror"
-                           value="{{ old('nome_oficina', $configs['nome_oficina']->valor ?? 'PitStop') }}"
+                           value="{{ old('nome_oficina', $configs['nome_oficina']?->valor ?? 'PitStop') }}"
                            maxlength="120"
                            data-uppercase
                            required>
@@ -38,7 +38,7 @@
                     <label class="font-weight-600">Telefone / WhatsApp</label>
                     <input type="text" name="telefone_oficina"
                            class="form-control"
-                           value="{{ old('telefone_oficina', $configs['telefone_oficina']->valor ?? '') }}"
+                           value="{{ old('telefone_oficina', $configs['telefone_oficina']?->valor ?? '') }}"
                            placeholder="(99) 99999-9999"
                            maxlength="20"
                            data-phone>
@@ -48,7 +48,7 @@
                     <label class="font-weight-600">Endereço</label>
                     <input type="text" name="endereco_oficina"
                            class="form-control"
-                           value="{{ old('endereco_oficina', $configs['endereco_oficina']->valor ?? '') }}"
+                           value="{{ old('endereco_oficina', $configs['endereco_oficina']?->valor ?? '') }}"
                            placeholder="Rua, número, bairro, cidade"
                            maxlength="200"
                            data-uppercase>
@@ -76,7 +76,7 @@
                     <label class="font-weight-600">Link do Google Meu Negócio / Maps</label>
                     <input type="url" name="google_review_link"
                            class="form-control @error('google_review_link') is-invalid @enderror"
-                           value="{{ old('google_review_link', $configs['google_review_link']->valor ?? '') }}"
+                           value="{{ old('google_review_link', $configs['google_review_link']?->valor ?? '') }}"
                            placeholder="https://g.page/r/XXXXXX/review">
                     <small class="text-muted">
                         Cole aqui o link de avaliação do seu perfil no Google.<br>
@@ -87,14 +87,14 @@
                     @error('google_review_link')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
-                @if(!empty($configs['google_review_link']->valor))
+                @if(!empty($configs['google_review_link']?->valor))
                 <div class="alert alert-success py-2 mb-3">
                     <i class="fas fa-check-circle mr-2"></i>
                     Link configurado! Será enviado junto com a mensagem de conclusão da OS.
                     <br>
                     <small>
-                        <a href="{{ $configs['google_review_link']->valor }}" target="_blank" class="text-success font-weight-bold">
-                            {{ Str::limit($configs['google_review_link']->valor, 60) }}
+                        <a href="{{ $configs['google_review_link']?->valor }}" target="_blank" class="text-success font-weight-bold">
+                            {{ Str::limit($configs['google_review_link']?->valor, 60) }}
                         </a>
                     </small>
                 </div>
@@ -111,7 +111,7 @@
                               class="form-control @error('mensagem_review') is-invalid @enderror"
                               rows="3"
                               maxlength="500"
-                              placeholder="Mensagem enviada pelo WhatsApp pedindo avaliação">{{ old('mensagem_review', $configs['mensagem_review']->valor ?? '') }}</textarea>
+                              placeholder="Mensagem enviada pelo WhatsApp pedindo avaliação">{{ old('mensagem_review', $configs['mensagem_review']?->valor ?? '') }}</textarea>
                     <small class="text-muted">Será enviada junto com o link do Google ao finalizar a OS</small>
                     @error('mensagem_review')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
@@ -122,9 +122,9 @@
 
 {{-- Preview da mensagem WhatsApp --}}
 @php
-    $reviewLink  = $configs['google_review_link']->valor ?? '';
-    $msgReview   = $configs['mensagem_review']->valor ?? 'Ficamos felizes em atender você! Poderia nos avaliar no Google?';
-    $nomeOficina = $configs['nome_oficina']->valor ?? 'PitStop';
+    $reviewLink  = $configs['google_review_link']?->valor ?? '';
+    $msgReview   = $configs['mensagem_review']?->valor ?? 'Ficamos felizes em atender você! Poderia nos avaliar no Google?';
+    $nomeOficina = $configs['nome_oficina']?->valor ?? 'PitStop';
 @endphp
 <div class="card shadow-sm">
     <div class="card-header">
