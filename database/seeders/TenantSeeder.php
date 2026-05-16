@@ -9,12 +9,10 @@ class TenantSeeder extends Seeder
 {
     public function run(): void
     {
-        // Tenant demo para desenvolvimento local
         Tenant::firstOrCreate(
-            ['slug' => 'demo'],
+            ['slug' => env('DEFAULT_TENANT_SLUG', 'autofix')],
             [
-                'nome'  => 'PitStop Demo',
-                'slug'  => 'demo',
+                'nome'  => env('APP_NAME', 'AutoFix'),
                 'plano' => 'basico',
                 'ativo' => true,
             ]
