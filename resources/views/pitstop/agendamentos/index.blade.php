@@ -7,7 +7,13 @@
         <h1 class="m-0 font-weight-bold">
             <i class="fas fa-calendar-alt mr-2 text-danger"></i>Agendamentos
         </h1>
-        <small class="text-muted">{{ \Carbon\Carbon::parse($data)->format('d/m/Y') }}</small>
+        <small class="text-muted">
+            @if($dataInicio === $dataFim)
+                {{ \Carbon\Carbon::parse($dataInicio)->format('d/m/Y') }}
+            @else
+                {{ \Carbon\Carbon::parse($dataInicio)->format('d/m/Y') }} até {{ \Carbon\Carbon::parse($dataFim)->format('d/m/Y') }}
+            @endif
+        </small>
     </div>
     <a href="{{ route('agendamentos.create') }}" class="btn btn-danger btn-sm px-3">
         <i class="fas fa-plus mr-1"></i> Novo Agendamento
@@ -38,19 +44,15 @@ $statusLabel = [
 <div class="card shadow-sm">
     <div class="card-header py-2">
         <form method="GET" class="d-flex align-items-center flex-wrap" style="gap:8px">
-            <div class="input-group input-group-sm" style="max-width:180px">
+            <div class="input-group input-group-sm" style="max-width:160px">
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fas fa-calendar text-muted"></i></span>
                 </div>
-                <input type="date" name="data" class="form-control" value="{{ $data }}">
+                <input type="date" name="data_inicio" class="form-control" value="{{ $dataInicio }}">
             </div>
-            <div class="input-group input-group-sm" style="max-width:220px">
-                <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fas fa-search text-muted"></i></span>
-                </div>
-                <input type="text" name="search" class="form-control"
-                       placeholder="Cliente ou serviço..."
-                       value="{{ request('search') }}">
+            <span class="text-muted">até</span>
+            <div class="input-group input-group-sm" style="max-width:160px">
+                <input type="date" name="data_fim" class="form-control" value="{{ $dataFim }}">
             </div>
             <button class="btn btn-sm btn-danger">Filtrar</button>
             <a href="{{ route('agendamentos.index') }}" class="btn btn-sm btn-outline-secondary">Hoje</a>
@@ -65,7 +67,8 @@ $statusLabel = [
                     <th>Veículo</th>
                     <th>Serviço</th>
                     <th>Status</th>
-                    <th class="text-right pr-3" width="90">Ações</th>
+                    <th width="100">Criado em</th>
+                    <th class="text-right pr-3" width="110">Ações</th>
                 </tr>
             </thead>
             <tbody>
@@ -88,7 +91,18 @@ $statusLabel = [
                             {{ $statusLabel[$ag->status] ?? ucfirst($ag->status) }}
                         </span>
                     </td>
-                    <td class="text-right pr-3">
+                    <td class="text-muted" style="font-size:.8rem">
+                        {{ $ag->created_at->format('d/m H:i') }}
+                    </td>
+                    <td class="text-right pr-3" style="white-space:nowrap">
+                        @if(in_array($ag->status, ['agendado', 'confirmado']))
+                        <form method="POST" action="{{ route('agendamentos.concluir', $ag) }}" class="d-inline">
+                            @csrf @method('PATCH')
+                            <button class="btn btn-xs btn-outline-success" title="Marcar como Concluído">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </form>
+                        @endif
                         <a href="{{ route('agendamentos.edit', $ag) }}" class="btn btn-xs btn-outline-secondary" title="Editar">
                             <i class="fas fa-edit"></i>
                         </a>
@@ -101,7 +115,7 @@ $statusLabel = [
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="text-center text-muted py-5">
+                    <td colspan="7" class="text-center text-muted py-5">
                         <i class="fas fa-calendar-check fa-2x d-block mb-2 text-light"></i>
                         Nenhum agendamento nesta data.
                     </td>

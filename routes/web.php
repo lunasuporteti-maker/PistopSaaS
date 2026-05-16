@@ -65,6 +65,7 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico'])->gr
     // Operacional
     Route::get('/fila',       [OrdemServicoWebController::class, 'fila'])->name('fila');
     Route::resource('agendamentos',  AgendamentoWebController::class);
+    Route::patch('agendamentos/{agendamento}/concluir', [AgendamentoWebController::class, 'concluir'])->name('agendamentos.concluir');
     Route::resource('orcamentos',    OrcamentoWebController::class);
     Route::post('orcamentos/{orcamento}/aprovar',    [OrcamentoWebController::class, 'aprovar'])->name('orcamentos.aprovar');
     Route::post('orcamentos/{orcamento}/gerar-os',   [OrcamentoWebController::class, 'gerarOs'])->name('orcamentos.gerar-os');

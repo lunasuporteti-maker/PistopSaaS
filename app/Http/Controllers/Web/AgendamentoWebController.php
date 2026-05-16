@@ -13,14 +13,22 @@ class AgendamentoWebController extends Controller
 {
     public function index(Request $request)
     {
-        $data = $request->data ?? today()->toDateString();
+        $dataInicio = $request->data_inicio ?? today()->toDateString();
+        $dataFim    = $request->data_fim    ?? today()->toDateString();
 
         $agendamentos = Agendamento::with(['cliente', 'veiculo'])
-            ->whereDate('data_hora', $data)
+            ->whereDate('data_hora', '>=', $dataInicio)
+            ->whereDate('data_hora', '<=', $dataFim)
             ->orderBy('data_hora')
             ->get();
 
-        return view('pitstop.agendamentos.index', compact('agendamentos', 'data'));
+        return view('pitstop.agendamentos.index', compact('agendamentos', 'dataInicio', 'dataFim'));
+    }
+
+    public function concluir(Agendamento $agendamento)
+    {
+        $agendamento->update(['status' => 'realizado']);
+        return back()->with('success', 'Agendamento marcado como concluído.');
     }
 
     public function create()
