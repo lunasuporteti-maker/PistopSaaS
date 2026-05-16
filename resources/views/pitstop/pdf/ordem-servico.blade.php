@@ -152,7 +152,7 @@ tr:nth-child(even) td { background: #fafafa; }
 </div>
 
 <div class="footer">
-    <span>{{ $empresa['dev'] }}</span>
+    <span>Sistema desenvolvido por <a href="https://iaqueatende.com.br/" style="color:#c0392b;text-decoration:none">IAQueAtende</a></span>
     <span>{{ $empresa['nome'] }} · {{ $empresa['telefone'] }} · {{ $empresa['email'] }}</span>
 </div>
 
