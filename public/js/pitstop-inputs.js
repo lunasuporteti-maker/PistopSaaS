@@ -5,9 +5,31 @@
 (function () {
     'use strict';
 
-    function aplicarMascaras() {
+    // Seletores que NÃO devem virar maiúsculo
+    var SKIP_UPPER = 'input[type="password"], input[type="email"], input[type="url"], input[type="search"], input[type="hidden"], input[data-no-upper], textarea[data-no-upper]';
 
-        // ── Uppercase automático ──────────────────────────────────────────
+    function aplicarUppercaseGlobal() {
+        // Aplica uppercase em todos os inputs de texto e textareas,
+        // exceto os tipos que não devem ser maiúsculos
+        var seletor = 'input[type="text"], input:not([type]), textarea';
+        document.querySelectorAll(seletor).forEach(function (el) {
+            if (el._globalUpperBound) return;
+            if (el.matches(SKIP_UPPER)) return;
+            el._globalUpperBound = true;
+            el.style.textTransform = 'uppercase';
+            el.addEventListener('input', function () {
+                var pos = el.selectionStart;
+                el.value = el.value.toUpperCase();
+                try { el.setSelectionRange(pos, pos); } catch (e) {}
+            });
+            el.value = el.value.toUpperCase();
+        });
+    }
+
+    function aplicarMascaras() {
+        aplicarUppercaseGlobal();
+
+        // ── Uppercase explícito (data-uppercase — mantido por compatibilidade) ──
         document.querySelectorAll('[data-uppercase]').forEach(function (el) {
             if (el._upperBound) return;
             el._upperBound = true;
@@ -16,7 +38,6 @@
                 el.value = el.value.toUpperCase();
                 try { el.setSelectionRange(pos, pos); } catch (e) {}
             });
-            // aplica ao carregar
             el.value = el.value.toUpperCase();
         });
 

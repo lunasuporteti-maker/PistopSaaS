@@ -17,12 +17,17 @@ use App\Http\Controllers\Web\LembreteWebController;
 use App\Http\Controllers\Web\RelatorioWebController;
 use App\Http\Controllers\Web\UsuarioWebController;
 use App\Http\Controllers\Web\KanbanController;
+use App\Http\Controllers\Web\PerfilWebController;
 
 Route::get('/', fn() => redirect()->route('dashboard'));
 
 Route::middleware(['tenant', 'auth'])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Perfil do usuário logado
+    Route::get('/perfil',  [PerfilWebController::class, 'edit'])->name('perfil.edit');
+    Route::put('/perfil',  [PerfilWebController::class, 'update'])->name('perfil.update');
 
     // Kanban
     Route::get('/kanban',                      [KanbanController::class, 'index'])->name('kanban');

@@ -223,14 +223,16 @@
             @csrf
 
             <div class="form-group">
-                <label for="email">E-mail</label>
+                <label for="username">Usuário</label>
                 <div class="input-wrap">
-                    <span class="icon"><i class="fas fa-envelope"></i></span>
-                    <input type="email" id="email" name="email"
-                           value="{{ old('email') }}"
-                           placeholder="seu@email.com"
-                           class="{{ $errors->has('email') ? 'is-invalid' : '' }}"
-                           required autofocus autocomplete="email">
+                    <span class="icon"><i class="fas fa-user"></i></span>
+                    <input type="text" id="username" name="username"
+                           value="{{ old('username') }}"
+                           placeholder="SEU NOME DE USUÁRIO"
+                           style="text-transform:uppercase"
+                           class="{{ $errors->has('username') ? 'is-invalid' : '' }}"
+                           required autofocus autocomplete="username">
+                    @error('username')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
             </div>
 

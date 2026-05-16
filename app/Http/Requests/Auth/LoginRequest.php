@@ -22,7 +22,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email'    => ['required', 'string', 'email'],
+            'username' => ['required', 'string', 'max:100'],
             'password' => ['required', 'string'],
         ];
     }
@@ -31,30 +31,33 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        // Verifica bloqueio por tentativas na conta
-        $user = User::whereRaw('LOWER(email) = ?', [strtolower($this->string('email'))])->first();
+        $username = trim($this->string('username'));
+
+        // Busca o usuário pelo nome (case-insensitive, ignora tenant no login)
+        $user = User::withoutGlobalScope('tenant')
+            ->whereRaw('LOWER(name) = ?', [mb_strtolower($username)])
+            ->first();
 
         if ($user && $user->estaBloqueado()) {
             $minutos = (int) ceil(now()->diffInSeconds($user->bloqueado_ate) / 60);
             throw ValidationException::withMessages([
-                'email' => "Conta bloqueada por excesso de tentativas. Tente novamente em {$minutos} minuto(s) ou contate um Gerente.",
+                'username' => "Conta bloqueada por excesso de tentativas. Tente novamente em {$minutos} minuto(s) ou contate um Gerente.",
             ]);
         }
 
-        if (! Auth::attempt(['email' => $this->string('email'), 'password' => $this->string('password')], $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey(), 1800); // 30 min
+        // Autentica usando o email real do usuário encontrado
+        if (! $user || ! Auth::attempt(['email' => $user->email, 'password' => $this->string('password')], $this->boolean('remember'))) {
+            RateLimiter::hit($this->throttleKey(), 1800);
 
-            // Registra tentativa falha na conta
             if ($user) {
                 $user->registrarTentativaFalha();
             }
 
             throw ValidationException::withMessages([
-                'email' => 'Credenciais inválidas. ' . ($user ? "Tentativa {$user->fresh()->tentativas_login}/3." : ''),
+                'username' => 'Usuário ou senha incorretos.' . ($user ? " Tentativa {$user->fresh()->tentativas_login}/3." : ''),
             ]);
         }
 
-        // Login bem-sucedido: limpa contadores
         if ($user) {
             $user->resetarBloqueio();
         }
@@ -73,12 +76,12 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => 'Muitas tentativas. Aguarde ' . ceil($seconds / 60) . ' minuto(s).',
+            'username' => 'Muitas tentativas. Aguarde ' . ceil($seconds / 60) . ' minuto(s).',
         ]);
     }
 
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
+        return Str::transliterate(Str::lower($this->string('username')) . '|' . $this->ip());
     }
 }
