@@ -26,6 +26,9 @@ class ConfiguracaoWebController extends Controller
             'nome_oficina'       => 'required|string|max:120',
             'telefone_oficina'   => 'nullable|string|max:20',
             'endereco_oficina'   => 'nullable|string|max:200',
+            'email_oficina'      => 'nullable|email|max:120',
+            'cnpj_oficina'       => 'nullable|string|max:20',
+            'instagram_oficina'  => 'nullable|string|max:60',
             'mensagem_review'    => 'nullable|string|max:500',
         ]);
 

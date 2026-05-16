@@ -25,7 +25,7 @@ class AuthenticatedSessionController extends Controller
 
         // Sessão única: gera token e invalida sessões anteriores deste usuário
         $token = Str::random(40);
-        Auth::user()->update(['session_token' => $token]);
+        Auth::user()->forceFill(['session_token' => $token])->save();
         $request->session()->put('session_token', $token);
 
         return redirect()->intended(route('dashboard', absolute: false));
@@ -35,7 +35,7 @@ class AuthenticatedSessionController extends Controller
     {
         // Limpa o token ao fazer logout voluntário
         if (Auth::check()) {
-            Auth::user()->update(['session_token' => null]);
+            Auth::user()->forceFill(['session_token' => null])->save();
         }
 
         Auth::guard('web')->logout();

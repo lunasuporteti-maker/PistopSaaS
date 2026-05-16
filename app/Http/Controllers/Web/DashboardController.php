@@ -24,8 +24,8 @@ class DashboardController extends Controller
         $inicioMes = $hoje->copy()->startOfMonth();
 
         // ── KPIs ───────────────────────────────────────────────────────
-        $receitaHoje = PagamentoOs::whereDate('created_at', $hoje)->sum('valor');
-        $receitaMes  = PagamentoOs::where('created_at', '>=', $inicioMes)->sum('valor');
+        $receitaHoje = PagamentoOs::whereHas('ordemServico')->whereDate('created_at', $hoje)->sum('valor');
+        $receitaMes  = PagamentoOs::whereHas('ordemServico')->where('created_at', '>=', $inicioMes)->sum('valor');
         $saidasMes   = PagamentoSaida::where('data_pagamento', '>=', $inicioMes)->sum('valor');
 
         // ── Fila / Agendamentos / últimas OS ───────────────────────────
@@ -60,7 +60,7 @@ class DashboardController extends Controller
         $chartReceitaSaida   = [];
         foreach ($meses as $m) {
             $chartReceitaLabels[]  = $m['label'];
-            $chartReceitaEntrada[] = round(PagamentoOs::whereBetween('created_at',   [$m['inicio'], $m['fim']])->sum('valor'), 2);
+            $chartReceitaEntrada[] = round(PagamentoOs::whereHas('ordemServico')->whereBetween('created_at', [$m['inicio'], $m['fim']])->sum('valor'), 2);
             $chartReceitaSaida[]   = round(PagamentoSaida::whereBetween('data_pagamento', [$m['inicio'], $m['fim']])->sum('valor'), 2);
         }
 

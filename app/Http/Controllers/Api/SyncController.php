@@ -48,6 +48,8 @@ class SyncController extends Controller
 
     public function pull(Request $request)
     {
+        $tenantId = $request->user()->tenant_id;
+
         $since = $request->since
             ? Carbon::parse($request->since)
             : Carbon::now()->subDays(30);
@@ -55,12 +57,12 @@ class SyncController extends Controller
         $payload = [];
 
         foreach ($this->tabelas as $tabela) {
+            $hasTenant = DB::getSchemaBuilder()->hasColumn($tabela, 'tenant_id');
+
             $query = DB::table($tabela)->where('updated_at', '>', $since);
 
-            if (DB::getSchemaBuilder()->hasColumn($tabela, 'deleted_at')) {
-                $query = DB::table($tabela)
-                    ->withoutGlobalScopes()
-                    ->where('updated_at', '>', $since);
+            if ($hasTenant) {
+                $query->where('tenant_id', $tenantId);
             }
 
             $payload[$tabela] = $query->get();
@@ -74,9 +76,11 @@ class SyncController extends Controller
 
     public function push(Request $request)
     {
+        $tenantId = $request->user()->tenant_id;
+
         $request->validate([
-            'data'           => 'required|array',
-            'client_time'    => 'required|string',
+            'data'        => 'required|array',
+            'client_time' => 'required|string',
         ]);
 
         $conflicts = [];
@@ -89,6 +93,7 @@ class SyncController extends Controller
                     continue;
                 }
 
+                $hasTenant        = DB::getSchemaBuilder()->hasColumn($tabela, 'tenant_id');
                 $camposPermitidos = $this->camposPermitidos[$tabela] ?? [];
 
                 foreach ($registros as $registro) {
@@ -99,7 +104,6 @@ class SyncController extends Controller
                         continue;
                     }
 
-                    // Filtra apenas campos permitidos para evitar mass-assignment
                     $dadosFiltrados = array_intersect_key(
                         $registro,
                         array_flip($camposPermitidos)
@@ -109,9 +113,17 @@ class SyncController extends Controller
                         continue;
                     }
 
-                    $existente = DB::table($tabela)->where('id', $id)->first();
+                    $query     = DB::table($tabela)->where('id', $id);
+                    $existente = $hasTenant
+                        ? $query->where('tenant_id', $tenantId)->first()
+                        : $query->first();
 
                     if ($existente) {
+                        // Garante que o registro pertence ao tenant antes de atualizar
+                        if ($hasTenant && $existente->tenant_id !== $tenantId) {
+                            continue;
+                        }
+
                         $serverTime = Carbon::parse($existente->updated_at);
                         $clientTime = Carbon::parse($registro['updated_at'] ?? now());
 
@@ -122,8 +134,11 @@ class SyncController extends Controller
 
                         DB::table($tabela)->where('id', $id)->update($dadosFiltrados);
                     } else {
-                        // Novos registros: inclui id + campos permitidos
-                        DB::table($tabela)->insert(['id' => $id] + $dadosFiltrados);
+                        $insert = ['id' => $id] + $dadosFiltrados;
+                        if ($hasTenant) {
+                            $insert['tenant_id'] = $tenantId;
+                        }
+                        DB::table($tabela)->insert($insert);
                     }
 
                     $saved++;
@@ -137,9 +152,9 @@ class SyncController extends Controller
         }
 
         return response()->json([
-            'saved'      => $saved,
-            'conflicts'  => $conflicts,
-            'synced_at'  => now()->toIso8601String(),
+            'saved'     => $saved,
+            'conflicts' => $conflicts,
+            'synced_at' => now()->toIso8601String(),
         ]);
     }
 }

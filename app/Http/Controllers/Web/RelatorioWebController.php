@@ -17,7 +17,7 @@ class RelatorioWebController extends Controller
         $inicio = Carbon::parse($request->inicio ?? now()->startOfMonth());
         $fim    = Carbon::parse($request->fim    ?? now()->endOfDay());
 
-        $entradas = PagamentoOs::whereBetween('created_at', [$inicio, $fim])->sum('valor');
+        $entradas = PagamentoOs::whereHas('ordemServico')->whereBetween('created_at', [$inicio, $fim])->sum('valor');
         $saidas   = PagamentoSaida::whereBetween('data_pagamento', [$inicio, $fim])->sum('valor');
 
         return view('pitstop.relatorios.financeiro', compact('entradas', 'saidas', 'inicio', 'fim'));
@@ -27,7 +27,8 @@ class RelatorioWebController extends Controller
     {
         $meses = (int) ($request->meses ?? 6);
 
-        $entradas = PagamentoOs::select(DB::raw("TO_CHAR(created_at, 'YYYY-MM') as mes"), DB::raw('SUM(valor) as total'))
+        $entradas = PagamentoOs::whereHas('ordemServico')
+            ->select(DB::raw("TO_CHAR(created_at, 'YYYY-MM') as mes"), DB::raw('SUM(valor) as total'))
             ->where('created_at', '>=', now()->subMonths($meses))
             ->groupBy('mes')->orderBy('mes')->pluck('total', 'mes');
 

@@ -24,10 +24,9 @@ class User extends Authenticatable
         'ativo',
         'tentativas_login',
         'bloqueado_ate',
-        'session_token',
     ];
 
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = ['password', 'remember_token', 'session_token'];
 
     protected function casts(): array
     {

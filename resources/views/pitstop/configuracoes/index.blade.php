@@ -53,6 +53,30 @@
                            maxlength="200"
                            data-uppercase>
                 </div>
+                <div class="form-group">
+                    <label class="font-weight-600">E-mail</label>
+                    <input type="email" name="email_oficina"
+                           class="form-control"
+                           value="{{ old('email_oficina', $configs['email_oficina']?->valor ?? '') }}"
+                           placeholder="contato@oficina.com.br"
+                           maxlength="120">
+                </div>
+                <div class="form-group">
+                    <label class="font-weight-600">CNPJ</label>
+                    <input type="text" name="cnpj_oficina"
+                           class="form-control"
+                           value="{{ old('cnpj_oficina', $configs['cnpj_oficina']?->valor ?? '') }}"
+                           placeholder="00.000.000/0001-00"
+                           maxlength="20">
+                </div>
+                <div class="form-group mb-0">
+                    <label class="font-weight-600">Instagram</label>
+                    <input type="text" name="instagram_oficina"
+                           class="form-control"
+                           value="{{ old('instagram_oficina', $configs['instagram_oficina']?->valor ?? '') }}"
+                           placeholder="@oficina.mecanica"
+                           maxlength="60">
+                </div>
             </div>
         </div>
     </div>

@@ -3,26 +3,42 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\Configuracao;
 use App\Models\Orcamento;
 use App\Models\OrdemServico;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class PdfController extends Controller
 {
-    private array $empresa = [
-        'nome'      => 'AutoFix',
-        'cnpj'      => '44.456.671/0001-73',
-        'telefone'  => '(84) 99672-2453',
-        'endereco'  => 'Rua Salatiel Rufino dos Santos, 221 - Vale do Sol, Parnamirim/RN',
-        'email'     => 'AutoFix.atendimento@gmail.com',
-        'instagram' => '@autofix.mecanica',
-        'dev'       => 'Sistema desenvolvido por IAQueAtende',
-    ];
+    private function dadosEmpresa(): array
+    {
+        return [
+            'nome'      => Configuracao::get('nome_oficina', 'PitStop'),
+            'cnpj'      => Configuracao::get('cnpj_oficina'),
+            'telefone'  => Configuracao::get('telefone_oficina'),
+            'endereco'  => Configuracao::get('endereco_oficina'),
+            'email'     => Configuracao::get('email_oficina'),
+            'instagram' => Configuracao::get('instagram_oficina'),
+        ];
+    }
+
+    private function dadosEmpresaParaTenant(int $tenantId): array
+    {
+        $get = fn($chave, $default = '') => Configuracao::getForTenant($tenantId, $chave, $default);
+        return [
+            'nome'      => $get('nome_oficina', 'PitStop'),
+            'cnpj'      => $get('cnpj_oficina'),
+            'telefone'  => $get('telefone_oficina'),
+            'endereco'  => $get('endereco_oficina'),
+            'email'     => $get('email_oficina'),
+            'instagram' => $get('instagram_oficina'),
+        ];
+    }
 
     public function orcamento(Orcamento $orcamento)
     {
         $orcamento->load(['cliente', 'veiculo', 'servicos', 'pecas.peca', 'maoDeObra.maoDeObra']);
-        $empresa = $this->empresa;
+        $empresa = $this->dadosEmpresa();
 
         $pdf = Pdf::loadView('pitstop.pdf.orcamento', compact('orcamento', 'empresa'))
             ->setPaper('a4', 'portrait');
@@ -34,7 +50,7 @@ class PdfController extends Controller
     {
         $orcamento = Orcamento::where('token_publico', $token)->firstOrFail();
         $orcamento->load(['cliente', 'veiculo', 'servicos', 'pecas.peca', 'maoDeObra.maoDeObra']);
-        $empresa = $this->empresa;
+        $empresa = $this->dadosEmpresaParaTenant($orcamento->tenant_id);
 
         $pdf = Pdf::loadView('pitstop.pdf.orcamento', compact('orcamento', 'empresa'))
             ->setPaper('a4', 'portrait');
@@ -45,7 +61,7 @@ class PdfController extends Controller
     public function ordemServico(OrdemServico $ordem)
     {
         $ordem->load(['cliente', 'veiculo', 'pecas.peca', 'pagamentos', 'orcamento.servicos']);
-        $empresa = $this->empresa;
+        $empresa = $this->dadosEmpresa();
 
         $pdf = Pdf::loadView('pitstop.pdf.ordem-servico', compact('ordem', 'empresa'))
             ->setPaper('a4', 'portrait');
