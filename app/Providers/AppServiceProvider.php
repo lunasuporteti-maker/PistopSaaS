@@ -14,8 +14,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::define('admin',            fn(User $user) => $user->perfil === 'admin');
         Gate::define('gerente_ou_admin', fn(User $user) => in_array($user->perfil, ['admin', 'gerente']));
-        Gate::define('operacional',      fn(User $user) => in_array($user->perfil, ['admin', 'gerente', 'operador', 'mecanico']));
-        // Rotas que mecânico NÃO pode acessar
-        Gate::define('acima_de_mecanico', fn(User $user) => in_array($user->perfil, ['admin', 'gerente', 'operador']));
+        Gate::define('operacional',       fn(User $user) => in_array($user->perfil, ['admin', 'gerente', 'operador']));
+        Gate::define('acima_de_mecanico', fn(User $user) => in_array($user->perfil, ['admin', 'gerente']));
     }
 }

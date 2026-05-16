@@ -9,11 +9,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RestrictMecanico
 {
-    // Rotas que o mecânico PODE acessar (além de auth/perfil/logout)
+    // Rotas que o operador (mecânico) PODE acessar
     private array $rotasPermitidas = [
-        'dashboard',
         'kanban',
+        'kanban.estado',
         'kanban.status',
+        'kanban.arquivar',
         'fila',
         'agendamentos',
         'agendamentos.index',
@@ -23,19 +24,24 @@ class RestrictMecanico
         'agendamentos.edit',
         'agendamentos.update',
         'agendamentos.destroy',
+        'agendamentos.concluir',
         'perfil.edit',
         'perfil.update',
+        'perfil.update.dados',
+        'json.veiculos-por-cliente',
+        'json.clientes.store',
+        'json.veiculos.store',
         'logout',
     ];
 
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()->perfil === 'mecanico') {
+        if (Auth::check() && Auth::user()->perfil === 'operador') {
             $rotaAtual = $request->route()?->getName();
 
             if ($rotaAtual && ! in_array($rotaAtual, $this->rotasPermitidas)) {
-                return redirect()->route('fila')
-                    ->with('error', 'Acesso restrito. Seu perfil permite apenas a Fila de Serviços e Agendamentos.');
+                return redirect()->route('kanban')
+                    ->with('error', 'Acesso restrito. Seu perfil permite apenas o Kanban, Fila de Serviços e Agendamentos.');
             }
         }
 

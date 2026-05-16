@@ -149,7 +149,6 @@ class UsuarioWebController extends Controller
 
         if ($perfil === 'admin') {
             return [
-                'mecanico' => 'Mecânico',
                 'operador' => 'Operador',
                 'gerente'  => 'Gerente',
                 'admin'    => 'Administrador',
@@ -157,7 +156,6 @@ class UsuarioWebController extends Controller
         }
 
         return [
-            'mecanico' => 'Mecânico',
             'operador' => 'Operador',
             'gerente'  => 'Gerente',
         ];

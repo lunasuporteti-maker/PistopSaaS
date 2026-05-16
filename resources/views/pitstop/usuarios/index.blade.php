@@ -72,7 +72,7 @@
                     </td>
                     <td class="text-muted small"><i class="fas fa-at mr-1 text-muted"></i>{{ $u->username }}</td>
                     <td>
-                        @php $badge = ['admin'=>['danger','Administrador'],'gerente'=>['warning','Gerente'],'operador'=>['info','Operador'],'mecanico'=>['success','Mecânico']] @endphp
+                        @php $badge = ['admin'=>['danger','Administrador'],'gerente'=>['warning','Gerente'],'operador'=>['info','Operador']] @endphp
                         <span class="badge badge-{{ $badge[$u->perfil][0] ?? 'secondary' }} px-2 py-1">
                             <i class="fas fa-{{ $u->perfil === 'admin' ? 'crown' : ($u->perfil === 'gerente' ? 'user-tie' : 'user') }} mr-1"></i>
                             {{ $badge[$u->perfil][1] ?? ucfirst($u->perfil) }}

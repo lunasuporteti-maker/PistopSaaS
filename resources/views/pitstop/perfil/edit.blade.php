@@ -41,7 +41,7 @@
                     </div>
                     <div class="form-group mb-0">
                         <label class="text-muted">Perfil</label>
-                        @php $badge = ['admin'=>['danger','Administrador'],'gerente'=>['warning','Gerente'],'operador'=>['info','Operador'],'mecanico'=>['success','Mecânico']] @endphp
+                        @php $badge = ['admin'=>['danger','Administrador'],'gerente'=>['warning','Gerente'],'operador'=>['info','Operador']] @endphp
                         <div>
                             <span class="badge badge-{{ $badge[$usuario->perfil][0] ?? 'secondary' }} px-2">
                                 {{ $badge[$usuario->perfil][1] ?? ucfirst($usuario->perfil) }}
