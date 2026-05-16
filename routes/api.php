@@ -28,7 +28,7 @@ Route::get('health', function () {
 Route::middleware('tenant')->group(function () {
 
 // ── Rota pública (cliente acompanhar OS) ──────────────────────
-Route::get('acompanhar/{numeroOs}', [PortalController::class, 'acompanhar']);
+Route::middleware('throttle:20,1')->get('acompanhar/{numeroOs}', [PortalController::class, 'acompanhar']);
 
 // ── Autenticação ──────────────────────────────────────────────
 Route::post('login', [AuthController::class, 'login'])

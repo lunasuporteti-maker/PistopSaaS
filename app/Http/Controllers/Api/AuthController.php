@@ -76,7 +76,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'senha_atual' => 'required',
-            'nova_senha'  => 'required|min:6|confirmed',
+            'nova_senha'  => 'required|min:8|confirmed',
         ]);
 
         $user = $request->user();
