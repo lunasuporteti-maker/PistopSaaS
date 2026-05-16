@@ -27,14 +27,25 @@ class ClienteWebController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'nome'     => ['required', 'string', 'max:120', 'regex:/^[\p{L}\s\-]+$/u'],
-            'telefone' => 'nullable|string|max:20',
-            'email'    => 'nullable|email|max:120',
-            'cpf'      => 'nullable|string|max:14|unique:clientes,cpf',
-            'endereco' => 'nullable|string|max:200',
+            'nome'      => ['required', 'string', 'max:120', 'regex:/^[\p{L}\s\-]+$/u'],
+            'telefone'  => 'nullable|string|max:20',
+            'email'     => 'nullable|email|max:120',
+            'cpf'       => 'nullable|string|max:14|unique:clientes,cpf',
+            'cep'       => 'nullable|string|max:9',
+            'logradouro'=> 'nullable|string|max:150',
+            'numero'    => 'nullable|string|max:20',
+            'bairro'    => 'nullable|string|max:80',
+            'cidade'    => 'nullable|string|max:80',
+            'uf'        => 'nullable|string|max:2',
         ], ['nome.regex' => 'O nome deve conter apenas letras e espaços.']);
 
         $data['nome'] = strtoupper($data['nome']);
+        if (! empty($data['logradouro'])) {
+            $data['logradouro'] = strtoupper($data['logradouro']);
+            $data['bairro']     = strtoupper($data['bairro'] ?? '');
+            $data['cidade']     = strtoupper($data['cidade'] ?? '');
+            $data['uf']         = strtoupper($data['uf'] ?? '');
+        }
 
         Cliente::create($data);
         return redirect()->route('clientes.index')->with('success', 'Cliente cadastrado.');
@@ -59,14 +70,25 @@ class ClienteWebController extends Controller
     public function update(Request $request, Cliente $cliente)
     {
         $data = $request->validate([
-            'nome'     => ['required', 'string', 'max:120', 'regex:/^[\p{L}\s\-]+$/u'],
-            'telefone' => 'nullable|string|max:20',
-            'email'    => 'nullable|email|max:120',
-            'cpf'      => 'nullable|string|max:14|unique:clientes,cpf,' . $cliente->id,
-            'endereco' => 'nullable|string|max:200',
+            'nome'      => ['required', 'string', 'max:120', 'regex:/^[\p{L}\s\-]+$/u'],
+            'telefone'  => 'nullable|string|max:20',
+            'email'     => 'nullable|email|max:120',
+            'cpf'       => 'nullable|string|max:14|unique:clientes,cpf,' . $cliente->id,
+            'cep'       => 'nullable|string|max:9',
+            'logradouro'=> 'nullable|string|max:150',
+            'numero'    => 'nullable|string|max:20',
+            'bairro'    => 'nullable|string|max:80',
+            'cidade'    => 'nullable|string|max:80',
+            'uf'        => 'nullable|string|max:2',
         ], ['nome.regex' => 'O nome deve conter apenas letras e espaços.']);
 
         $data['nome'] = strtoupper($data['nome']);
+        if (! empty($data['logradouro'])) {
+            $data['logradouro'] = strtoupper($data['logradouro']);
+            $data['bairro']     = strtoupper($data['bairro'] ?? '');
+            $data['cidade']     = strtoupper($data['cidade'] ?? '');
+            $data['uf']         = strtoupper($data['uf'] ?? '');
+        }
 
         $cliente->update($data);
         return redirect()->route('clientes.show', $cliente)->with('success', 'Cliente atualizado.');

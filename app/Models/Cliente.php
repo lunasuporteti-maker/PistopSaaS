@@ -10,7 +10,26 @@ class Cliente extends Model
 {
     use SoftDeletes, BelongsToTenant;
 
-    protected $fillable = ['tenant_id', 'nome', 'telefone', 'email', 'cpf', 'endereco'];
+    protected $fillable = [
+        'tenant_id', 'nome', 'telefone', 'email', 'cpf',
+        'endereco', 'cep', 'logradouro', 'numero', 'bairro', 'cidade', 'uf',
+    ];
+
+    public function enderecoCompleto(): string
+    {
+        if ($this->logradouro) {
+            $partes = array_filter([
+                $this->logradouro,
+                $this->numero ? 'Nº ' . $this->numero : null,
+                $this->bairro,
+                $this->cidade,
+                $this->uf,
+                $this->cep,
+            ]);
+            return implode(', ', $partes);
+        }
+        return $this->endereco ?? '';
+    }
 
     public function veiculos()
     {
