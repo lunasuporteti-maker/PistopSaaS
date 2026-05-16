@@ -582,6 +582,11 @@ return [
                     'asset'    => true,
                     'location' => 'js/pitstop-inputs.js',
                 ],
+                [
+                    'type'     => 'js',
+                    'asset'    => true,
+                    'location' => 'js/pitstop-idle.js',
+                ],
             ],
         ],
     ],

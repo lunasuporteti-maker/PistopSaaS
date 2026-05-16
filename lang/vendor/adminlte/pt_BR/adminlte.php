@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'full_name'                   => 'Nome completo',
+    'email'                       => 'E-mail',
+    'password'                    => 'Senha',
+    'retype_password'             => 'Confirmar senha',
+    'remember_me'                 => 'Lembrar-me',
+    'register'                    => 'Registrar',
+    'register_a_new_membership'   => 'Criar nova conta',
+    'i_forgot_my_password'        => 'Esqueci minha senha',
+    'i_already_have_a_membership' => 'Já tenho uma conta',
+    'sign_in'                     => 'Entrar',
+    'log_out'                     => 'Sair do sistema',
+    'toggle_navigation'           => 'Alternar menu',
+    'login_message'               => 'Entre para acessar o sistema',
+    'register_message'            => 'Criar nova conta',
+    'password_reset_message'      => 'Recuperar senha',
+    'reset_password'              => 'Redefinir senha',
+    'send_password_reset_link'    => 'Enviar link de recuperação',
+    'verify_message'              => 'Sua conta precisa ser verificada',
+    'verify_email_sent'           => 'Link de verificação enviado para o seu e-mail.',
+    'verify_check_your_email'     => 'Verifique seu e-mail antes de continuar.',
+    'verify_if_not_recieved'      => 'Caso não tenha recebido o e-mail',
+    'verify_request_another'      => 'clique aqui para solicitar um novo',
+    'confirm_password_message'    => 'Por favor, confirme sua senha para continuar.',
+];
