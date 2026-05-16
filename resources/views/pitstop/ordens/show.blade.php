@@ -1,6 +1,9 @@
 @extends('adminlte::page')
 @section('title', $ordem->numero_os)
 
+@php
+    $nomeWA = ucwords(mb_strtolower($ordem->cliente->nome));
+@endphp
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
         <div>
@@ -16,14 +19,18 @@
             </button>
             @endif
             @if($ordem->cliente->telefone)
-            <a href="{{ 'https://wa.me/55' . preg_replace('/\D/', '', $ordem->cliente->telefone) . '?text=' . urlencode(
-                'Olá ' . $ordem->cliente->nome . '! Seu veículo está pronto e pode vir buscar! 🚗✅' . "\n\n" .
-                '*OS:* ' . $ordem->numero_os . "\n" .
-                '*Veículo:* ' . $ordem->veiculo->marca . ' ' . $ordem->veiculo->modelo . ' (' . $ordem->veiculo->placa . ')' . "\n" .
-                '*Total:* R$ ' . number_format($ordem->valor_total, 2, ',', '.') . "\n\n" .
-                (app(\App\Models\Configuracao::class)::get('mensagem_review') ?: 'Ficamos felizes em atender você!') . "\n" .
-                (app(\App\Models\Configuracao::class)::get('google_review_link') ? "\n⭐ Avalie-nos: " . app(\App\Models\Configuracao::class)::get('google_review_link') : '')
-            ) }}"
+            @php
+                $srvHdr   = $ordem->orcamento?->servicos->pluck('servico_nome')->join(', ') ?? '';
+                $gLinkHdr = \App\Models\Configuracao::get('google_review_link');
+                $msgHdr   = 'Olá ' . $nomeWA . '! Seu veículo está pronto e pode vir buscar! 🚗✅' . "\n\n"
+                          . '*OS:* ' . $ordem->numero_os . "\n"
+                          . '*Veículo:* ' . $ordem->veiculo->marca . ' ' . $ordem->veiculo->modelo . ' (' . $ordem->veiculo->placa . ')' . "\n"
+                          . ($srvHdr ? '*Serviços:* ' . $srvHdr . "\n" : '')
+                          . '*Total:* R$ ' . number_format($ordem->valor_total, 2, ',', '.') . "\n\n"
+                          . (\App\Models\Configuracao::get('mensagem_review') ?: 'Ficamos felizes em atender você!')
+                          . ($gLinkHdr ? "\n\n⭐ Avalie-nos: " . $gLinkHdr : '');
+            @endphp
+            <a href="{{ 'https://wa.me/55' . preg_replace('/\D/', '', $ordem->cliente->telefone) . '?text=' . urlencode($msgHdr) }}"
                target="_blank"
                class="btn btn-success"
                title="Avisar pelo WhatsApp">
@@ -48,7 +55,7 @@
     $msgReview   = \App\Models\Configuracao::get('mensagem_review', 'Ficamos felizes em atender você! Poderia nos avaliar no Google? 🙏');
     $nomeOficina = \App\Models\Configuracao::get('nome_oficina', 'PitStop');
     $servicos    = $ordem->orcamento?->servicos->pluck('servico_nome')->join(', ') ?? '';
-    $msgWA = 'Olá ' . $ordem->cliente->nome . '! Seu veículo está pronto e pode vir buscar! 🚗✅' . "\n\n"
+    $msgWA = 'Olá ' . $nomeWA . '! Seu veículo está pronto e pode vir buscar! 🚗✅' . "\n\n"
            . '*OS:* ' . $ordem->numero_os . "\n"
            . '*Veículo:* ' . $ordem->veiculo->marca . ' ' . $ordem->veiculo->modelo . ' (' . $ordem->veiculo->placa . ')' . "\n"
            . ($servicos ? '*Serviços:* ' . $servicos . "\n" : '')
@@ -163,7 +170,7 @@
             $gLink = \App\Models\Configuracao::get('google_review_link');
             $mReview = \App\Models\Configuracao::get('mensagem_review', 'Ficamos felizes em atender você!');
             $srvs = $ordem->orcamento?->servicos->pluck('servico_nome')->join(', ') ?? '';
-            $waMsgFinal = 'Olá ' . $ordem->cliente->nome . '! Seu veículo está pronto e pode vir buscar! 🚗✅' . "\n\n"
+            $waMsgFinal = 'Olá ' . $nomeWA . '! Seu veículo está pronto e pode vir buscar! 🚗✅' . "\n\n"
                         . '*OS:* ' . $ordem->numero_os . "\n"
                         . '*Veículo:* ' . $ordem->veiculo->marca . ' ' . $ordem->veiculo->modelo . ' (' . $ordem->veiculo->placa . ')' . "\n"
                         . ($srvs ? '*Serviços:* ' . $srvs . "\n" : '')
