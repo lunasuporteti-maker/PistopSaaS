@@ -21,7 +21,7 @@ use App\Http\Controllers\Web\PerfilWebController;
 
 Route::get('/', fn() => redirect()->route('dashboard'));
 
-Route::middleware(['tenant', 'auth'])->group(function () {
+Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico'])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

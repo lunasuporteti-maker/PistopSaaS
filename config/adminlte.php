@@ -335,33 +335,39 @@ return [
             'text' => 'Orçamentos',
             'url'  => 'orcamentos',
             'icon' => 'fas fa-fw fa-file-invoice',
+            'can'  => 'acima_de_mecanico',
         ],
         [
             'text' => 'Ordens de Serviço',
             'url'  => 'ordens',
             'icon' => 'fas fa-fw fa-tools',
+            'can'  => 'acima_de_mecanico',
         ],
 
-        ['header' => 'CADASTROS'],
+        ['header' => 'CADASTROS', 'can' => 'acima_de_mecanico'],
 
         [
             'text' => 'Clientes',
             'url'  => 'clientes',
             'icon' => 'fas fa-fw fa-users',
+            'can'  => 'acima_de_mecanico',
         ],
         [
             'text' => 'Veículos',
             'url'  => 'veiculos',
             'icon' => 'fas fa-fw fa-car',
+            'can'  => 'acima_de_mecanico',
         ],
         [
             'text' => 'Estoque de Peças',
             'url'  => 'pecas',
             'icon' => 'fas fa-fw fa-boxes',
+            'can'  => 'acima_de_mecanico',
         ],
         [
             'text'    => 'Tabelas',
             'icon'    => 'fas fa-fw fa-table',
+            'can'     => 'acima_de_mecanico',
             'submenu' => [
                 [
                     'text' => 'Mão de Obra',
@@ -378,6 +384,7 @@ return [
         [
             'text'    => 'Equipe',
             'icon'    => 'fas fa-fw fa-user-tie',
+            'can'     => 'acima_de_mecanico',
             'submenu' => [
                 [
                     'text' => 'Funcionários',
@@ -392,21 +399,24 @@ return [
             ],
         ],
 
-        ['header' => 'FINANCEIRO'],
+        ['header' => 'FINANCEIRO', 'can' => 'acima_de_mecanico'],
 
         [
             'text' => 'Lançamentos',
             'url'  => 'financeiro',
             'icon' => 'fas fa-fw fa-cash-register',
+            'can'  => 'acima_de_mecanico',
         ],
         [
             'text' => 'Lembretes',
             'url'  => 'lembretes',
             'icon' => 'fas fa-fw fa-bell',
+            'can'  => 'acima_de_mecanico',
         ],
         [
             'text'    => 'Relatórios',
             'icon'    => 'fas fa-fw fa-chart-bar',
+            'can'     => 'acima_de_mecanico',
             'submenu' => [
                 [
                     'text' => 'Financeiro',

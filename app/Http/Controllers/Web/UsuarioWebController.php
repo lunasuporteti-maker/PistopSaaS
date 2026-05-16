@@ -138,13 +138,17 @@ class UsuarioWebController extends Controller
 
         if ($perfil === 'admin') {
             return [
+                'mecanico' => 'Mecânico',
                 'operador' => 'Operador',
                 'gerente'  => 'Gerente',
                 'admin'    => 'Administrador',
             ];
         }
 
-        // Gerente só cria operadores
-        return ['operador' => 'Operador'];
+        // Gerente cria mecânicos e operadores
+        return [
+            'mecanico' => 'Mecânico',
+            'operador' => 'Operador',
+        ];
     }
 }

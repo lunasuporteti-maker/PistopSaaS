@@ -17,7 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
 
         $middleware->alias([
-            'tenant' => \App\Http\Middleware\IdentifyTenant::class,
+            'tenant'          => \App\Http\Middleware\IdentifyTenant::class,
+            'single.session'  => \App\Http\Middleware\EnsureSingleSession::class,
+            'restrict.mecanico' => \App\Http\Middleware\RestrictMecanico::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
