@@ -96,6 +96,13 @@
             padding: 4px 8px; font-size: .75rem; cursor: pointer; transition: all .2s;
         }
         .btn-arquivar:hover { background: rgba(100,116,139,.4); color: #e2e8f0; }
+        .btn-geraros {
+            background: rgba(234,179,8,.2); color: #eab308; border: none; border-radius: 6px;
+            padding: 4px 10px; font-size: .78rem; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; gap: 5px; transition: all .2s;
+        }
+        .btn-geraros:hover { background: rgba(234,179,8,.4); color: #fde047; }
+        .btn-geraros:disabled { opacity: .5; cursor: not-allowed; }
 
         /* Toast de feedback */
         #toast {
@@ -192,6 +199,11 @@
                     <a href="/acompanhar/{{ $orc->token_publico }}" target="_blank" class="btn-ver" title="Link do cliente">
                         <i class="fas fa-share-alt"></i>
                     </a>
+                    @endif
+                    @if($status === 'aprovado' && !$orc->ordemServico)
+                    <button class="btn-geraros" data-id="{{ $orc->id }}" title="Gerar Ordem de Serviço">
+                        <i class="fas fa-tools"></i> OS
+                    </button>
                     @endif
                     @if($status === 'concluido')
                     <button class="btn-arquivar" data-id="{{ $orc->id }}" title="Arquivar e remover do painel">
@@ -295,6 +307,33 @@ document.addEventListener('click', function (e) {
             toast('✓ Arquivado com sucesso');
         } else {
             toast(data.msg || 'Erro ao arquivar.', true);
+            btn.disabled = false;
+        }
+    })
+    .catch(() => { toast('Erro de conexão.', true); btn.disabled = false; });
+});
+
+// ── Gerar OS a partir do kanban ──────────────────────────────
+document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.btn-geraros');
+    if (!btn) return;
+    if (!confirm('Gerar Ordem de Serviço para este orçamento?')) return;
+
+    var id   = btn.dataset.id;
+    btn.disabled = true;
+
+    fetch('/orcamentos/' + id + '/gerar-os', {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.ok) {
+            btn.remove();
+            hashAtual = null;
+            toast('OS gerada com sucesso!');
+        } else {
+            toast(data.msg || 'Erro ao gerar OS.', true);
             btn.disabled = false;
         }
     })

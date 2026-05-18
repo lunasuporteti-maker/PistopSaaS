@@ -29,7 +29,7 @@ class KanbanController extends Controller
 
     public function index()
     {
-        $cards = Orcamento::with(['cliente', 'veiculo'])
+        $cards = Orcamento::with(['cliente', 'veiculo', 'ordemServico'])
             ->whereIn('status', array_keys($this->colunas))
             ->whereNull('arquivado_em')
             ->orderBy('posicao_fila')

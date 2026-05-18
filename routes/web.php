@@ -75,6 +75,10 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico'])->gr
     Route::post('orcamentos/{orcamento}/gerar-os',   [OrcamentoWebController::class, 'gerarOs'])->name('orcamentos.gerar-os');
     Route::post('orcamentos/{orcamento}/servicos',   [OrcamentoWebController::class, 'addServico'])->name('orcamentos.servicos.add');
     Route::delete('orcamentos/{orcamento}/servicos/{servico}', [OrcamentoWebController::class, 'removeServico'])->name('orcamentos.servicos.remove');
+    Route::post('orcamentos/{orcamento}/pecas', [OrcamentoWebController::class, 'addPeca'])->name('orcamentos.pecas.add');
+    Route::delete('orcamentos/{orcamento}/pecas/{peca}', [OrcamentoWebController::class, 'removePeca'])->name('orcamentos.pecas.remove');
+    Route::post('orcamentos/{orcamento}/mao-de-obra', [OrcamentoWebController::class, 'addMaoDeObra'])->name('orcamentos.mdo.add');
+    Route::delete('orcamentos/{orcamento}/mao-de-obra/{maoDeObra}', [OrcamentoWebController::class, 'removeMaoDeObra'])->name('orcamentos.mdo.remove');
     Route::resource('ordens', OrdemServicoWebController::class)
         ->except(['create', 'store'])
         ->parameters(['ordens' => 'ordem']);

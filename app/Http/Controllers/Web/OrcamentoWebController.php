@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Orcamento;
 use App\Models\OrcamentoServico;
+use App\Models\OrcamentoPeca;
+use App\Models\OrcamentoMaoDeObra;
 use App\Models\Cliente;
 use App\Models\Veiculo;
 use App\Models\Peca;
@@ -57,9 +59,10 @@ class OrcamentoWebController extends Controller
         }
 
         $orcamento->load(['cliente', 'veiculo', 'servicos', 'pecas.peca', 'maoDeObra.maoDeObra', 'ordemServico']);
-        $pecas = Peca::orderBy('nome')->get();
-        $maos  = MaoDeObra::where('ativo', true)->orderBy('nome')->get();
-        return view('pitstop.orcamentos.show', compact('orcamento', 'pecas', 'maos'));
+        $pecas            = Peca::orderBy('nome')->get();
+        $maos             = MaoDeObra::where('ativo', true)->orderBy('nome')->get();
+        $catalogoServicos = CatalogoServico::where('ativo', true)->orderBy('nome')->get();
+        return view('pitstop.orcamentos.show', compact('orcamento', 'pecas', 'maos', 'catalogoServicos'));
     }
 
     public function edit(Orcamento $orcamento)
@@ -94,6 +97,9 @@ class OrcamentoWebController extends Controller
     public function gerarOs(Orcamento $orcamento)
     {
         if ($orcamento->ordemServico()->exists()) {
+            if (request()->wantsJson()) {
+                return response()->json(['ok' => false, 'msg' => 'OS já foi gerada para este orçamento.'], 422);
+            }
             return back()->with('error', 'OS já foi gerada para este orçamento.');
         }
 
@@ -135,6 +141,9 @@ class OrcamentoWebController extends Controller
             $orcamento->update(['status' => 'em_servico', 'iniciado_em' => now()]);
         });
 
+        if (request()->wantsJson()) {
+            return response()->json(['ok' => true]);
+        }
         return redirect()->route('ordens.index')->with('success', 'OS gerada com sucesso.');
     }
 
@@ -146,7 +155,7 @@ class OrcamentoWebController extends Controller
         ]);
 
         $orcamento->servicos()->create($data);
-        $orcamento->update(['valor_total' => $orcamento->servicos()->sum('valor') + $orcamento->pecas()->sum(DB::raw('quantidade * preco_unitario'))]);
+        $this->recalcularTotal($orcamento);
 
         return back()->with('success', 'Serviço adicionado.');
     }
@@ -155,9 +164,63 @@ class OrcamentoWebController extends Controller
     {
         abort_if($servico->orcamento_id !== $orcamento->id, 403);
         $servico->delete();
-        $orcamento->update(['valor_total' => $orcamento->servicos()->sum('valor') + $orcamento->pecas()->sum(DB::raw('quantidade * preco_unitario'))]);
+        $this->recalcularTotal($orcamento);
 
         return back()->with('success', 'Serviço removido.');
+    }
+
+    public function addPeca(Request $request, Orcamento $orcamento)
+    {
+        $data = $request->validate([
+            'peca_id'        => 'required|exists:pecas,id',
+            'quantidade'     => 'required|integer|min:1',
+            'preco_unitario' => 'required|numeric|min:0',
+        ]);
+
+        $orcamento->pecas()->create($data);
+        $this->recalcularTotal($orcamento);
+
+        return back()->with('success', 'Peça adicionada.');
+    }
+
+    public function removePeca(Orcamento $orcamento, OrcamentoPeca $peca)
+    {
+        abort_if($peca->orcamento_id !== $orcamento->id, 403);
+        $peca->delete();
+        $this->recalcularTotal($orcamento);
+
+        return back()->with('success', 'Peça removida.');
+    }
+
+    public function addMaoDeObra(Request $request, Orcamento $orcamento)
+    {
+        $data = $request->validate([
+            'mao_de_obra_id' => 'nullable|exists:mao_de_obra,id',
+            'nome_custom'    => 'nullable|string|max:200',
+            'valor'          => 'required|numeric|min:0',
+        ]);
+
+        $orcamento->maoDeObra()->create($data);
+        $this->recalcularTotal($orcamento);
+
+        return back()->with('success', 'Mão de obra adicionada.');
+    }
+
+    public function removeMaoDeObra(Orcamento $orcamento, OrcamentoMaoDeObra $maoDeObra)
+    {
+        abort_if($maoDeObra->orcamento_id !== $orcamento->id, 403);
+        $maoDeObra->delete();
+        $this->recalcularTotal($orcamento);
+
+        return back()->with('success', 'Mão de obra removida.');
+    }
+
+    private function recalcularTotal(Orcamento $orcamento): void
+    {
+        $total = $orcamento->servicos()->sum('valor')
+               + $orcamento->pecas()->sum(DB::raw('quantidade * preco_unitario'))
+               + $orcamento->maoDeObra()->sum('valor');
+        $orcamento->update(['valor_total' => $total]);
     }
 
     public function destroy(Orcamento $orcamento)
