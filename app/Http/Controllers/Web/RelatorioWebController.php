@@ -6,6 +6,7 @@ use App\Exports\FinanceiroExport;
 use App\Exports\FluxoCaixaExport;
 use App\Exports\LucroServicosExport;
 use App\Http\Controllers\Controller;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\PagamentoOs;
 use App\Models\PagamentoSaida;
 use App\Models\OrcamentoServico;
@@ -79,5 +80,43 @@ class RelatorioWebController extends Controller
         $fim    = Carbon::parse($request->fim    ?? now()->endOfDay());
         return Excel::download(new LucroServicosExport($inicio, $fim),
             'receita-servicos-' . $inicio->format('Y-m-d') . '-' . $fim->format('Y-m-d') . '.xlsx');
+    }
+
+    public function exportFinanceiroPdf(Request $request)
+    {
+        $inicio  = Carbon::parse($request->inicio ?? now()->startOfMonth());
+        $fim     = Carbon::parse($request->fim    ?? now()->endOfDay());
+        $entradas = (float) PagamentoOs::whereHas('ordemServico')->whereBetween('created_at', [$inicio, $fim])->sum('valor');
+        $saidas   = (float) PagamentoSaida::whereBetween('data_pagamento', [$inicio, $fim])->sum('valor');
+        $pdf = Pdf::loadView('pitstop.pdf.relatorio-financeiro', compact('entradas', 'saidas', 'inicio', 'fim'))
+            ->setPaper('a4', 'portrait');
+        return $pdf->download('financeiro-' . $inicio->format('Y-m-d') . '-' . $fim->format('Y-m-d') . '.pdf');
+    }
+
+    public function exportFluxoCaixaPdf(Request $request)
+    {
+        $meses    = (int) ($request->meses ?? 6);
+        $entradas = PagamentoOs::whereHas('ordemServico')
+            ->select(DB::raw("TO_CHAR(created_at, 'YYYY-MM') as mes"), DB::raw('SUM(valor) as total'))
+            ->where('created_at', '>=', now()->subMonths($meses))
+            ->groupBy('mes')->orderBy('mes')->pluck('total', 'mes');
+        $saidas = PagamentoSaida::select(DB::raw("TO_CHAR(data_pagamento, 'YYYY-MM') as mes"), DB::raw('SUM(valor) as total'))
+            ->where('data_pagamento', '>=', now()->subMonths($meses))
+            ->groupBy('mes')->orderBy('mes')->pluck('total', 'mes');
+        $pdf = Pdf::loadView('pitstop.pdf.relatorio-fluxo-caixa', compact('entradas', 'saidas', 'meses'))
+            ->setPaper('a4', 'portrait');
+        return $pdf->download("fluxo-caixa-{$meses}meses.pdf");
+    }
+
+    public function exportLucroServicoPdf(Request $request)
+    {
+        $inicio   = Carbon::parse($request->inicio ?? now()->startOfMonth());
+        $fim      = Carbon::parse($request->fim    ?? now()->endOfDay());
+        $servicos = OrcamentoServico::select('servico_nome', DB::raw('COUNT(*) as quantidade'), DB::raw('SUM(valor) as total'))
+            ->whereHas('orcamento', fn($q) => $q->where('status', 'concluido')->whereBetween('concluido_em', [$inicio, $fim]))
+            ->groupBy('servico_nome')->orderByDesc('total')->get();
+        $pdf = Pdf::loadView('pitstop.pdf.relatorio-lucro-servico', compact('servicos', 'inicio', 'fim'))
+            ->setPaper('a4', 'portrait');
+        return $pdf->download('receita-servicos-' . $inicio->format('Y-m-d') . '-' . $fim->format('Y-m-d') . '.pdf');
     }
 }

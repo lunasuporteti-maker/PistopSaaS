@@ -42,8 +42,10 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico'])->gr
     // Kanban
     Route::get('/kanban',                        [KanbanController::class, 'index'])->name('kanban');
     Route::get('/kanban/estado',                 [KanbanController::class, 'estado'])->name('kanban.estado');
-    Route::patch('/kanban/{orcamento}/status',   [KanbanController::class, 'updateStatus'])->name('kanban.status');
+    Route::patch('/kanban/{orcamento}/status',    [KanbanController::class, 'updateStatus'])->name('kanban.status');
     Route::post('/kanban/{orcamento}/arquivar',  [KanbanController::class, 'arquivar'])->name('kanban.arquivar');
+    Route::post('/kanban/{orcamento}/concluir',  [KanbanController::class, 'concluirComPagamento'])->name('kanban.concluir');
+    Route::patch('/kanban/{orcamento}/andamento',[KanbanController::class, 'registrarAndamento'])->name('kanban.andamento');
 
     // Rotas JSON para selects dinâmicos (sessão web, sem token)
     Route::get('/json/veiculos-por-cliente/{clienteId}', function ($clienteId) {
@@ -119,10 +121,13 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico'])->gr
     Route::prefix('relatorios')->name('relatorios.')->group(function () {
         Route::get('/financeiro',            [RelatorioWebController::class, 'financeiro'])->name('financeiro');
         Route::get('/financeiro/export',     [RelatorioWebController::class, 'exportFinanceiro'])->name('financeiro.export');
+        Route::get('/financeiro/pdf',        [RelatorioWebController::class, 'exportFinanceiroPdf'])->name('financeiro.pdf');
         Route::get('/fluxo-caixa',           [RelatorioWebController::class, 'fluxoCaixa'])->name('fluxo-caixa');
         Route::get('/fluxo-caixa/export',    [RelatorioWebController::class, 'exportFluxoCaixa'])->name('fluxo-caixa.export');
+        Route::get('/fluxo-caixa/pdf',       [RelatorioWebController::class, 'exportFluxoCaixaPdf'])->name('fluxo-caixa.pdf');
         Route::get('/lucro-servico',         [RelatorioWebController::class, 'lucroServico'])->name('lucro-servico');
         Route::get('/lucro-servico/export',  [RelatorioWebController::class, 'exportLucroServico'])->name('lucro-servico.export');
+        Route::get('/lucro-servico/pdf',     [RelatorioWebController::class, 'exportLucroServicoPdf'])->name('lucro-servico.pdf');
     });
 
     // Usuários

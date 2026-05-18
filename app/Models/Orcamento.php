@@ -13,7 +13,7 @@ class Orcamento extends Model
     protected $fillable = [
         'tenant_id', 'cliente_id', 'veiculo_id', 'status', 'observacao',
         'valor_total', 'posicao_fila', 'km_entrada',
-        'queixa_cliente', 'parecer_tecnico',
+        'queixa_cliente', 'parecer_tecnico', 'andamento',
         'aprovado_em', 'iniciado_em', 'concluido_em', 'arquivado_em', 'token_publico',
     ];
 

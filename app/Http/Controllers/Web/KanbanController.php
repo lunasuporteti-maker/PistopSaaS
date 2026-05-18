@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\CatalogoServico;
+use App\Models\Lembrete;
 use App\Models\Orcamento;
+use App\Models\OrdemServico;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class KanbanController extends Controller
@@ -63,6 +67,11 @@ class KanbanController extends Controller
             'status' => 'required|in:orcamento,aprovado,em_servico,concluido,cancelado',
         ]);
 
+        // Concluído só pode ser acionado via concluirComPagamento (com pagamento + OS)
+        if ($request->status === 'concluido') {
+            return response()->json(['ok' => false, 'msg' => 'Use o fluxo de pagamento para concluir.'], 422);
+        }
+
         $campos = ['status' => $request->status];
 
         match ($request->status) {
@@ -84,6 +93,93 @@ class KanbanController extends Controller
             'status' => $request->status,
             'token'  => $orcamento->fresh()->token_publico,
         ]);
+    }
+
+    public function concluirComPagamento(Request $request, Orcamento $orcamento)
+    {
+        if ($orcamento->ordemServico()->exists()) {
+            return response()->json(['ok' => false, 'msg' => 'OS já gerada para este orçamento.'], 422);
+        }
+
+        if (!in_array($orcamento->status, ['aprovado', 'em_servico'])) {
+            return response()->json(['ok' => false, 'msg' => 'Orçamento deve estar aprovado ou em serviço.'], 422);
+        }
+
+        $request->validate([
+            'pagamentos'         => 'required|array|min:1',
+            'pagamentos.*.forma' => 'required|string',
+            'pagamentos.*.valor' => 'required|numeric|min:0.01',
+        ]);
+
+        $os = null;
+
+        DB::transaction(function () use ($orcamento, $request, &$os) {
+            $os = OrdemServico::create([
+                'numero_os'     => OrdemServico::gerarNumeroOs(),
+                'orcamento_id'  => $orcamento->id,
+                'cliente_id'    => $orcamento->cliente_id,
+                'veiculo_id'    => $orcamento->veiculo_id,
+                'descricao'     => $orcamento->queixa_cliente,
+                'valor_total'   => $orcamento->valor_total,
+                'finalizado_em' => now(),
+            ]);
+
+            foreach ($orcamento->pecas()->with('peca')->get() as $item) {
+                $item->peca->decrement('quantidade', $item->quantidade);
+                $os->pecas()->create([
+                    'peca_id'        => $item->peca_id,
+                    'quantidade'     => $item->quantidade,
+                    'preco_unitario' => $item->preco_unitario,
+                ]);
+            }
+
+            foreach ($orcamento->servicos as $servico) {
+                $catalogo = CatalogoServico::where('nome', 'like', "%{$servico->servico_nome}%")
+                    ->whereNotNull('dias_lembrete')->first();
+                if ($catalogo) {
+                    Lembrete::create([
+                        'cliente_id'    => $orcamento->cliente_id,
+                        'veiculo_id'    => $orcamento->veiculo_id,
+                        'os_id'         => $os->id,
+                        'servico_nome'  => $servico->servico_nome,
+                        'data_servico'  => now(),
+                        'data_lembrete' => now()->addDays($catalogo->dias_lembrete),
+                    ]);
+                }
+            }
+
+            foreach ($request->pagamentos as $pag) {
+                $os->pagamentos()->create(['forma' => $pag['forma'], 'valor' => $pag['valor']]);
+            }
+
+            $orcamento->update(['status' => 'concluido', 'concluido_em' => now()]);
+        });
+
+        $cliente  = $orcamento->cliente;
+        $veiculo  = $orcamento->veiculo;
+        $telefone = preg_replace('/\D/', '', $cliente->telefone ?? '');
+        $nomeVeic = trim(($veiculo->marca ?? '') . ' ' . ($veiculo->modelo ?? ''));
+        $valor    = 'R$ ' . number_format($os->valor_total, 2, ',', '.');
+
+        $waMsg = "Ola {$cliente->nome}! O servico do seu {$nomeVeic} foi concluido aqui na AutoFix.\n"
+               . "OS: {$os->numero_os} — Total: {$valor}\n"
+               . "Aguardamos voce para retirada. Obrigado!";
+        $waUrl = $telefone ? 'https://wa.me/55' . $telefone . '?text=' . rawurlencode($waMsg) : null;
+
+        return response()->json([
+            'ok'        => true,
+            'os_id'     => $os->id,
+            'numero_os' => $os->numero_os,
+            'pdf_url'   => route('ordens.pdf', $os),
+            'wa_url'    => $waUrl,
+        ]);
+    }
+
+    public function registrarAndamento(Request $request, Orcamento $orcamento)
+    {
+        $request->validate(['andamento' => 'nullable|string|max:2000']);
+        $orcamento->update(['andamento' => $request->andamento]);
+        return response()->json(['ok' => true]);
     }
 
     public function arquivar(Orcamento $orcamento)

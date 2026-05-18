@@ -22,6 +22,10 @@
                class="btn btn-sm btn-success ml-2">
                 <i class="fas fa-file-excel mr-1"></i>Excel
             </a>
+            <a href="{{ route('relatorios.financeiro.pdf', ['inicio' => $inicio->toDateString(), 'fim' => $fim->toDateString()]) }}"
+               class="btn btn-sm btn-danger ml-1" target="_blank">
+                <i class="fas fa-file-pdf mr-1"></i>PDF
+            </a>
         </form>
     </div>
 </div>

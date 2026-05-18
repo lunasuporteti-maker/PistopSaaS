@@ -16,8 +16,8 @@
             @if(in_array($orcamento->status, ['aprovado','em_servico']) && !$orcamento->ordemServico)
             <form method="POST" action="{{ route('orcamentos.gerar-os', $orcamento) }}" class="d-inline ml-1">
                 @csrf
-                <button class="btn btn-warning btn-sm" onclick="return confirm('Gerar OS para este orçamento?')">
-                    <i class="fas fa-tools"></i> Gerar OS
+                <button class="btn btn-outline-warning btn-sm" onclick="return confirm('Gerar OS manualmente (sem pagamento)? Use o Kanban para o fluxo normal.')">
+                    <i class="fas fa-tools"></i> Gerar OS (Manual)
                 </button>
             </form>
             @endif

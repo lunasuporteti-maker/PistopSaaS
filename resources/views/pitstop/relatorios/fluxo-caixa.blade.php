@@ -20,6 +20,10 @@
            class="btn btn-sm btn-success">
             <i class="fas fa-file-excel mr-1"></i>Excel
         </a>
+        <a href="{{ route('relatorios.fluxo-caixa.pdf', ['meses' => $meses]) }}"
+           class="btn btn-sm btn-danger ml-1" target="_blank">
+            <i class="fas fa-file-pdf mr-1"></i>PDF
+        </a>
     </div>
     <div class="card-body p-0">
         <table class="table table-sm mb-0">
