@@ -103,6 +103,15 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico'])->gr
     Route::patch('/lembretes/{lembrete}', [LembreteWebController::class, 'update'])->name('lembretes.update');
     Route::delete('/lembretes/{lembrete}',[LembreteWebController::class, 'destroy'])->name('lembretes.destroy');
 
+    // Download assíncrono de relatórios Excel (via fila Redis)
+    Route::get('/exports/download/{key}', function (string $key) {
+        $path = cache()->get("export:{$key}");
+        if (!$path || !\Illuminate\Support\Facades\Storage::exists($path)) {
+            return back()->with('error', 'Arquivo não pronto ou expirado. Aguarde alguns instantes e tente novamente.');
+        }
+        return \Illuminate\Support\Facades\Storage::download($path);
+    })->name('exports.download');
+
     // Relatórios
     Route::prefix('relatorios')->name('relatorios.')->group(function () {
         Route::get('/financeiro',            [RelatorioWebController::class, 'financeiro'])->name('financeiro');
