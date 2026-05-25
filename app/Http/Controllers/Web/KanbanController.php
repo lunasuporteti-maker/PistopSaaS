@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-use App\Models\CatalogoServico;
-use App\Models\Lembrete;
 use App\Models\Orcamento;
 use App\Models\OrdemServico;
+use App\Services\OrcamentoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -23,13 +22,18 @@ class KanbanController extends Controller
 
     // Mensagens sem emojis para evitar problemas de encoding no WhatsApp URL
     // Os placeholders {link} e {nome} e {veiculo} são substituídos na view
-    private array $mensagens = [
-        'orcamento'  => "Ola {nome}! Recebemos seu *{veiculo}* aqui na *AutoFix*. Ja estamos avaliando e em breve te enviamos o orcamento completo.\n\n_IAQueAtende - Sistema AutoFix_",
-        'aprovado'   => "Ola {nome}! Otima noticia! Seu orcamento para o *{veiculo}* foi *aprovado*. Vamos iniciar o servico em breve.\n\nAcompanhe o andamento em tempo real:\n{link}\n\n_IAQueAtende - Sistema AutoFix_",
-        'em_servico' => "Ola {nome}! Seu *{veiculo}* ja esta na oficina e o servico esta em *andamento* aqui na *AutoFix*.\n\nAcompanhe o status em tempo real pelo link abaixo:\n{link}\n\nAssim que ficar pronto te avisamos!\n\n_IAQueAtende - Sistema AutoFix_",
-        'concluido'  => "Ola {nome}! Seu *{veiculo}* esta *pronto* e pode ser retirado na *AutoFix*! Foi um prazer atende-lo. Ate a proxima!\n\n_IAQueAtende - Sistema AutoFix_",
-        'cancelado'  => "Ola {nome}, infelizmente nao foi possivel prosseguir com o servico do seu *{veiculo}* no momento. Entre em contato para mais informacoes. - *AutoFix*",
-    ];
+    // Nome da oficina resolvido dinamicamente via tenant para suportar multi-tenant
+    private function mensagens(): array
+    {
+        $nome = app('tenant')->nome ?? 'Oficina';
+        return [
+            'orcamento'  => "Ola {nome}! Recebemos seu *{veiculo}* aqui na *{$nome}*. Ja estamos avaliando e em breve te enviamos o orcamento completo.\n\n_{$nome}_",
+            'aprovado'   => "Ola {nome}! Otima noticia! Seu orcamento para o *{veiculo}* foi *aprovado*. Vamos iniciar o servico em breve.\n\nAcompanhe o andamento em tempo real:\n{link}\n\n_{$nome}_",
+            'em_servico' => "Ola {nome}! Seu *{veiculo}* ja esta na oficina e o servico esta em *andamento* aqui na *{$nome}*.\n\nAcompanhe o status em tempo real pelo link abaixo:\n{link}\n\nAssim que ficar pronto te avisamos!\n\n_{$nome}_",
+            'concluido'  => "Ola {nome}! Seu *{veiculo}* esta *pronto* e pode ser retirado na *{$nome}*! Foi um prazer atende-lo. Ate a proxima!\n\n_{$nome}_",
+            'cancelado'  => "Ola {nome}, infelizmente nao foi possivel prosseguir com o servico do seu *{veiculo}* no momento. Entre em contato para mais informacoes. - *{$nome}*",
+        ];
+    }
 
     public function index()
     {
@@ -42,7 +46,7 @@ class KanbanController extends Controller
             ->groupBy('status');
 
         $colunas   = $this->colunas;
-        $mensagens = $this->mensagens;
+        $mensagens = $this->mensagens();
 
         return view('pitstop.kanban', compact('cards', 'colunas', 'mensagens'));
     }
@@ -114,40 +118,9 @@ class KanbanController extends Controller
         $os = null;
 
         DB::transaction(function () use ($orcamento, $request, &$os) {
-            $os = OrdemServico::create([
-                'numero_os'     => OrdemServico::gerarNumeroOs(),
-                'orcamento_id'  => $orcamento->id,
-                'cliente_id'    => $orcamento->cliente_id,
-                'veiculo_id'    => $orcamento->veiculo_id,
-                'descricao'     => $orcamento->queixa_cliente,
-                'valor_total'   => $orcamento->valor_total,
-                'finalizado_em' => now(),
-            ]);
+            $os = app(OrcamentoService::class)->gerarOs($orcamento);
 
-            foreach ($orcamento->pecas()->with('peca')->get() as $item) {
-                $item->peca->decrement('quantidade', $item->quantidade);
-                $os->pecas()->create([
-                    'peca_id'        => $item->peca_id,
-                    'quantidade'     => $item->quantidade,
-                    'preco_unitario' => $item->preco_unitario,
-                ]);
-            }
-
-            foreach ($orcamento->servicos as $servico) {
-                $catalogo = CatalogoServico::where('nome', 'like', "%{$servico->servico_nome}%")
-                    ->whereNotNull('dias_lembrete')->first();
-                if ($catalogo) {
-                    Lembrete::create([
-                        'cliente_id'    => $orcamento->cliente_id,
-                        'veiculo_id'    => $orcamento->veiculo_id,
-                        'os_id'         => $os->id,
-                        'servico_nome'  => $servico->servico_nome,
-                        'data_servico'  => now(),
-                        'data_lembrete' => now()->addDays($catalogo->dias_lembrete),
-                    ]);
-                }
-            }
-
+            // Registrar pagamentos (responsabilidade exclusiva do fluxo Kanban)
             foreach ($request->pagamentos as $pag) {
                 $os->pagamentos()->create(['forma' => $pag['forma'], 'valor' => $pag['valor']]);
             }
@@ -161,7 +134,8 @@ class KanbanController extends Controller
         $nomeVeic = trim(($veiculo->marca ?? '') . ' ' . ($veiculo->modelo ?? ''));
         $valor    = 'R$ ' . number_format($os->valor_total, 2, ',', '.');
 
-        $waMsg = "Ola {$cliente->nome}! O servico do seu {$nomeVeic} foi concluido aqui na AutoFix.\n"
+        $nomeTenant = app('tenant')->nome ?? 'Oficina';
+        $waMsg = "Ola {$cliente->nome}! O servico do seu {$nomeVeic} foi concluido aqui na {$nomeTenant}.\n"
                . "OS: {$os->numero_os} — Total: {$valor}\n"
                . "Aguardamos voce para retirada. Obrigado!";
         $waUrl = $telefone ? 'https://wa.me/55' . $telefone . '?text=' . rawurlencode($waMsg) : null;

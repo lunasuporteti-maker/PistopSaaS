@@ -1,2 +1,4 @@
 [start]
-cmd = "php artisan migrate --force && (php artisan db:seed --force || true) && php artisan config:cache && php artisan route:cache && php artisan view:cache && (php artisan schedule:work &) && php artisan serve --host 0.0.0.0 --port 8000"
+# queue:work inicia em background para processar ExportarRelatorioJob (Excel assíncrono)
+# Redis deve estar configurado no Coolify: QUEUE_CONNECTION=redis, REDIS_HOST=redis
+cmd = "php artisan migrate --force && (php artisan db:seed --force || true) && php artisan config:cache && php artisan route:cache && php artisan view:cache && (php artisan schedule:work &) && (php artisan queue:work --sleep=3 --tries=3 --daemon &) && php artisan serve --host 0.0.0.0 --port 8000"

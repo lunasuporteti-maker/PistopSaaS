@@ -58,6 +58,37 @@
     </div>
 </div>
 
+{{-- ── KPI Cards — Métricas de Performance ────────────────── --}}
+<div class="row" style="gap:0">
+    <div class="col-6 col-lg-4 mb-3">
+        <div class="kpi-card kpi-blue">
+            <div class="kpi-icon"><i class="fas fa-receipt"></i></div>
+            <div class="kpi-body">
+                <div class="kpi-value">R$ {{ number_format($resumo['ticket_medio'], 2, ',', '.') }}</div>
+                <div class="kpi-label">Ticket Médio (mês)</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-4 mb-3">
+        <div class="kpi-card kpi-emerald">
+            <div class="kpi-icon"><i class="fas fa-chart-line"></i></div>
+            <div class="kpi-body">
+                <div class="kpi-value">{{ $resumo['taxa_conversao'] }}%</div>
+                <div class="kpi-label">Conversão Orç. → OS</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-4 mb-3">
+        <div class="kpi-card kpi-orange">
+            <div class="kpi-icon"><i class="fas fa-clock"></i></div>
+            <div class="kpi-body">
+                <div class="kpi-value">{{ $resumo['tempo_medio_horas'] }}h</div>
+                <div class="kpi-label">Tempo Médio de Serviço</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- ── Alertas inline ─────────────────────────────────────── --}}
 @if($estoqueBaixo->count() || $fila->count())
 <div class="d-flex flex-wrap gap-2 mb-3">
