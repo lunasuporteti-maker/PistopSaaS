@@ -14,6 +14,7 @@ use App\Models\MaoDeObra;
 use App\Models\OrdemServico;
 use App\Models\CatalogoServico;
 use App\Models\Lembrete;
+use App\Models\HistoricoKm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -49,6 +50,21 @@ class OrcamentoWebController extends Controller
         ]);
 
         $orcamento = Orcamento::create($data + ['status' => 'orcamento', 'valor_total' => 0, 'token_publico' => Str::random(48)]);
+
+        // Registrar KM de entrada no histórico e atualizar km_atual do veículo
+        if (!empty($data['km_entrada'])) {
+            HistoricoKm::create([
+                'veiculo_id' => $orcamento->veiculo_id,
+                'km'         => $data['km_entrada'],
+                'observacao' => 'Entrada — Orçamento #' . $orcamento->id,
+            ]);
+
+            $veiculo = $orcamento->veiculo;
+            if (!$veiculo->km_atual || $data['km_entrada'] > $veiculo->km_atual) {
+                $veiculo->update(['km_atual' => $data['km_entrada']]);
+            }
+        }
+
         return redirect()->route('orcamentos.show', $orcamento)->with('success', 'Orçamento criado.');
     }
 
