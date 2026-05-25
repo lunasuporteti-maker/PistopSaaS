@@ -13,6 +13,7 @@ use App\Models\PagamentoOs;
 use App\Models\PagamentoSaida;
 use App\Models\OrcamentoServico;
 use App\Models\Lembrete;
+use App\Services\DashboardService;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -23,7 +24,8 @@ class DashboardController extends Controller
         $hoje      = Carbon::today();
         $inicioMes = $hoje->copy()->startOfMonth();
 
-        // ── KPIs ───────────────────────────────────────────────────────
+        // ── KPIs (incluindo novas métricas via DashboardService) ───────
+        $resumo      = app(DashboardService::class)->resumo();
         $receitaHoje = PagamentoOs::whereHas('ordemServico')->whereDate('created_at', $hoje)->sum('valor');
         $receitaMes  = PagamentoOs::whereHas('ordemServico')->where('created_at', '>=', $inicioMes)->sum('valor');
         $saidasMes   = PagamentoSaida::where('data_pagamento', '>=', $inicioMes)->sum('valor');
@@ -87,6 +89,7 @@ class DashboardController extends Controller
         $chartServicosData   = $topServicos->pluck('total')->toArray();
 
         return view('pitstop.dashboard', compact(
+            'resumo',
             'receitaHoje', 'receitaMes', 'saidasMes',
             'fila', 'agendamentosHoje', 'ultimasOs', 'estoqueBaixo',
             'statusOrcamentos',
