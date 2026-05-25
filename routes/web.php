@@ -17,6 +17,7 @@ use App\Http\Controllers\Web\LembreteWebController;
 use App\Http\Controllers\Web\RelatorioWebController;
 use App\Http\Controllers\Web\UsuarioWebController;
 use App\Http\Controllers\Web\KanbanController;
+use App\Http\Controllers\Web\JsonController;
 use App\Http\Controllers\Web\PerfilWebController;
 use App\Http\Controllers\Web\CaixaWebController;
 use App\Http\Controllers\Web\PdfController;
@@ -48,24 +49,9 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico'])->gr
     Route::patch('/kanban/{orcamento}/andamento',[KanbanController::class, 'registrarAndamento'])->name('kanban.andamento');
 
     // Rotas JSON para selects dinâmicos (sessão web, sem token)
-    Route::get('/json/veiculos-por-cliente/{clienteId}', function ($clienteId) {
-        $veiculos = \App\Models\Veiculo::where('cliente_id', $clienteId)
-            ->select('id','marca','modelo','placa','ano')
-            ->orderBy('modelo')->get();
-        return response()->json($veiculos);
-    })->name('json.veiculos-por-cliente');
-
-    Route::post('/json/clientes', function (\Illuminate\Http\Request $request) {
-        $data = $request->validate(['nome'=>'required|string|max:100','telefone'=>'nullable|string|max:20','cpf'=>'nullable|string|max:14']);
-        $c = \App\Models\Cliente::create($data);
-        return response()->json($c);
-    })->name('json.clientes.store');
-
-    Route::post('/json/veiculos', function (\Illuminate\Http\Request $request) {
-        $data = $request->validate(['cliente_id'=>'required|exists:clientes,id','marca'=>'nullable|string|max:50','modelo'=>'nullable|string|max:100','ano'=>'nullable|integer','placa'=>'nullable|string|max:20','cor'=>'nullable|string|max:30']);
-        $v = \App\Models\Veiculo::create($data);
-        return response()->json($v);
-    })->name('json.veiculos.store');
+    Route::get('/json/veiculos-por-cliente/{clienteId}', [JsonController::class, 'veiculosPorCliente'])->name('json.veiculos-por-cliente');
+    Route::post('/json/clientes',                         [JsonController::class, 'storeCliente'])->name('json.clientes.store');
+    Route::post('/json/veiculos',                         [JsonController::class, 'storeVeiculo'])->name('json.veiculos.store');
 
     // Operacional
     Route::get('/fila',       [OrdemServicoWebController::class, 'fila'])->name('fila');
