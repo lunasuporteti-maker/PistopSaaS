@@ -11,10 +11,8 @@ use App\Models\Cliente;
 use App\Models\Veiculo;
 use App\Models\Peca;
 use App\Models\MaoDeObra;
-use App\Models\OrdemServico;
-use App\Models\CatalogoServico;
-use App\Models\Lembrete;
 use App\Models\HistoricoKm;
+use App\Services\OrcamentoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -112,50 +110,15 @@ class OrcamentoWebController extends Controller
 
     public function gerarOs(Orcamento $orcamento)
     {
-        if ($orcamento->ordemServico()->exists()) {
-            if (request()->wantsJson()) {
-                return response()->json(['ok' => false, 'msg' => 'OS já foi gerada para este orçamento.'], 422);
-            }
-            return back()->with('error', 'OS já foi gerada para este orçamento.');
-        }
-
-        DB::transaction(function () use ($orcamento) {
-            $os = OrdemServico::create([
-                'numero_os'    => OrdemServico::gerarNumeroOs(),
-                'orcamento_id' => $orcamento->id,
-                'cliente_id'   => $orcamento->cliente_id,
-                'veiculo_id'   => $orcamento->veiculo_id,
-                'descricao'    => $orcamento->queixa_cliente,
-                'valor_total'  => $orcamento->valor_total,
-            ]);
-
-            foreach ($orcamento->pecas as $item) {
-                $item->peca->decrement('quantidade', $item->quantidade);
-                $os->pecas()->create([
-                    'peca_id'        => $item->peca_id,
-                    'quantidade'     => $item->quantidade,
-                    'preco_unitario' => $item->preco_unitario,
-                ]);
-            }
-
-            foreach ($orcamento->servicos as $servico) {
-                $catalogo = CatalogoServico::where('nome', 'like', "%{$servico->servico_nome}%")
-                    ->whereNotNull('dias_lembrete')->first();
-
-                if ($catalogo) {
-                    Lembrete::create([
-                        'cliente_id'    => $orcamento->cliente_id,
-                        'veiculo_id'    => $orcamento->veiculo_id,
-                        'os_id'         => $os->id,
-                        'servico_nome'  => $servico->servico_nome,
-                        'data_servico'  => now(),
-                        'data_lembrete' => now()->addDays($catalogo->dias_lembrete),
-                    ]);
-                }
-            }
-
+        try {
+            $os = app(OrcamentoService::class)->gerarOs($orcamento);
             $orcamento->update(['status' => 'em_servico', 'iniciado_em' => now()]);
-        });
+        } catch (\Exception $e) {
+            if (request()->wantsJson()) {
+                return response()->json(['ok' => false, 'msg' => $e->getMessage()], 422);
+            }
+            return back()->with('error', $e->getMessage());
+        }
 
         if (request()->wantsJson()) {
             return response()->json(['ok' => true]);

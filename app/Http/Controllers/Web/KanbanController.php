@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-use App\Models\CatalogoServico;
-use App\Models\Lembrete;
 use App\Models\Orcamento;
 use App\Models\OrdemServico;
+use App\Services\OrcamentoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -119,40 +118,9 @@ class KanbanController extends Controller
         $os = null;
 
         DB::transaction(function () use ($orcamento, $request, &$os) {
-            $os = OrdemServico::create([
-                'numero_os'     => OrdemServico::gerarNumeroOs(),
-                'orcamento_id'  => $orcamento->id,
-                'cliente_id'    => $orcamento->cliente_id,
-                'veiculo_id'    => $orcamento->veiculo_id,
-                'descricao'     => $orcamento->queixa_cliente,
-                'valor_total'   => $orcamento->valor_total,
-                'finalizado_em' => now(),
-            ]);
+            $os = app(OrcamentoService::class)->gerarOs($orcamento);
 
-            foreach ($orcamento->pecas()->with('peca')->get() as $item) {
-                $item->peca->decrement('quantidade', $item->quantidade);
-                $os->pecas()->create([
-                    'peca_id'        => $item->peca_id,
-                    'quantidade'     => $item->quantidade,
-                    'preco_unitario' => $item->preco_unitario,
-                ]);
-            }
-
-            foreach ($orcamento->servicos as $servico) {
-                $catalogo = CatalogoServico::where('nome', 'like', "%{$servico->servico_nome}%")
-                    ->whereNotNull('dias_lembrete')->first();
-                if ($catalogo) {
-                    Lembrete::create([
-                        'cliente_id'    => $orcamento->cliente_id,
-                        'veiculo_id'    => $orcamento->veiculo_id,
-                        'os_id'         => $os->id,
-                        'servico_nome'  => $servico->servico_nome,
-                        'data_servico'  => now(),
-                        'data_lembrete' => now()->addDays($catalogo->dias_lembrete),
-                    ]);
-                }
-            }
-
+            // Registrar pagamentos (responsabilidade exclusiva do fluxo Kanban)
             foreach ($request->pagamentos as $pag) {
                 $os->pagamentos()->create(['forma' => $pag['forma'], 'valor' => $pag['valor']]);
             }
