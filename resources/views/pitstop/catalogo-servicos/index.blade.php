@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+﻿@extends('layouts.pitstop')
 @section('title', 'Catálogo de Serviços')
 
 @section('content_header')
@@ -9,7 +9,6 @@
 @endsection
 
 @section('content')
-@include('pitstop._partials.alerts')
 
 <div class="card">
     <div class="card-body p-0">

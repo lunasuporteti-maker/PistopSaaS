@@ -43,12 +43,18 @@ class DashboardService
             ? round(($totalOsMes / $orcamentosMes) * 100, 1)
             : 0;
 
-        // Tempo médio de serviço (aprovado_em → concluido_em) em horas — sintaxe PostgreSQL
+        // Tempo médio de serviço (aprovado_em → concluido_em) em horas
+        // PostgreSQL: EXTRACT(EPOCH FROM ...) | SQLite: strftime('%s', ...)
+        $isPostgres = DB::connection()->getDriverName() === 'pgsql';
+        $rawExpr = $isPostgres
+            ? 'AVG(EXTRACT(EPOCH FROM (concluido_em - aprovado_em)) / 3600) as horas_media'
+            : "AVG((strftime('%s', concluido_em) - strftime('%s', aprovado_em)) / 3600.0) as horas_media";
+
         $tempoMedio = Orcamento::whereNotNull('aprovado_em')
             ->whereNotNull('concluido_em')
             ->whereMonth('concluido_em', $hoje->month)
             ->whereYear('concluido_em', $hoje->year)
-            ->selectRaw('AVG(EXTRACT(EPOCH FROM (concluido_em - aprovado_em)) / 3600) as horas_media')
+            ->selectRaw($rawExpr)
             ->value('horas_media');
 
         $tempoMedioHoras = $tempoMedio ? round((float) $tempoMedio, 1) : 0;

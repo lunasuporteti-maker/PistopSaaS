@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+﻿@extends('layouts.pitstop')
 @section('title', 'Orçamentos')
 
 @section('content_header')
@@ -14,7 +14,6 @@
 @endsection
 
 @section('content')
-@include('pitstop._partials.alerts')
 
 @php
 $statusConfig = [

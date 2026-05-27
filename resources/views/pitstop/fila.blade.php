@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+﻿@extends('layouts.pitstop')
 @section('title', 'Fila de Serviço')
 
 @section('content_header')
@@ -6,7 +6,6 @@
 @endsection
 
 @section('content')
-@include('pitstop._partials.alerts')
 
 @if($fila->isEmpty())
 <div class="alert alert-info"><i class="fas fa-info-circle mr-1"></i> Nenhum veículo em fila no momento.</div>

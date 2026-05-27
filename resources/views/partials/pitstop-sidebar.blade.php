@@ -1,4 +1,4 @@
-<aside class="sidebar drawer" id="mainSidebar">
+<aside class="sidebar" id="mainSidebar">
 
     {{-- ── Logo ──────────────────────────────────────────────── --}}
     <div class="sb-brand">

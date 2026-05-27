@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+﻿@extends('layouts.pitstop')
 @section('title', 'Relatório Financeiro')
 
 @section('content_header')
@@ -6,7 +6,6 @@
 @endsection
 
 @section('content')
-@include('pitstop._partials.alerts')
 
 <div class="card shadow-sm mb-3">
     <div class="card-body py-2">

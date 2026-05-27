@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+@extends('layouts.pitstop')
 @section('title', 'Fluxo de Caixa')
 
 @section('content_header')

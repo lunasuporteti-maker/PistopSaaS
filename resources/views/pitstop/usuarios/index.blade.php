@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+﻿@extends('layouts.pitstop')
 @section('title', 'Usuários do Sistema')
 
 @section('content_header')
@@ -16,7 +16,6 @@
 @endsection
 
 @section('content')
-@include('pitstop._partials.alerts')
 
 {{-- Filtros --}}
 <div class="card card-outline card-danger shadow-sm mb-3">

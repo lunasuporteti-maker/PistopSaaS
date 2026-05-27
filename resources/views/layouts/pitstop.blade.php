@@ -12,7 +12,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    {{-- Vite: tokens + Tailwind compilados --}}
+    {{-- FontAwesome 5 — compat para ícones nas views legadas --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    {{-- Bootstrap 4 — camada de compat para forms, modais e grid --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+    {{-- Vite: tokens + Tailwind compilados (vem depois — sobrescreve Bootstrap onde necessário) --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     {{-- Extra CSS das views --}}
@@ -121,7 +127,7 @@ window.toggleTheme = function () {
     }
 };
 
-// ── Drawer mobile ────────────────────────────────────────────
+// ── Drawer mobile (só ativa no mobile via CSS) ───────────────
 window.openDrawer = function () {
     var sb = document.getElementById('mainSidebar');
     var bd = document.getElementById('drawerBackdrop');
@@ -136,7 +142,16 @@ window.closeDrawer = function () {
     if (bd) bd.classList.remove('show');
     document.body.style.overflow = '';
 };
+// Fecha drawer ao clicar num link (mobile)
+document.addEventListener('click', function (e) {
+    var link = e.target.closest('.sidebar a');
+    if (link && window.innerWidth <= 768) closeDrawer();
+});
 </script>
+
+{{-- Bootstrap compat JS (jQuery + Bootstrap bundle) --}}
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
 @stack('js')
 @stack('scripts')

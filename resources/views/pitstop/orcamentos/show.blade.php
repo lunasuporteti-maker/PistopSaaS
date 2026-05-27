@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+﻿@extends('layouts.pitstop')
 @section('title', 'Orçamento #' . $orcamento->id)
 
 @section('content_header')
@@ -50,7 +50,6 @@
 @endsection
 
 @section('content')
-@include('pitstop._partials.alerts')
 
 <div class="row">
     {{-- Painel lateral: dados --}}

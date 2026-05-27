@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+@extends('layouts.pitstop')
 @section('title', 'Veículo')
 
 @section('content_header')

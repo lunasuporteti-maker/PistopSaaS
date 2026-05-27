@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+﻿@extends('layouts.pitstop')
 @section('title', $peca->exists ? 'Editar Peça' : 'Nova Peça')
 
 @section('content_header')
@@ -6,7 +6,6 @@
 @endsection
 
 @section('content')
-@include('pitstop._partials.alerts')
 
 <div class="card card-danger card-outline" style="max-width:600px">
     <div class="card-body">

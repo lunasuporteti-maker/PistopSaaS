@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+﻿@extends('layouts.pitstop')
 @section('title', $ordem->numero_os)
 
 @php
@@ -58,7 +58,6 @@
 @endsection
 
 @section('content')
-@include('pitstop._partials.alerts')
 
 {{-- Modal WhatsApp pós-finalização --}}
 @if(session('show_whatsapp') && $ordem->cliente->telefone)

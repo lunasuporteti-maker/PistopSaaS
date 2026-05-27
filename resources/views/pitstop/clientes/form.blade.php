@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+﻿@extends('layouts.pitstop')
 @section('title', $cliente->exists ? 'Editar Cliente' : 'Novo Cliente')
 
 @section('content_header')
@@ -14,7 +14,6 @@
 @endsection
 
 @section('content')
-@include('pitstop._partials.alerts')
 
 <div class="card card-outline card-danger shadow-sm">
     <div class="card-body">

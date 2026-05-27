@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+﻿@extends('layouts.pitstop')
 @section('title', $usuario->exists ? 'Editar Usuário' : 'Novo Usuário')
 
 @section('content_header')
@@ -17,7 +17,6 @@
 @endsection
 
 @section('content')
-@include('pitstop._partials.alerts')
 
 <div class="row justify-content-center">
     <div class="col-md-7 col-lg-6">

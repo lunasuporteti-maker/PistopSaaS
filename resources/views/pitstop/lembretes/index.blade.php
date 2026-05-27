@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+﻿@extends('layouts.pitstop')
 @section('title', 'Lembretes')
 
 @section('content_header')
@@ -14,7 +14,6 @@
 @endsection
 
 @section('content')
-@include('pitstop._partials.alerts')
 
 {{-- Filtros --}}
 <div class="d-flex mb-3" style="gap:6px">

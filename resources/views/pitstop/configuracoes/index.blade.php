@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+﻿@extends('layouts.pitstop')
 @section('title', 'Configurações do Sistema')
 
 @section('content_header')
@@ -11,7 +11,6 @@
 @endsection
 
 @section('content')
-@include('pitstop._partials.alerts')
 
 <form method="POST" action="{{ route('configuracoes.update') }}">
 @csrf

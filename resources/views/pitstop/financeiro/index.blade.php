@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+﻿@extends('layouts.pitstop')
 @section('title', 'Financeiro')
 
 @section('content_header')
@@ -22,7 +22,6 @@
 @endsection
 
 @section('content')
-@include('pitstop._partials.alerts')
 
 <div class="row">
     {{-- Tabela de saídas --}}

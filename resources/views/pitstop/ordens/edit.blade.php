@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+﻿@extends('layouts.pitstop')
 @section('title', 'Editar OS ' . $ordem->numero_os)
 
 @section('content_header')
@@ -13,7 +13,6 @@
 @endsection
 
 @section('content')
-@include('pitstop._partials.alerts')
 
 <div class="row justify-content-center">
     <div class="col-md-7">
