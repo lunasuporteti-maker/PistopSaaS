@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\EntradaEstoqueItem;
+use App\Models\HistoricoEstoque;
 use App\Models\Peca;
 use Illuminate\Http\Request;
 
@@ -48,6 +50,37 @@ class PecaController extends Controller
 
         $peca->update($data);
         return response()->json($peca);
+    }
+
+    /**
+     * GET /api/pecas/{peca}/historico-compras
+     * Histórico de entradas de estoque que contêm esta peça.
+     */
+    public function historicoCompras(Peca $peca)
+    {
+        abort_if(auth()->user()->perfil === 'operador', 403, 'Acesso restrito.');
+
+        $historico = EntradaEstoqueItem::with(['entrada.fornecedor'])
+            ->where('peca_id', $peca->id)
+            ->orderByDesc('created_at')
+            ->paginate(25);
+
+        return response()->json($historico);
+    }
+
+    /**
+     * GET /api/pecas/{peca}/historico-estoque
+     * Todas as movimentações (entrada, saida, cancelamento, ajuste) desta peça.
+     * Acessível por todos os perfis (read-only).
+     */
+    public function historicoMovimentacoes(Peca $peca)
+    {
+        $historico = HistoricoEstoque::with(['usuario'])
+            ->where('peca_id', $peca->id)
+            ->orderByDesc('created_at')
+            ->paginate(25);
+
+        return response()->json($historico);
     }
 
     public function destroy(Peca $peca)

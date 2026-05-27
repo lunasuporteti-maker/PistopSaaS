@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\HistoricoEstoque;
 use App\Models\OrdemServico;
 use App\Models\PagamentoOs;
 use App\Models\Financeiro;
@@ -92,9 +93,29 @@ class OrdemServicoController extends Controller
 
         DB::beginTransaction();
         try {
-            // Devolve peças ao estoque
+            // Devolve peças ao estoque e registra historico de cancelamento
             foreach ($ordemServico->pecas as $item) {
+                $qtdAntes = $item->peca->quantidade;
                 $item->peca->increment('quantidade', $item->quantidade);
+
+                try {
+                    if (DB::getSchemaBuilder()->hasTable('historico_estoque')) {
+                        HistoricoEstoque::create([
+                            'tenant_id'         => $item->peca->tenant_id,
+                            'peca_id'           => $item->peca->id,
+                            'tipo'              => 'cancelamento',
+                            'quantidade_antes'  => $qtdAntes,
+                            'quantidade_depois' => $qtdAntes + (int) $item->quantidade,
+                            'quantidade_delta'  => (int) $item->quantidade,
+                            'referencia_tipo'   => 'ordem_servico',
+                            'referencia_id'     => $ordemServico->id,
+                            'usuario_id'        => auth()->id(),
+                            'created_at'        => now(),
+                        ]);
+                    }
+                } catch (\Throwable $e) {
+                    logger()->warning("OrdemServicoController: historico_estoque falhou — {$e->getMessage()}");
+                }
             }
 
             $ordemServico->pecas()->delete();
