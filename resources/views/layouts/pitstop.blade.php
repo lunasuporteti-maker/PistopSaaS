@@ -47,6 +47,32 @@
 
         @include('partials.pitstop-topbar')
 
+        {{-- Banner de trial / assinatura ──────────────────────────────────── --}}
+        @php
+            $__tenant = app()->bound('tenant') ? app('tenant') : null;
+            $__mostrarBanner = false;
+            $__bannerMsg = '';
+            $__bannerCor = 'warning';
+            if ($__tenant && $__tenant->trial_ends_at !== null && !$__tenant->emDia()) {
+                $__dias = $__tenant->diasTrialRestantes();
+                if ($__tenant->trialAtivo() && $__dias <= 5) {
+                    $__mostrarBanner = true;
+                    $__bannerMsg  = "Seu trial expira em <strong>{$__dias} " . ($__dias == 1 ? 'dia' : 'dias') . "</strong>. <a href=\"" . route('assine') . "\" style=\"color:inherit;font-weight:700;text-decoration:underline\">Assine agora</a> para não perder o acesso.";
+                    $__bannerCor  = $__dias <= 2 ? 'danger' : 'warning';
+                } elseif (!$__tenant->trialAtivo() && !$__tenant->emDia()) {
+                    $__mostrarBanner = true;
+                    $__bannerMsg  = "Seu acesso expirou. <a href=\"" . route('assine') . "\" style=\"color:inherit;font-weight:700;text-decoration:underline\">Escolha um plano</a> para continuar usando o PitStop.";
+                    $__bannerCor  = 'danger';
+                }
+            }
+        @endphp
+        @if($__mostrarBanner && !request()->routeIs('assine'))
+        <div style="background:{{ $__bannerCor === 'danger' ? '#c53030' : '#b7791f' }};color:#fff;font-size:.8rem;text-align:center;padding:.45rem 1rem;line-height:1.4">
+            <i class="fas fa-{{ $__bannerCor === 'danger' ? 'lock' : 'hourglass-half' }} mr-1"></i>
+            {!! $__bannerMsg !!}
+        </div>
+        @endif
+
         <div class="content">
 
             {{-- Flash messages --}}

@@ -28,6 +28,11 @@ class AuthenticatedSessionController extends Controller
         Auth::user()->forceFill(['session_token' => $token])->save();
         $request->session()->put('session_token', $token);
 
+        // Super admin vai direto para o painel da plataforma
+        if (Auth::user()->isSuperAdmin()) {
+            return redirect()->route('admin.dashboard');
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

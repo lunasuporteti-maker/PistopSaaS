@@ -65,7 +65,8 @@ class User extends Authenticatable
         ]);
     }
 
-    public function isAdmin(): bool    { return $this->perfil === 'admin'; }
-    public function isGerente(): bool  { return in_array($this->perfil, ['admin', 'gerente']); }
-    public function isOperador(): bool { return $this->perfil === 'operador'; }
+    public function isSuperAdmin(): bool { return $this->perfil === 'super_admin'; }
+    public function isAdmin(): bool      { return $this->perfil === 'admin'; }
+    public function isGerente(): bool    { return in_array($this->perfil, ['admin', 'gerente']); }
+    public function isOperador(): bool   { return $this->perfil === 'operador'; }
 }

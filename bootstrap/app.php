@@ -17,9 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
 
         $middleware->alias([
-            'tenant'          => \App\Http\Middleware\IdentifyTenant::class,
-            'single.session'  => \App\Http\Middleware\EnsureSingleSession::class,
-            'restrict.mecanico' => \App\Http\Middleware\RestrictMecanico::class,
+            'tenant'              => \App\Http\Middleware\IdentifyTenant::class,
+            'single.session'      => \App\Http\Middleware\EnsureSingleSession::class,
+            'restrict.mecanico'   => \App\Http\Middleware\RestrictMecanico::class,
+            'super.admin'         => \App\Http\Middleware\RequireSuperAdmin::class,
+            'check.subscription'  => \App\Http\Middleware\CheckSubscription::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -32,7 +32,7 @@ Route::middleware('throttle:30,1')->group(function () {
 Route::get('/', fn() => redirect()->route('dashboard'));
 Route::get('/home', fn() => redirect()->route('dashboard'));
 
-Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico'])->group(function () {
+Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico', 'check.subscription'])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -134,5 +134,25 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico'])->gr
     Route::get('/configuracoes',  [\App\Http\Controllers\Web\ConfiguracaoWebController::class, 'index'])->name('configuracoes.index');
     Route::post('/configuracoes', [\App\Http\Controllers\Web\ConfiguracaoWebController::class, 'update'])->name('configuracoes.update');
 });
+
+// ── Página de assinatura (tenant logado, sem plano ativo) ─────────────────
+Route::middleware(['tenant', 'auth'])->group(function () {
+    Route::get('/assine', [\App\Http\Controllers\Web\PlanoController::class, 'index'])->name('assine');
+});
+
+// ── Painel Admin IAQueAtende (super_admin apenas, sem tenant middleware) ───
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'super.admin'])->group(function () {
+    Route::get('/',                                              [\App\Http\Controllers\Admin\AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/tenants',                                       [\App\Http\Controllers\Admin\AdminTenantController::class, 'index'])->name('tenants.index');
+    Route::get('/tenants/{tenant}',                              [\App\Http\Controllers\Admin\AdminTenantController::class, 'show'])->name('tenants.show');
+    Route::post('/tenants/{tenant}/extender-trial',              [\App\Http\Controllers\Admin\AdminTenantController::class, 'extenderTrial'])->name('tenants.extender-trial');
+    Route::post('/tenants/{tenant}/toggle-plano',                [\App\Http\Controllers\Admin\AdminTenantController::class, 'togglePlano'])->name('tenants.toggle-plano');
+    Route::post('/tenants/{tenant}/toggle-ativo',                [\App\Http\Controllers\Admin\AdminTenantController::class, 'toggleAtivo'])->name('tenants.toggle-ativo');
+});
+
+// ── Webhook Asaas (público, sem auth — validar via token de cabeçalho) ────
+Route::post('/webhooks/asaas', [\App\Http\Controllers\Admin\WebhookAsaasController::class, 'handle'])
+    ->middleware('throttle:60,1')
+    ->name('webhooks.asaas');
 
 require __DIR__.'/auth.php';
