@@ -81,7 +81,9 @@
     <h1><i class="fas fa-columns mr-2"></i>PitStop — Painel Kanban</h1>
     <div class="d-flex align-items-center gap-2">
         <span class="badge-count" id="totalCards">{{ $cards->flatten()->count() }} cards</span>
-        <button onclick="window.close()" class="btn btn-sm btn-outline-light ml-3"><i class="fas fa-times"></i></button>
+        <a href="{{ route('dashboard') }}" class="btn btn-sm btn-outline-light ml-3" title="Voltar ao Dashboard">
+            <i class="fas fa-home"></i>
+        </a>
     </div>
 </div>
 

@@ -39,7 +39,7 @@
     </div>
     <div class="col-6 col-lg-3 mb-3">
         <div class="kpi-card kpi-red">
-            <div class="kpi-icon"><i class="fas fa-arrow-trend-down"></i></div>
+            <div class="kpi-icon"><i class="fas fa-arrow-down"></i></div>
             <div class="kpi-body">
                 <div class="kpi-value">R$ {{ number_format($saidasMes, 2, ',', '.') }}</div>
                 <div class="kpi-label">Saídas do Mês</div>
@@ -49,7 +49,7 @@
     <div class="col-6 col-lg-3 mb-3">
         @php $lucro = $receitaMes - $saidasMes; @endphp
         <div class="kpi-card {{ $lucro >= 0 ? 'kpi-emerald' : 'kpi-orange' }}">
-            <div class="kpi-icon"><i class="fas fa-scale-balanced"></i></div>
+            <div class="kpi-icon"><i class="fas fa-balance-scale"></i></div>
             <div class="kpi-body">
                 <div class="kpi-value">R$ {{ number_format($lucro, 2, ',', '.') }}</div>
                 <div class="kpi-label">Lucro do Mês</div>
@@ -328,9 +328,17 @@
     transition: opacity .15s;
 }
 .dash-pill:hover { opacity: .85; }
-.dash-pill-blue { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
-.dash-pill-orange { background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
-.dash-pill-outline { background: #fff; color: #555; border: 1px solid #ddd; }
+.dash-pill-blue    { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
+.dash-pill-orange  { background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
+.dash-pill-outline { background: #fff;    color: #555;    border: 1px solid #ddd; }
+
+/* Dark mode: dash pills */
+[data-theme="dark"] .dash-pill-blue    { background: oklch(24% 0.07 250); color: oklch(72% 0.12 250); border-color: oklch(34% 0.08 250); }
+[data-theme="dark"] .dash-pill-orange  { background: oklch(26% 0.07 50);  color: oklch(75% 0.15 50);  border-color: oklch(36% 0.10 50); }
+[data-theme="dark"] .dash-pill-outline { background: oklch(22% 0.012 250); color: oklch(68% 0.008 70); border-color: oklch(30% 0.014 250); }
+
+/* Chart.js dark mode: grades mais suaves */
+[data-theme="dark"] canvas { opacity: .93; }
 
 .btn-xs { padding: 3px 8px; font-size: .75rem; }
 </style>
