@@ -41,65 +41,36 @@
 {{-- Cards de plano --}}
 <div class="row justify-content-center mt-2">
 
-    {{-- Plano Básico --}}
-    <div class="col-md-4 mb-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-header py-3 text-center">
-                <h5 class="m-0 font-weight-bold text-muted">Básico</h5>
-                <div class="mt-2" style="font-size:2rem;font-weight:800;line-height:1">
-                    R$ 97
-                    <span style="font-size:.9rem;font-weight:400;color:#6c757d">/mês</span>
+    {{-- Plano PitStop (único) --}}
+    <div class="col-md-5 mb-4">
+        <div class="card shadow h-100" style="border:2px solid var(--danger,#e53e3e)">
+            <div class="card-header py-3 text-center" style="background:var(--danger,#e53e3e)">
+                <h5 class="m-0 font-weight-bold text-white">PitStop Completo</h5>
+                <div class="mt-2 text-white" style="font-size:2.2rem;font-weight:800;line-height:1">
+                    R$ 99,90
+                    <span style="font-size:.9rem;font-weight:400;opacity:.8">/mês</span>
                 </div>
+                <div class="mt-1 text-white" style="font-size:.78rem;opacity:.85">Acesso completo a todos os recursos</div>
             </div>
             <div class="card-body">
                 <ul class="list-unstyled" style="font-size:.9rem">
                     <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Ordens de serviço ilimitadas</li>
-                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Kanban de produção</li>
-                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Controle financeiro</li>
-                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Clientes e veículos</li>
-                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Relatórios em PDF</li>
-                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Agendamentos</li>
-                    <li class="py-1 text-muted"><i class="fas fa-times mr-2"></i>Múltiplos usuários</li>
-                    <li class="py-1 text-muted"><i class="fas fa-times mr-2"></i>Suporte prioritário</li>
+                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Kanban de produção em tempo real</li>
+                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Controle financeiro completo</li>
+                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Clientes, veículos e histórico</li>
+                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Controle de estoque e peças</li>
+                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Agendamentos e lembretes</li>
+                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Relatórios e exportação PDF</li>
+                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Múltiplos usuários</li>
+                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Suporte por WhatsApp</li>
                 </ul>
             </div>
             <div class="card-footer bg-transparent text-center pb-3">
                 {{-- Substituir href pelo link de pagamento Asaas --}}
-                <a href="#" class="btn btn-outline-danger btn-block" data-plan="basico">
-                    Assinar Básico
+                <a href="#" class="btn btn-danger btn-block btn-lg" data-plan="pitstop">
+                    <i class="fas fa-bolt mr-1"></i> Assinar Agora
                 </a>
-            </div>
-        </div>
-    </div>
-
-    {{-- Plano Profissional (destaque) --}}
-    <div class="col-md-4 mb-4">
-        <div class="card shadow h-100" style="border:2px solid var(--danger,#e53e3e)">
-            <div class="card-header py-3 text-center" style="background:var(--danger,#e53e3e)">
-                <span class="badge badge-light mb-1" style="font-size:.65rem">MAIS POPULAR</span>
-                <h5 class="m-0 font-weight-bold text-white">Profissional</h5>
-                <div class="mt-2 text-white" style="font-size:2rem;font-weight:800;line-height:1">
-                    R$ 197
-                    <span style="font-size:.9rem;font-weight:400;opacity:.8">/mês</span>
-                </div>
-            </div>
-            <div class="card-body">
-                <ul class="list-unstyled" style="font-size:.9rem">
-                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Tudo do plano Básico</li>
-                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Até 5 usuários</li>
-                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Controle de estoque</li>
-                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Catálogo de serviços</li>
-                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Comissões de equipe</li>
-                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Lembretes automáticos</li>
-                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Suporte prioritário</li>
-                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Domínio customizado</li>
-                </ul>
-            </div>
-            <div class="card-footer bg-transparent text-center pb-3">
-                {{-- Substituir href pelo link de pagamento Asaas --}}
-                <a href="#" class="btn btn-danger btn-block" data-plan="profissional">
-                    Assinar Profissional
-                </a>
+                <small class="text-muted d-block mt-2">Cancele quando quiser</small>
             </div>
         </div>
     </div>
@@ -122,7 +93,8 @@
 document.querySelectorAll('[data-plan]').forEach(function(btn) {
     btn.addEventListener('click', function(e) {
         e.preventDefault();
-        alert('Link de pagamento em breve. Entre em contato com suporte@iaqueatende.com.br para assinar.');
+        // TODO: substituir pelo link de checkout Asaas (R$99,90/mês)
+        alert('Link de pagamento em breve. Entre em contato: suporte@iaqueatende.com.br ou WhatsApp.');
     });
 });
 </script>
