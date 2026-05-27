@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\CatalogoServico;
+use App\Models\HistoricoEstoque;
 use App\Models\Lembrete;
 use App\Models\Orcamento;
 use App\Models\OrdemServico;
@@ -44,7 +45,18 @@ class OrcamentoService
 
             // Decrementa estoque e copia peças para a OS
             foreach ($orcamento->pecas()->with('peca')->get() as $item) {
+                $qtdAntes = $item->peca->quantidade;
                 $item->peca->decrement('quantidade', $item->quantidade);
+
+                // Registrar saída no histórico de estoque
+                $this->registrarHistoricoSaida(
+                    $item->peca,
+                    $qtdAntes,
+                    (int) $item->quantidade,
+                    'ordem_servico',
+                    $os->id,
+                );
+
                 $os->pecas()->create([
                     'peca_id'        => $item->peca_id,
                     'quantidade'     => $item->quantidade,
@@ -72,5 +84,36 @@ class OrcamentoService
         });
 
         return $os;
+    }
+
+    /**
+     * Registra saída de estoque no historico_estoque.
+     * Método privado — não lança exceção para não quebrar fluxo existente.
+     */
+    private function registrarHistoricoSaida(
+        \App\Models\Peca $peca,
+        int $qtdAntes,
+        int $quantidade,
+        string $referenciaTipo,
+        int $referenciaId,
+    ): void {
+        try {
+            if (DB::getSchemaBuilder()->hasTable('historico_estoque')) {
+                HistoricoEstoque::create([
+                    'tenant_id'         => $peca->tenant_id,
+                    'peca_id'           => $peca->id,
+                    'tipo'              => 'saida',
+                    'quantidade_antes'  => $qtdAntes,
+                    'quantidade_depois' => $qtdAntes - $quantidade,
+                    'quantidade_delta'  => -$quantidade,
+                    'referencia_tipo'   => $referenciaTipo,
+                    'referencia_id'     => $referenciaId,
+                    'usuario_id'        => auth()->id(),
+                    'created_at'        => now(),
+                ]);
+            }
+        } catch (\Throwable $e) {
+            logger()->warning("OrcamentoService: historico_estoque falhou — {$e->getMessage()}");
+        }
     }
 }

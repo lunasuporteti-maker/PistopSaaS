@@ -18,6 +18,8 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\RelatorioController;
 use App\Http\Controllers\Api\SyncController;
 use App\Http\Controllers\Api\PortalController;
+use App\Http\Controllers\Api\EntradaEstoqueController;
+use App\Http\Controllers\Api\FornecedorController;
 
 // ── Health check (para Docker/Coolify) — sem tenant ───────────
 Route::get('health', function () {
@@ -66,8 +68,34 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
     Route::apiResource('ordens', OrdemServicoController::class)
         ->only(['index', 'show', 'destroy']);
 
-    // Estoque
+    // Estoque — Peças
     Route::apiResource('pecas', PecaController::class)->except(['show']);
+
+    // Estoque — Entradas
+    // Nota: 'exportar' ANTES do apiResource para não ser capturada como {id}
+    Route::get('entradas-estoque/exportar', [EntradaEstoqueController::class, 'exportar'])
+         ->name('entradas-estoque.exportar');
+    Route::post('entradas-estoque', [EntradaEstoqueController::class, 'store'])
+         ->name('entradas-estoque.store');
+    Route::get('entradas-estoque',      [EntradaEstoqueController::class, 'index'])->name('entradas-estoque.index');
+    Route::get('entradas-estoque/{entrada}', [EntradaEstoqueController::class, 'show'])
+         ->name('entradas-estoque.show');
+
+    // Cancelamento de entrada
+    Route::post('entradas-estoque/{entrada}/cancelar', [EntradaEstoqueController::class, 'cancelar'])
+         ->name('entradas-estoque.cancelar');
+
+    // Histórico de compras e movimentações por peça
+    Route::get('pecas/{peca}/historico-compras', [PecaController::class, 'historicoCompras'])
+         ->name('pecas.historico-compras');
+    Route::get('pecas/{peca}/historico-estoque', [PecaController::class, 'historicoMovimentacoes'])
+         ->name('pecas.historico-estoque');
+
+    // Estoque — Fornecedores
+    Route::get('fornecedores/{fornecedor}/historico-compras', [FornecedorController::class, 'historicoCompras'])
+         ->name('fornecedores.historico-compras');
+    Route::apiResource('fornecedores', FornecedorController::class)
+         ->parameters(['fornecedores' => 'fornecedor']); // fix: Str::singular('fornecedores') = 'fornecedore'
 
     // Agendamentos
     Route::apiResource('agendamentos', AgendamentoController::class)->except(['show']);
@@ -95,6 +123,9 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
         Route::get('lucro-servico',    [RelatorioController::class, 'lucroServico'])->name('lucro-servico');
         Route::get('saidas-categoria', [RelatorioController::class, 'saidasCategoria'])->name('saidas-categoria');
         Route::get('detalhado',        [RelatorioController::class, 'detalhado'])->name('detalhado');
+        // Nota: 'compras/exportar' ANTES de 'compras' para não ser capturado como parâmetro
+        Route::get('compras/exportar', [RelatorioController::class, 'exportarCompras'])->name('compras.exportar');
+        Route::get('compras',          [RelatorioController::class, 'compras'])->name('compras');
     });
 
     // Sincronização offline

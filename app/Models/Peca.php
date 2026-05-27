@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use App\Traits\BelongsToTenant;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Peca extends Model
 {
-    use SoftDeletes, BelongsToTenant;
+    use HasFactory, SoftDeletes, BelongsToTenant;
 
     protected $fillable = [
         'tenant_id', 'nome', 'quantidade', 'preco_custo', 'preco_venda', 'estoque_minimo',
@@ -27,6 +28,16 @@ class Peca extends Model
     public function osPecas()
     {
         return $this->hasMany(OsPeca::class);
+    }
+
+    public function entradaEstoqueItens()
+    {
+        return $this->hasMany(EntradaEstoqueItem::class);
+    }
+
+    public function historicoEstoque()
+    {
+        return $this->hasMany(HistoricoEstoque::class);
     }
 
     public function estoqueAbaixoMinimo(): bool
