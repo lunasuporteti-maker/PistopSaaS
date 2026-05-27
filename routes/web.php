@@ -30,6 +30,7 @@ Route::middleware('throttle:30,1')->group(function () {
 });
 
 Route::get('/', fn() => redirect()->route('dashboard'));
+Route::get('/home', fn() => redirect()->route('dashboard'));
 
 Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico'])->group(function () {
 
