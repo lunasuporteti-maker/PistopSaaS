@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminTenantController;
 use App\Http\Controllers\Admin\WebhookAsaasController;
+use App\Http\Controllers\Public\EmailConfirmationController;
 use App\Http\Controllers\Public\PublicSignupController;
 use App\Http\Controllers\Web\AcompanhamentoPublicoController;
 use App\Http\Controllers\Web\AgendamentoWebController;
@@ -42,6 +43,13 @@ Route::middleware('throttle:30,1')->group(function () {
     Route::get('/cadastro', [PublicSignupController::class, 'create'])->name('cadastro.form');
     Route::get('/cadastro/verificar-slug', [PublicSignupController::class, 'verificarSlug'])->name('cadastro.verificar-slug');
     Route::get('/cadastro/confirmacao', [PublicSignupController::class, 'confirmacao'])->name('cadastro.confirmacao');
+});
+
+// ── Confirmação de e-mail + provisionamento atômico (PRD 03, Story 4.3) ───
+// Subdomínio principal (app.iaqueatende.com.br), sem middleware tenant/auth.
+Route::middleware('throttle:10,1')->group(function () {
+    Route::get('/confirmar-email/{token}', [EmailConfirmationController::class, 'confirm'])
+        ->name('cadastro.confirmar-email');
 });
 
 // AC6 — POST com rate limit dedicado (5/hora por IP).

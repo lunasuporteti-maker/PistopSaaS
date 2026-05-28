@@ -34,6 +34,10 @@ return [
         // Horas de validade do token de confirmação de e-mail (AC7/AC8).
         'token_validade_horas' => 24,
 
+        // Duração do trial em dias ao provisionar o tenant (PRD 03, Story 4.3 AC9).
+        // ATENÇÃO: 14 dias (não 30) — conforme PRD.
+        'trial_dias' => 14,
+
         // Domínio público onde o app de onboarding roda (link do e-mail, AC8).
         'app_url' => env('PITSTOP_APP_URL', 'https://app.iaqueatende.com.br'),
 
