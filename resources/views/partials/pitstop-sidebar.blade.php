@@ -157,6 +157,12 @@
             <span class="ic"><x-icon name="settings" size="16" /></span>
             <span>Configurações</span>
         </a>
+
+        <a href="{{ route('assinatura') }}"
+           class="sb-link {{ request()->routeIs('assinatura') ? 'active' : '' }}">
+            <span class="ic"><x-icon name="credit-card" size="16" /></span>
+            <span>Assinatura</span>
+        </a>
         @endcan
 
     </nav>

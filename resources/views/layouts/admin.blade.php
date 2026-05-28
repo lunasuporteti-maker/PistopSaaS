@@ -237,6 +237,9 @@
         </a>
 
         <div class="nav-section" style="margin-top:.5rem">Conta</div>
+        <a href="{{ route('admin.conta') }}" class="{{ request()->routeIs('admin.conta') ? 'active' : '' }}">
+            <i class="fas fa-key"></i> Minha Senha
+        </a>
         <a href="{{ route('dashboard') }}" target="_blank">
             <i class="fas fa-external-link-alt"></i> Ver PitStop
         </a>
