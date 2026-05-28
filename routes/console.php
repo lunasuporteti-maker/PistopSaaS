@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // Arquiva orçamentos concluídos há mais de 48h — roda a cada hora
 Schedule::command('pitstop:arquivar-concluidos')->hourly();
+
+// Verifica expiração de trial e envia emails D-3, D-1, D0
+Schedule::command('pitstop:check-trial-expiry')->dailyAt('08:00');

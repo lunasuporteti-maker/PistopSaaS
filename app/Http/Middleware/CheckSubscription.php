@@ -46,12 +46,21 @@ class CheckSubscription
             return $next($request);
         }
 
-        // Tudo expirado → redireciona para a página de assinatura
-        // Permite requisições AJAX/JSON retornarem 402 em vez de redirect
+        // Tudo expirado → modo read-only (GET liberado, escrita bloqueada)
         if ($request->expectsJson()) {
-            return response()->json(['message' => 'Sua assinatura expirou.'], 402);
+            if ($request->isMethod('GET')) {
+                return $next($request);
+            }
+            return response()->json(['message' => 'Seu trial expirou. Assine para continuar usando o PitStop.'], 402);
         }
 
-        return redirect()->route('assine')->with('aviso', 'Seu acesso expirou. Escolha um plano para continuar.');
+        if ($request->isMethod('GET')) {
+            // Leitura liberada — banner de aviso injetado via session flash
+            session()->flash('trial_expirado', true);
+            return $next($request);
+        }
+
+        // POST / PUT / PATCH / DELETE → bloqueado com redirect e mensagem
+        return redirect()->back()->with('error', 'Seu trial expirou. Assine para continuar usando o PitStop.');
     }
 }

@@ -1,3 +1,27 @@
+@php
+    $tenant = app()->bound(\App\Models\Tenant::class) ? app(\App\Models\Tenant::class) : null;
+    $diasRestantes = $tenant?->diasRestantesTrial();
+    $trialExpirado = session('trial_expirado', false);
+    $alertaTrial = $tenant && $tenant->trial_ends_at !== null && !$tenant->emDia()
+        && ($trialExpirado || ($diasRestantes !== null && $diasRestantes <= 5 && $diasRestantes >= 0));
+@endphp
+
+@if($trialExpirado)
+<div style="background:#dc2626;color:#fff;text-align:center;padding:6px 12px;font-size:13px;">
+    Seu trial expirou. <strong>Modo somente leitura ativo.</strong>
+    <a href="{{ route('assine') }}" style="color:#fff;text-decoration:underline;margin-left:8px;">Assinar agora →</a>
+</div>
+@elseif($alertaTrial)
+<div style="background:#d97706;color:#fff;text-align:center;padding:6px 12px;font-size:13px;">
+    @if($diasRestantes === 0)
+        Seu trial expira <strong>hoje</strong>!
+    @else
+        Seu trial expira em <strong>{{ $diasRestantes }} {{ $diasRestantes === 1 ? 'dia' : 'dias' }}</strong>.
+    @endif
+    <a href="{{ route('assine') }}" style="color:#fff;text-decoration:underline;margin-left:8px;">Ver planos →</a>
+</div>
+@endif
+
 <header class="topbar">
 
     {{-- ── Botão de menu (mobile) ───────────────────────────── --}}
