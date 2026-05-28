@@ -11,7 +11,7 @@ class Veiculo extends Model
     use SoftDeletes, BelongsToTenant;
 
     protected $fillable = [
-        'tenant_id', 'cliente_id', 'marca', 'modelo', 'ano',
+        'tenant_id', 'is_example', 'cliente_id', 'marca', 'modelo', 'ano',
         'placa', 'cor', 'km_atual',
     ];
 

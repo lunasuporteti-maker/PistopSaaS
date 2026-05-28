@@ -11,7 +11,7 @@ class Cliente extends Model
     use SoftDeletes, BelongsToTenant;
 
     protected $fillable = [
-        'tenant_id', 'nome', 'telefone', 'email', 'cpf',
+        'tenant_id', 'is_example', 'nome', 'telefone', 'email', 'cpf',
         'endereco', 'cep', 'logradouro', 'numero', 'bairro', 'cidade', 'uf',
     ];
 
