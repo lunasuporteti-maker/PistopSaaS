@@ -13,6 +13,14 @@ class IdentifyTenant
     {
         $host = $request->getHost();
 
+        // Subdomínios de sistema (ex: app, www, api) NÃO mapeiam um tenant.
+        // Rotas públicas como /cadastro vivem em app.iaqueatende.com.br e
+        // devem passar sem que o middleware tente resolver/abortar (PRD 03).
+        $sub = explode('.', $host)[0] ?? '';
+        if (in_array($sub, config('pitstop.slugs_reservados', []), true)) {
+            return $next($request);
+        }
+
         // Em desenvolvimento local, usa o slug definido no .env
         $defaultSlug = config('app.default_tenant_slug');
 
