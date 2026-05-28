@@ -107,6 +107,20 @@
                 </div>
             @endif
 
+            {{-- Onboarding wizard (aparece automaticamente até wizard_concluido = true) --}}
+            @php
+                $__wizardAtivo = false;
+                if (app()->bound('tenant') && auth()->check() && !auth()->user()->isSuperAdmin()
+                    && !request()->routeIs('onboarding.*', 'assine', 'logout')) {
+                    $__progRaw  = \App\Models\Configuracao::get('onboarding_progress', '');
+                    $__prog     = $__progRaw ? json_decode($__progRaw, true) : [];
+                    $__wizardAtivo = empty($__prog['wizard_concluido']);
+                }
+            @endphp
+            @if($__wizardAtivo)
+                @include('pitstop.onboarding.wizard-overlay')
+            @endif
+
             {{-- Conteúdo principal --}}
             @yield('content')
 

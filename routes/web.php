@@ -27,6 +27,7 @@ use App\Http\Controllers\Web\PerfilWebController;
 use App\Http\Controllers\Web\PlanoController;
 use App\Http\Controllers\Web\RelatorioWebController;
 use App\Http\Controllers\Web\UsuarioWebController;
+use App\Http\Controllers\Web\OnboardingController;
 use App\Http\Controllers\Web\VeiculoWebController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -172,6 +173,15 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico', 'che
 // ── Página de assinatura (tenant logado, sem plano ativo) ─────────────────
 Route::middleware(['tenant', 'auth'])->group(function () {
     Route::get('/assine', [PlanoController::class, 'index'])->name('assine');
+});
+
+// ── Onboarding wizard (tenant logado, sem check.subscription — acesso sempre) ─
+Route::middleware(['tenant', 'auth', 'single.session'])->prefix('onboarding')->name('onboarding.')->group(function () {
+    Route::get('/wizard', [OnboardingController::class, 'wizard'])->name('wizard');
+    Route::put('/progress', [OnboardingController::class, 'updateProgress'])->name('progress');
+    Route::post('/skip', [OnboardingController::class, 'skip'])->name('skip');
+    Route::post('/branding', [OnboardingController::class, 'saveBranding'])->name('branding');
+    Route::post('/employee', [OnboardingController::class, 'saveEmployee'])->name('employee');
 });
 
 // ── Painel Admin IAQueAtende (super_admin apenas, sem tenant middleware) ───
