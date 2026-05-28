@@ -115,7 +115,7 @@
         <div class="card shadow mt-3">
             <div class="card-body" style="font-size:.85rem;">
                 <strong>Dúvidas sobre sua assinatura?</strong><br>
-                Entre em contato: <a href="mailto:suporte@iaqueatende.com.br">suporte@iaqueatende.com.br</a>
+                Entre em contato: <a href="mailto:iaqueatende@gmail.com">iaqueatende@gmail.com</a>
             </div>
         </div>
     </div>

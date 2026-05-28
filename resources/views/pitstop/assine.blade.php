@@ -89,7 +89,7 @@
 <div class="text-center text-muted mt-2 mb-4" style="font-size:.85rem">
     <p>
         Pagamento seguro via Pix ou cartão de crédito. Cancele quando quiser.<br>
-        Dúvidas? Entre em contato: <a href="mailto:suporte@iaqueatende.com.br" class="text-danger">suporte@iaqueatende.com.br</a>
+        Dúvidas? Entre em contato: <a href="mailto:iaqueatende@gmail.com" class="text-danger">iaqueatende@gmail.com</a>
     </p>
 </div>
 
