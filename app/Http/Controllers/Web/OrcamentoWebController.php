@@ -102,10 +102,13 @@ class OrcamentoWebController extends Controller
 
     public function aprovar(Orcamento $orcamento)
     {
-        // Gera token público para o cliente acompanhar o andamento
         $token = $orcamento->token_publico ?? Str::random(48);
         $orcamento->update(['status' => 'aprovado', 'aprovado_em' => now(), 'token_publico' => $token]);
-        return back()->with('success', 'Orçamento aprovado! Link de acompanhamento gerado para o cliente.');
+
+        // Gera OS automaticamente ao aprovar — ela navega o Kanban a partir daqui
+        app(OrcamentoService::class)->gerarOs($orcamento->fresh());
+
+        return back()->with('success', 'Orçamento aprovado! OS gerada e disponível no Kanban.');
     }
 
     public function gerarOs(Orcamento $orcamento)

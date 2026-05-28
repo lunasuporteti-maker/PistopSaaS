@@ -96,52 +96,54 @@
             <span class="col-count">{{ $itens->count() }}</span>
         </div>
         <div class="col-body kanban-lista" data-status="{{ $status }}">
-            @forelse($itens as $orc)
+            @forelse($itens as $os)
             @php
-                $nomeCliente = $orc->cliente->nome ?? 'Cliente';
-                $nomeVeiculo = trim(($orc->veiculo->marca ?? '') . ' ' . ($orc->veiculo->modelo ?? ''));
-                $telefone    = preg_replace('/\D/', '', $orc->cliente->telefone ?? '');
-                $linkPublico = $orc->token_publico ? url('/acompanhar/' . $orc->token_publico) : null;
+                $nomeCliente = $os->orcamento?->cliente?->nome ?? 'Cliente';
+                $nomeVeiculo = trim(($os->orcamento?->veiculo?->marca ?? '') . ' ' . ($os->orcamento?->veiculo?->modelo ?? ''));
+                $telefone    = preg_replace('/\D/', '', $os->orcamento?->cliente?->telefone ?? '');
+                $linkPublico = $os->token_publico ? url('/acompanhar/' . $os->token_publico) : null;
                 $msg = str_replace(['{nome}','{veiculo}','{link}'], [$nomeCliente, $nomeVeiculo ?: 'veiculo', $linkPublico ?? ''], $mensagens[$status]);
                 $waUrl = $telefone ? 'https://wa.me/55' . $telefone . '?text=' . rawurlencode($msg) : null;
             @endphp
             <div class="kanban-card"
-                 data-id="{{ $orc->id }}"
+                 data-id="{{ $os->id }}"
                  data-status="{{ $status }}"
-                 data-token="{{ $orc->token_publico }}"
-                 data-valor="{{ $orc->valor_total }}"
+                 data-token="{{ $os->token_publico }}"
+                 data-valor="{{ $os->valor_total }}"
                  data-cliente="{{ $nomeCliente }}"
                  data-telefone="{{ $telefone }}"
                  draggable="true">
                 <div class="card-cliente">{{ $nomeCliente }}</div>
                 <div class="card-veiculo">
                     <i class="fas fa-car"></i> {{ $nomeVeiculo ?: '—' }}
-                    @if($orc->veiculo->placa ?? null)<span style="color:#475569"> · {{ $orc->veiculo->placa }}</span>@endif
+                    @if($os->orcamento?->veiculo?->placa)<span style="color:#475569"> · {{ $os->orcamento->veiculo->placa }}</span>@endif
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
-                    <span class="card-valor">R$ {{ number_format($orc->valor_total, 2, ',', '.') }}</span>
-                    <span class="card-data">{{ $orc->created_at->format('d/m') }}</span>
+                    <span class="card-valor">R$ {{ number_format($os->valor_total, 2, ',', '.') }}</span>
+                    <span class="card-data" title="{{ $os->numero_os }}">{{ $os->created_at->format('d/m') }}</span>
                 </div>
-                @if($orc->queixa_cliente)
-                <div class="card-queixa" title="{{ $orc->queixa_cliente }}">"{{ $orc->queixa_cliente }}"</div>
+                @if($os->queixa_cliente)
+                <div class="card-queixa" title="{{ $os->queixa_cliente }}">"{{ $os->queixa_cliente }}"</div>
                 @endif
                 <div class="card-actions">
                     @if($waUrl)
                     <a href="{{ $waUrl }}" target="_blank" class="btn-wa"><i class="fab fa-whatsapp"></i> WhatsApp</a>
                     @endif
-                    <a href="/orcamentos/{{ $orc->id }}" target="_blank" class="btn-ver"><i class="fas fa-eye"></i> Ver</a>
+                    @if($os->orcamento_id)
+                    <a href="/orcamentos/{{ $os->orcamento_id }}" target="_blank" class="btn-ver"><i class="fas fa-eye"></i> Ver</a>
+                    @endif
                     @if($linkPublico)
                     <a href="{{ $linkPublico }}" target="_blank" class="btn-ver" title="Link do cliente"><i class="fas fa-share-alt"></i></a>
                     @endif
                     @if($status === 'aprovado')
-                    <button class="btn-iniciar" data-id="{{ $orc->id }}"><i class="fas fa-play"></i> Iniciar</button>
+                    <button class="btn-iniciar" data-id="{{ $os->id }}"><i class="fas fa-play"></i> Iniciar</button>
                     @endif
                     @if($status === 'em_servico')
-                    <button class="btn-andamento" data-id="{{ $orc->id }}" data-andamento="{{ $orc->andamento ?? '' }}"><i class="fas fa-pencil-alt"></i> Andamento</button>
-                    <button class="btn-finalizar" data-id="{{ $orc->id }}" data-valor="{{ $orc->valor_total }}"><i class="fas fa-check-circle"></i> Finalizar</button>
+                    <button class="btn-andamento" data-id="{{ $os->id }}" data-andamento="{{ $os->andamento ?? '' }}"><i class="fas fa-pencil-alt"></i> Andamento</button>
+                    <button class="btn-finalizar" data-id="{{ $os->id }}" data-valor="{{ $os->valor_total }}"><i class="fas fa-check-circle"></i> Finalizar</button>
                     @endif
                     @if($status === 'concluido')
-                    <button class="btn-arquivar" data-id="{{ $orc->id }}" title="Arquivar"><i class="fas fa-archive"></i></button>
+                    <button class="btn-arquivar" data-id="{{ $os->id }}" title="Arquivar"><i class="fas fa-archive"></i></button>
                     @endif
                 </div>
             </div>

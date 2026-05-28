@@ -78,10 +78,10 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico', 'che
     // Kanban
     Route::get('/kanban', [KanbanController::class, 'index'])->name('kanban');
     Route::get('/kanban/estado', [KanbanController::class, 'estado'])->name('kanban.estado');
-    Route::patch('/kanban/{orcamento}/status', [KanbanController::class, 'updateStatus'])->name('kanban.status');
-    Route::post('/kanban/{orcamento}/arquivar', [KanbanController::class, 'arquivar'])->name('kanban.arquivar');
-    Route::post('/kanban/{orcamento}/concluir', [KanbanController::class, 'concluirComPagamento'])->name('kanban.concluir');
-    Route::patch('/kanban/{orcamento}/andamento', [KanbanController::class, 'registrarAndamento'])->name('kanban.andamento');
+    Route::patch('/kanban/{os}/status', [KanbanController::class, 'updateStatus'])->name('kanban.status');
+    Route::post('/kanban/{os}/arquivar', [KanbanController::class, 'arquivar'])->name('kanban.arquivar');
+    Route::post('/kanban/{os}/concluir', [KanbanController::class, 'concluirComPagamento'])->name('kanban.concluir');
+    Route::patch('/kanban/{os}/andamento', [KanbanController::class, 'registrarAndamento'])->name('kanban.andamento');
 
     // Rotas JSON para selects dinâmicos (sessão web, sem token)
     Route::get('/json/veiculos-por-cliente/{clienteId}', [JsonController::class, 'veiculosPorCliente'])->name('json.veiculos-por-cliente');

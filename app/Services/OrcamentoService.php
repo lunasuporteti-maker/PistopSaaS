@@ -12,22 +12,14 @@ use Illuminate\Support\Facades\DB;
 class OrcamentoService
 {
     /**
-     * Gera a OS a partir de um orçamento aprovado ou em serviço.
-     *
-     * Responsabilidades:
-     *   - Criar OrdemServico com número sequencial
-     *   - Decrementar estoque das peças usadas
-     *   - Copiar peças para os_pecas
-     *   - Criar lembretes de revisão automáticos (via CatalogoServico.dias_lembrete)
-     *
-     * NÃO registra pagamentos — essa é responsabilidade do chamador.
-     *
-     * @throws \Exception se OS já existir para este orçamento
+     * Gera a OS a partir de um orçamento aprovado.
+     * Se OS já existir, retorna a existente sem reprocessar (idempotente).
      */
     public function gerarOs(Orcamento $orcamento): OrdemServico
     {
-        if ($orcamento->ordemServico()->exists()) {
-            throw new \Exception('OS já foi gerada para este orçamento.');
+        $existente = $orcamento->ordemServico()->first();
+        if ($existente) {
+            return $existente;
         }
 
         $os = null;
@@ -40,7 +32,10 @@ class OrcamentoService
                 'veiculo_id'    => $orcamento->veiculo_id,
                 'descricao'     => $orcamento->queixa_cliente,
                 'valor_total'   => $orcamento->valor_total,
-                'finalizado_em' => now(),
+                'status'        => 'aprovado',
+                'token_publico' => $orcamento->token_publico ?? \Illuminate\Support\Str::random(48),
+                'aprovado_em'   => now(),
+                'finalizado_em' => null,
             ]);
 
             // Decrementa estoque e copia peças para a OS

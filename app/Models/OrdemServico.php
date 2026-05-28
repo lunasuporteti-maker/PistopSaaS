@@ -15,12 +15,24 @@ class OrdemServico extends Model
     protected $fillable = [
         'tenant_id', 'numero_os', 'orcamento_id', 'cliente_id', 'veiculo_id',
         'descricao', 'valor_total', 'garantia_dias', 'finalizado_em',
+        'status', 'token_publico', 'andamento', 'arquivado_em', 'posicao_fila',
+        'aprovado_em', 'iniciado_em', 'concluido_em',
     ];
 
     protected $casts = [
         'valor_total'   => 'decimal:2',
         'finalizado_em' => 'datetime',
+        'aprovado_em'   => 'datetime',
+        'iniciado_em'   => 'datetime',
+        'concluido_em'  => 'datetime',
+        'arquivado_em'  => 'datetime',
     ];
+
+    /** Atalho para a queixa do cliente (vive no orçamento) */
+    public function getQueixaClienteAttribute(): ?string
+    {
+        return $this->orcamento?->queixa_cliente;
+    }
 
     public function orcamento()
     {
