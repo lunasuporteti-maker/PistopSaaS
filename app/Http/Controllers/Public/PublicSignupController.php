@@ -141,6 +141,9 @@ class PublicSignupController extends Controller
         // AC8 — dispara e-mail de confirmação via fila.
         SendSignupConfirmationEmailJob::dispatch($signup);
 
+        // Story 4.8 — notifica admin sobre novo cadastro
+        \App\Jobs\NotifyAdminNewSignupJob::dispatch($signup->id);
+
         // Guarda o e-mail em sessão para a tela de confirmação / reenvio.
         $request->session()->put('signup_email', $signup->email);
 
