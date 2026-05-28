@@ -41,11 +41,11 @@
 {{-- Cards de plano --}}
 <div class="row justify-content-center mt-2">
 
-    {{-- Plano PitStop (único) --}}
+    {{-- Plano Pro --}}
     <div class="col-md-5 mb-4">
         <div class="card shadow h-100" style="border:2px solid var(--danger,#e53e3e)">
             <div class="card-header py-3 text-center" style="background:var(--danger,#e53e3e)">
-                <h5 class="m-0 font-weight-bold text-white">PitStop Completo</h5>
+                <h5 class="m-0 font-weight-bold text-white">Plano Pro</h5>
                 <div class="mt-2 text-white" style="font-size:2.2rem;font-weight:800;line-height:1">
                     R$ 99,90
                     <span style="font-size:.9rem;font-weight:400;opacity:.8">/mês</span>
@@ -66,10 +66,18 @@
                 </ul>
             </div>
             <div class="card-footer bg-transparent text-center pb-3">
-                {{-- Substituir href pelo link de pagamento Asaas --}}
-                <a href="#" class="btn btn-danger btn-block btn-lg" data-plan="pitstop">
-                    <i class="fas fa-bolt mr-1"></i> Assinar Agora
+                @if($tenant)
+                <form action="{{ route('assine.checkout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-danger btn-block btn-lg">
+                        <i class="fas fa-bolt mr-1"></i> Assinar Agora — R$99,90/mês
+                    </button>
+                </form>
+                @else
+                <a href="{{ route('cadastro.form') }}" class="btn btn-danger btn-block btn-lg">
+                    <i class="fas fa-bolt mr-1"></i> Criar conta grátis
                 </a>
+                @endif
                 <small class="text-muted d-block mt-2">Cancele quando quiser</small>
             </div>
         </div>
@@ -87,15 +95,3 @@
 
 @endsection
 
-@push('js')
-<script>
-// Placeholder: substitua os href dos botões pelos links reais do Asaas
-document.querySelectorAll('[data-plan]').forEach(function(btn) {
-    btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        // TODO: substituir pelo link de checkout Asaas (R$99,90/mês)
-        alert('Link de pagamento em breve. Entre em contato: suporte@iaqueatende.com.br ou WhatsApp.');
-    });
-});
-</script>
-@endpush

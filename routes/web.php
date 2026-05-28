@@ -170,9 +170,11 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico', 'che
     Route::post('/configuracoes', [ConfiguracaoWebController::class, 'update'])->name('configuracoes.update');
 });
 
-// ── Página de assinatura (tenant logado, sem plano ativo) ─────────────────
+// ── Assinatura (tenant logado) ────────────────────────────────────────────
 Route::middleware(['tenant', 'auth'])->group(function () {
     Route::get('/assine', [PlanoController::class, 'index'])->name('assine');
+    Route::post('/assine/checkout', [PlanoController::class, 'checkout'])->name('assine.checkout');
+    Route::get('/assinatura', [\App\Http\Controllers\Web\AssinaturaController::class, 'index'])->name('assinatura');
 });
 
 // ── Onboarding wizard (tenant logado, sem check.subscription — acesso sempre) ─
@@ -192,6 +194,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'super.admin'])->gro
     Route::post('/tenants/{tenant}/extender-trial', [AdminTenantController::class, 'extenderTrial'])->name('tenants.extender-trial');
     Route::post('/tenants/{tenant}/toggle-plano', [AdminTenantController::class, 'togglePlano'])->name('tenants.toggle-plano');
     Route::post('/tenants/{tenant}/toggle-ativo', [AdminTenantController::class, 'toggleAtivo'])->name('tenants.toggle-ativo');
+    // Conta do super admin
+    Route::get('/conta', [\App\Http\Controllers\Admin\AdminContaController::class, 'edit'])->name('conta');
+    Route::put('/conta/senha', [\App\Http\Controllers\Admin\AdminContaController::class, 'updateSenha'])->name('conta.senha');
 });
 
 // ── Webhook Asaas (público, sem auth — validar via token de cabeçalho) ────
