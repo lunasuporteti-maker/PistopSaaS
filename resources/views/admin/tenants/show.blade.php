@@ -153,6 +153,43 @@
             @endif
         </div>
 
+        {{-- Ação: Tier do Plano + Desconto --}}
+        <div class="adm-card mb-3">
+            <div class="adm-card-title mb-2">Tier & Desconto</div>
+            @php
+                $precoBase = $tenant->precoBase();
+                $precoFinal = $tenant->precoComDesconto();
+            @endphp
+            <form method="POST" action="{{ route('admin.tenants.plano-desconto', $tenant) }}">
+                @csrf
+                <div class="form-group mb-2">
+                    <label style="font-size:.72rem;color:var(--adm-muted)">Tier do plano</label>
+                    <select name="plano_tier" class="form-control form-control-sm"
+                            style="background:#1a1d27;border-color:var(--adm-border);color:var(--adm-text)">
+                        <option value="pro"     {{ $tenant->tier() === 'pro'     ? 'selected' : '' }}>Plano Pro — R$ 99,90/mês</option>
+                        <option value="pro_max" {{ $tenant->tier() === 'pro_max' ? 'selected' : '' }}>Plano Pro Max — R$ 157,50/mês (fotos)</option>
+                    </select>
+                </div>
+                <div class="form-group mb-2">
+                    <label style="font-size:.72rem;color:var(--adm-muted)">Desconto (%)</label>
+                    <input type="number" name="desconto_percentual" min="0" max="100"
+                           value="{{ $tenant->desconto_percentual ?? 0 }}"
+                           class="form-control form-control-sm"
+                           style="background:#1a1d27;border-color:var(--adm-border);color:var(--adm-text)">
+                    @if(($tenant->desconto_percentual ?? 0) > 0)
+                    <small style="color:#f6c90e;font-size:.7rem">
+                        Preço final: R$ {{ number_format($precoFinal, 2, ',', '.') }}/mês
+                        ({{ $tenant->desconto_percentual }}% off de R$ {{ number_format($precoBase, 2, ',', '.') }})
+                    </small>
+                    @endif
+                </div>
+                <button type="submit" class="btn btn-sm btn-block"
+                        style="background:#667eea;color:#fff;border:none">
+                    <i class="fas fa-save mr-1"></i> Salvar Tier & Desconto
+                </button>
+            </form>
+        </div>
+
     </div>
 
     {{-- Coluna direita: stats + usuários --}}

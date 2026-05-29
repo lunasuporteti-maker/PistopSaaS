@@ -11,15 +11,28 @@ class Tenant extends Model
 
     protected $fillable = [
         'nome', 'slug', 'dominio_customizado',
-        'plano', 'ativo', 'observacao',
+        'plano', 'plano_tier', 'ativo', 'observacao',
         'trial_ends_at', 'plano_ativo', 'plano_vence_em',
+        'desconto_percentual',
     ];
 
     protected $casts = [
-        'ativo'          => 'boolean',
-        'plano_ativo'    => 'boolean',
-        'trial_ends_at'  => 'datetime',
-        'plano_vence_em' => 'date',
+        'ativo'                => 'boolean',
+        'plano_ativo'          => 'boolean',
+        'trial_ends_at'        => 'datetime',
+        'plano_vence_em'       => 'date',
+        'desconto_percentual'  => 'integer',
+    ];
+
+    // Preços base por tier
+    public const PRECOS = [
+        'pro'     => 99.90,
+        'pro_max' => 157.50,
+    ];
+
+    public const NOMES_PLANO = [
+        'pro'     => 'Plano Pro',
+        'pro_max' => 'Plano Pro Max',
     ];
 
     public function users()
@@ -69,6 +82,37 @@ class Tenant extends Model
             return true;
         }
         return $this->trialAtivo() || $this->emDia();
+    }
+
+    /** Tier atual (fallback para 'pro') */
+    public function tier(): string
+    {
+        return $this->plano_tier ?? 'pro';
+    }
+
+    /** True se tenant tem Plano Pro Max */
+    public function isProMax(): bool
+    {
+        return $this->tier() === 'pro_max';
+    }
+
+    /** Preço base do plano sem desconto */
+    public function precoBase(): float
+    {
+        return self::PRECOS[$this->tier()] ?? self::PRECOS['pro'];
+    }
+
+    /** Preço final após desconto percentual */
+    public function precoComDesconto(): float
+    {
+        $desconto = max(0, min(100, (int) ($this->desconto_percentual ?? 0)));
+        return round($this->precoBase() * (1 - $desconto / 100), 2);
+    }
+
+    /** Nome legível do plano */
+    public function nomePlano(): string
+    {
+        return self::NOMES_PLANO[$this->tier()] ?? 'Plano Pro';
     }
 
     /** Status legível para o painel admin */

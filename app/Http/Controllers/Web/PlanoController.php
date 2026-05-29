@@ -17,11 +17,17 @@ class PlanoController extends Controller
         return view('pitstop.assine', compact('tenant', 'asaasConfig'));
     }
 
-    public function checkout(): \Illuminate\Http\RedirectResponse
+    public function checkout(\Illuminate\Http\Request $request): \Illuminate\Http\RedirectResponse
     {
         $tenant  = app('tenant');
         $user    = auth()->user();
         $service = app(AsaasService::class);
+
+        // Aplica o tier escolhido pelo usuário antes de gerar o checkout
+        $tier = $request->input('plano_tier', $tenant->tier());
+        if (in_array($tier, ['pro', 'pro_max'])) {
+            $tenant->plano_tier = $tier;
+        }
 
         $url = $service->createCheckoutUrl($tenant, $user);
 
@@ -29,6 +35,6 @@ class PlanoController extends Controller
             return redirect()->away($url);
         }
 
-        return back()->with('error', 'Link de pagamento não configurado. Entre em contato: suporte@iaqueatende.com.br');
+        return back()->with('error', 'Link de pagamento não configurado. Entre em contato: iaqueatende@gmail.com');
     }
 }

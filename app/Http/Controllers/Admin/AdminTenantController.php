@@ -100,4 +100,21 @@ class AdminTenantController extends Controller
         $status = $tenant->ativo ? 'ativado' : 'desativado';
         return back()->with('success', "Tenant {$tenant->nome} {$status}.");
     }
+
+    /** Atualiza o tier do plano e desconto percentual */
+    public function updatePlanoDesconto(Request $request, Tenant $tenant): RedirectResponse
+    {
+        $request->validate([
+            'plano_tier'          => 'required|in:pro,pro_max',
+            'desconto_percentual' => 'required|integer|min:0|max:100',
+        ]);
+
+        $tenant->update([
+            'plano_tier'          => $request->plano_tier,
+            'desconto_percentual' => $request->desconto_percentual,
+        ]);
+
+        $preco = $tenant->fresh()->precoComDesconto();
+        return back()->with('success', "Plano de {$tenant->nome} atualizado para {$tenant->fresh()->nomePlano()} — R$ {$preco}/mês.");
+    }
 }

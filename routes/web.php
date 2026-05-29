@@ -163,6 +163,7 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico', 'che
 
     // Relatórios
     Route::prefix('relatorios')->name('relatorios.')->group(function () {
+        Route::get('/', [RelatorioWebController::class, 'index'])->name('index');
         Route::get('/financeiro', [RelatorioWebController::class, 'financeiro'])->name('financeiro');
         Route::get('/financeiro/export', [RelatorioWebController::class, 'exportFinanceiro'])->name('financeiro.export');
         Route::get('/financeiro/pdf', [RelatorioWebController::class, 'exportFinanceiroPdf'])->name('financeiro.pdf');
@@ -208,6 +209,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'super.admin'])->gro
     Route::post('/tenants/{tenant}/extender-trial', [AdminTenantController::class, 'extenderTrial'])->name('tenants.extender-trial');
     Route::post('/tenants/{tenant}/toggle-plano', [AdminTenantController::class, 'togglePlano'])->name('tenants.toggle-plano');
     Route::post('/tenants/{tenant}/toggle-ativo', [AdminTenantController::class, 'toggleAtivo'])->name('tenants.toggle-ativo');
+    Route::post('/tenants/{tenant}/plano-desconto', [AdminTenantController::class, 'updatePlanoDesconto'])->name('tenants.plano-desconto');
     // Conta do super admin
     Route::get('/conta', [\App\Http\Controllers\Admin\AdminContaController::class, 'edit'])->name('conta');
     Route::put('/conta/perfil', [\App\Http\Controllers\Admin\AdminContaController::class, 'updatePerfil'])->name('conta.perfil');

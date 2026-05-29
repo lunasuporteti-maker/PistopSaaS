@@ -18,6 +18,11 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class RelatorioWebController extends Controller
 {
+    public function index()
+    {
+        return view('pitstop.relatorios.index');
+    }
+
     public function financeiro(Request $request)
     {
         $inicio = Carbon::parse($request->inicio ?? now()->startOfMonth());

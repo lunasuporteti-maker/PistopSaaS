@@ -70,10 +70,10 @@ class AsaasService
                 ->post("{$this->baseUrl}/payments", [
                     'customer'          => $customerId,
                     'billingType'       => 'UNDEFINED',
-                    'value'             => 99.90,
+                    'value'             => $tenant->precoComDesconto(),
                     'dueDate'           => now()->addDay()->format('Y-m-d'),
-                    'description'       => 'PitStop Plano Pro — acesso mensal completo',
-                    'externalReference' => "tenant:{$tenant->slug}",
+                    'description'       => 'PitStop ' . $tenant->nomePlano() . ' — acesso mensal completo',
+                    'externalReference' => "tenant:{$tenant->slug}:tier:{$tenant->tier()}",
                 ]);
 
             if ($response->successful()) {

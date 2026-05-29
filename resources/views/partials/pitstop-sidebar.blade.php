@@ -129,7 +129,7 @@
             <span>Lembretes</span>
         </a>
 
-        <a href="{{ route('relatorios.financeiro') }}"
+        <a href="{{ route('relatorios.index') }}"
            class="sb-link {{ request()->routeIs('relatorios.*') ? 'active' : '' }}">
             <span class="ic"><x-icon name="chart" size="16" /></span>
             <span>Relatórios</span>

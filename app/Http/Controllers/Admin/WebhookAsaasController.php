@@ -32,7 +32,11 @@ class WebhookAsaasController extends Controller
             return response()->json(['ok' => true, 'msg' => 'Sem referência de tenant']);
         }
 
-        $slug   = substr($ref, strlen('tenant:'));
+        // Formato antigo: "tenant:{slug}" | Novo: "tenant:{slug}:tier:{tier}"
+        $parts  = explode(':', $ref);
+        $slug   = $parts[1] ?? null;
+        $tier   = $parts[3] ?? null; // presente apenas no novo formato
+
         $tenant = Tenant::where('slug', $slug)->first();
 
         if (! $tenant) {
@@ -41,7 +45,7 @@ class WebhookAsaasController extends Controller
         }
 
         match ($evento) {
-            'PAYMENT_CONFIRMED', 'PAYMENT_RECEIVED' => $this->ativarPlano($tenant, $payment),
+            'PAYMENT_CONFIRMED', 'PAYMENT_RECEIVED' => $this->ativarPlano($tenant, $payment, $tier),
             'PAYMENT_OVERDUE'                        => $this->marcarAtrasado($tenant, $payment),
             'PAYMENT_DELETED', 'PAYMENT_REFUNDED'   => $this->desativarPlano($tenant, $payment),
             default => Log::info('[Asaas Webhook] Evento ignorado', ['event' => $evento]),
@@ -50,7 +54,7 @@ class WebhookAsaasController extends Controller
         return response()->json(['ok' => true]);
     }
 
-    private function ativarPlano(Tenant $tenant, array $payment): void
+    private function ativarPlano(Tenant $tenant, array $payment, ?string $tier = null): void
     {
         $pago = isset($payment['paymentDate'])
             ? \Carbon\Carbon::parse($payment['paymentDate'])
@@ -58,10 +62,12 @@ class WebhookAsaasController extends Controller
 
         $vencimento = $pago->copy()->addMonth()->toDateString();
 
-        $tenant->update([
-            'plano_ativo'    => true,
-            'plano_vence_em' => $vencimento,
-        ]);
+        $update = ['plano_ativo' => true, 'plano_vence_em' => $vencimento];
+        if ($tier && in_array($tier, ['pro', 'pro_max'])) {
+            $update['plano_tier'] = $tier;
+        }
+
+        $tenant->update($update);
 
         Subscription::updateOrCreate(
             ['tenant_id' => $tenant->id],

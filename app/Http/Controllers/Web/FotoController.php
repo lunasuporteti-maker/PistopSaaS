@@ -39,6 +39,15 @@ class FotoController extends Controller
 
     public function store(Request $request, Orcamento $orcamento)
     {
+        $tenant = app('tenant');
+
+        if (! $tenant->isProMax()) {
+            return response()->json([
+                'ok'    => false,
+                'error' => 'O upload de fotos está disponível apenas no Plano Pro Max. Faça upgrade para continuar.',
+            ], 403);
+        }
+
         $request->validate([
             'fotos'           => 'required|array|min:1|max:10',
             'fotos.*'         => 'file|mimes:jpeg,png,jpg|max:10240',
