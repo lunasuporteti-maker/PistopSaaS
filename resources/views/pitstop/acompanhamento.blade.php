@@ -285,5 +285,49 @@
     }
 })();
 </script>
+
+@if(isset($fotos) && count($fotos) > 0)
+<div style="max-width:560px;margin:24px auto;padding:0 16px 32px">
+    <h3 style="font-size:1rem;font-weight:700;margin-bottom:12px;color:#e2e8f0">
+        📷 Fotos do Serviço
+        <span style="font-size:.75rem;font-weight:400;color:#64748b;margin-left:8px">
+            {{ count($fotos) }} {{ count($fotos) === 1 ? 'foto' : 'fotos' }}
+        </span>
+    </h3>
+    @php
+        $catNomes = ['antes'=>'Antes','durante'=>'Durante','depois'=>'Depois','peca'=>'Peça','outro'=>'Outros'];
+        $porCat = collect($fotos)->groupBy('categoria');
+    @endphp
+    @foreach($porCat as $cat => $catFotos)
+    <div style="margin-bottom:16px">
+        <div style="font-size:.75rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">
+            {{ $catNomes[$cat] ?? $cat }}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+            @foreach($catFotos as $i => $foto)
+            <div style="cursor:pointer" onclick="abrirFotoPublica('{{ $foto['url_original'] }}')">
+                <img src="{{ $foto['url_thumb'] }}" loading="lazy"
+                     style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:6px"
+                     alt="{{ $foto['legenda'] ?: 'Foto do serviço '.($i+1) }}">
+                @if($foto['legenda'])
+                <div style="font-size:10px;color:#94a3b8;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">{{ $foto['legenda'] }}</div>
+                @endif
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endforeach
+</div>
+<script>
+function abrirFotoPublica(url) {
+    var m = document.createElement('div');
+    m.style = 'position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:16px';
+    m.onclick = function() { m.remove(); };
+    m.innerHTML = '<img src="'+url+'" style="max-width:100%;max-height:90vh;border-radius:8px">';
+    document.body.appendChild(m);
+}
+</script>
+@endif
+
 </body>
 </html>

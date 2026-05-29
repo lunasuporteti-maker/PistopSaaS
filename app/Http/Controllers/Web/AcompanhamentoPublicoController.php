@@ -8,10 +8,12 @@ use App\Jobs\NotificarRejeicaoJob;
 use App\Models\Orcamento;
 use App\Models\OrcamentoInteracao;
 use App\Models\OrdemServico;
+use App\Models\ServicoFoto;
 use App\Services\OrcamentoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class AcompanhamentoPublicoController extends Controller
@@ -71,8 +73,24 @@ class AcompanhamentoPublicoController extends Controller
         $ordem = ['orcamento', 'aprovado', 'em_servico', 'concluido'];
         $posAtual = array_search($status, $ordem);
 
+        // Galeria de fotos (Story 2.6)
+        $fotos = ServicoFoto::withoutGlobalScope('tenant')
+            ->where('orcamento_id', $orcamento->id)
+            ->whereNull('deleted_at')
+            ->orderBy('categoria')
+            ->orderBy('created_at')
+            ->get()
+            ->map(fn ($f) => [
+                'url_thumb'    => $f->path_thumbnail
+                    ? Storage::disk('public')->url($f->path_thumbnail)
+                    : Storage::disk('public')->url($f->path_original),
+                'url_original' => route('acompanhar.foto', [$token, $f->id]),
+                'categoria'    => $f->categoria,
+                'legenda'      => $f->legenda,
+            ]);
+
         return response()
-            ->view('pitstop.acompanhamento', compact('orcamento', 'etapa', 'etapas', 'ordem', 'posAtual', 'token'))
+            ->view('pitstop.acompanhamento', compact('orcamento', 'etapa', 'etapas', 'ordem', 'posAtual', 'token', 'fotos'))
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');
@@ -188,5 +206,14 @@ class AcompanhamentoPublicoController extends Controller
         return redirect()
             ->route('acompanhar.publico', $token)
             ->with('info', 'Sua observação foi enviada. A oficina entrará em contato em breve.');
+    }
+
+    /** Serve arquivo de foto validando que o token pertence ao orçamento (Story 2.6) */
+    public function servirFoto(string $token, ServicoFoto $foto)
+    {
+        $orcamento = $this->resolveOrcamentoByToken($token);
+        abort_if($foto->orcamento_id !== $orcamento->id, 403);
+
+        return Storage::disk('public')->response($foto->path_original);
     }
 }

@@ -41,6 +41,7 @@ Route::middleware('throttle:30,1')->group(function () {
     // Rate limit 30/min por IP (NFR-003). CSRF ativo (NFR-004) — forms usam @csrf.
     Route::post('/acompanhar/{token}/aprovar', [AcompanhamentoPublicoController::class, 'aprovar'])->name('acompanhar.aprovar');
     Route::post('/acompanhar/{token}/rejeitar', [AcompanhamentoPublicoController::class, 'rejeitar'])->name('acompanhar.rejeitar');
+    Route::get('/acompanhar/{token}/foto/{foto}', [AcompanhamentoPublicoController::class, 'servirFoto'])->name('acompanhar.foto')->middleware('throttle:60,1');
 });
 
 // ── Onboarding self-service público (PRD 03, Story 4.2) ───────────────────
