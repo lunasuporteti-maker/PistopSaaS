@@ -10,11 +10,17 @@ class Orcamento extends Model
 {
     use SoftDeletes, BelongsToTenant;
 
+    // Canais de aprovação
+    public const CANAL_PORTAL   = 'portal';
+    public const CANAL_INTERNO  = 'interno';
+    public const CANAL_WHATSAPP = 'whatsapp';
+
     protected $fillable = [
         'tenant_id', 'cliente_id', 'veiculo_id', 'status', 'observacao',
         'valor_total', 'posicao_fila', 'km_entrada',
         'queixa_cliente', 'parecer_tecnico', 'andamento',
         'aprovado_em', 'iniciado_em', 'concluido_em', 'arquivado_em', 'token_publico',
+        'aprovado_por_canal', 'aprovado_ip', 'aprovado_user_agent',
     ];
 
     protected $casts = [
@@ -53,5 +59,15 @@ class Orcamento extends Model
     public function ordemServico()
     {
         return $this->hasOne(OrdemServico::class);
+    }
+
+    public function interacoes()
+    {
+        return $this->hasMany(OrcamentoInteracao::class);
+    }
+
+    public function fotos()
+    {
+        return $this->hasMany(ServicoFoto::class);
     }
 }
