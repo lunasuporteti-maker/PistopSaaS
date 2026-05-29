@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Http\Controllers\Concerns\ChecksTrialLimits;
 use App\Http\Controllers\Controller;
 use App\Models\Peca;
 use Illuminate\Http\Request;
 
 class PecaWebController extends Controller
 {
+    use ChecksTrialLimits;
     public function index(Request $request)
     {
         $pecas = Peca::when($request->search, fn($q) => $q->where('nome', 'like', "%{$request->search}%"))
@@ -24,6 +26,10 @@ class PecaWebController extends Controller
 
     public function store(Request $request)
     {
+        if ($redirect = $this->verificarLimiteTrial('pecas')) {
+            return $redirect;
+        }
+
         $data = $request->validate([
             'nome'           => 'required|string|max:200',
             'quantidade'     => 'nullable|integer|min:0',

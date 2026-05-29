@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Http\Controllers\Concerns\ChecksTrialLimits;
 use App\Http\Controllers\Controller;
 use App\Models\Cliente;
 use Illuminate\Http\Request;
 
 class ClienteWebController extends Controller
 {
+    use ChecksTrialLimits;
     public function index(Request $request)
     {
         $clientes = Cliente::when($request->search, fn($q) =>
@@ -26,6 +28,10 @@ class ClienteWebController extends Controller
 
     public function store(Request $request)
     {
+        if ($redirect = $this->verificarLimiteTrial('clientes')) {
+            return $redirect;
+        }
+
         $data = $request->validate([
             'nome'      => ['required', 'string', 'max:120', 'regex:/^[\p{L}\s\-]+$/u'],
             'telefone'  => 'nullable|string|max:20',

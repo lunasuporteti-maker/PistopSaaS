@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Http\Controllers\Concerns\ChecksTrialLimits;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -10,6 +11,7 @@ use Illuminate\Validation\Rule;
 
 class UsuarioWebController extends Controller
 {
+    use ChecksTrialLimits;
     public function index(Request $request)
     {
         $this->authorize('gerente_ou_admin');
@@ -48,6 +50,10 @@ class UsuarioWebController extends Controller
     public function store(Request $request)
     {
         $this->authorize('gerente_ou_admin');
+
+        if ($redirect = $this->verificarLimiteTrial('usuarios')) {
+            return $redirect;
+        }
 
         $perfisPermitidos = $this->perfisDisponiveis();
 

@@ -62,18 +62,14 @@ class AdminTenantController extends Controller
         ));
     }
 
-    /** Estende o trial do tenant por N dias */
+    /** Define a data final do trial do tenant */
     public function extenderTrial(Request $request, Tenant $tenant): RedirectResponse
     {
-        $dias = max(1, min(365, (int) $request->input('dias', 30)));
+        $request->validate(['data_fim' => 'required|date|after:today']);
 
-        $base = ($tenant->trial_ends_at && $tenant->trial_ends_at->isFuture())
-            ? $tenant->trial_ends_at
-            : now();
+        $tenant->update(['trial_ends_at' => $request->date('data_fim')->endOfDay()]);
 
-        $tenant->update(['trial_ends_at' => $base->addDays($dias)]);
-
-        return back()->with('success', "Trial estendido por {$dias} dias para {$tenant->nome}.");
+        return back()->with('success', "Trial do {$tenant->nome} definido até " . $request->date('data_fim')->format('d/m/Y') . ".");
     }
 
     /** Ativa ou desativa o plano pago manualmente */

@@ -76,6 +76,38 @@
         </div>
     </div>
 
+    {{-- Uso do trial --}}
+    @if($uso)
+    <div class="col-md-7 mb-4">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold">Uso do Trial</h6>
+            </div>
+            <div class="card-body">
+                @foreach($uso as $recurso => $dados)
+                @php
+                    $pct      = $dados['limite'] > 0 ? min(100, round($dados['atual'] / $dados['limite'] * 100)) : 0;
+                    $corBarra = $pct >= 90 ? '#dc2626' : ($pct >= 70 ? '#d97706' : '#2563eb');
+                    $nomes    = ['clientes'=>'Clientes','orcamentos'=>'Orçamentos','usuarios'=>'Usuários','pecas'=>'Peças'];
+                @endphp
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1" style="font-size:.82rem">
+                        <span>{{ $nomes[$recurso] ?? $recurso }}</span>
+                        <span style="color:#64748b">{{ $dados['atual'] }} / {{ $dados['limite'] }}</span>
+                    </div>
+                    <div style="background:#e2e8f0;border-radius:4px;height:6px">
+                        <div style="background:{{ $corBarra }};width:{{ $pct }}%;height:6px;border-radius:4px;transition:width .3s"></div>
+                    </div>
+                </div>
+                @endforeach
+                <a href="{{ route('assine') }}" class="btn btn-danger btn-sm btn-block mt-2">
+                    <i class="fas fa-bolt mr-1"></i> Assinar Plano Pro — sem limites
+                </a>
+            </div>
+        </div>
+    </div>
+    @endif
+
     {{-- Detalhes e histórico --}}
     <div class="col-md-7 mb-4">
         <div class="card shadow">

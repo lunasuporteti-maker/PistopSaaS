@@ -99,24 +99,25 @@
             </form>
         </div>
 
-        {{-- Ação: Estender trial --}}
+        {{-- Ação: Definir data do trial --}}
         <div class="adm-card mb-3">
-            <div class="adm-card-title mb-2">Estender Trial</div>
+            <div class="adm-card-title mb-2">Data do Trial</div>
             <form method="POST" action="{{ route('admin.tenants.extender-trial', $tenant) }}">
                 @csrf
-                <div class="d-flex" style="gap:.5rem">
-                    <select name="dias" class="form-control form-control-sm"
-                            style="background:#1a1d27;border-color:var(--adm-border);color:var(--adm-text)">
-                        <option value="7">+7 dias</option>
-                        <option value="15">+15 dias</option>
-                        <option value="30" selected>+30 dias</option>
-                        <option value="60">+60 dias</option>
-                        <option value="90">+90 dias</option>
-                    </select>
-                    <button type="submit" class="btn btn-sm" style="background:#f6c90e;color:#000;border:none;white-space:nowrap">
-                        <i class="fas fa-plus mr-1"></i> Aplicar
-                    </button>
+                <div class="form-group mb-2">
+                    <label style="font-size:.75rem;color:var(--adm-muted)">Válido até</label>
+                    <input type="date" name="data_fim"
+                           value="{{ $tenant->trial_ends_at ? $tenant->trial_ends_at->format('Y-m-d') : now()->addDays(14)->format('Y-m-d') }}"
+                           min="{{ now()->format('Y-m-d') }}"
+                           class="form-control form-control-sm"
+                           style="background:#1a1d27;border-color:var(--adm-border);color:var(--adm-text)">
+                    <small style="color:var(--adm-muted);font-size:.7rem">
+                        Tenants legados (sem data) ficam com acesso livre. Definir uma data ativa o trial.
+                    </small>
                 </div>
+                <button type="submit" class="btn btn-sm btn-block" style="background:#f6c90e;color:#000;border:none">
+                    <i class="fas fa-save mr-1"></i> Salvar data
+                </button>
             </form>
         </div>
 

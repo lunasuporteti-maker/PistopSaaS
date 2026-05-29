@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Http\Controllers\Concerns\ChecksTrialLimits;
 use App\Http\Controllers\Controller;
 use App\Models\Orcamento;
 use App\Models\OrcamentoServico;
@@ -19,6 +20,7 @@ use Illuminate\Support\Str;
 
 class OrcamentoWebController extends Controller
 {
+    use ChecksTrialLimits;
     public function index(Request $request)
     {
         $orcamentos = Orcamento::with(['cliente', 'veiculo'])
@@ -39,6 +41,10 @@ class OrcamentoWebController extends Controller
 
     public function store(Request $request)
     {
+        if ($redirect = $this->verificarLimiteTrial('orcamentos')) {
+            return $redirect;
+        }
+
         $data = $request->validate([
             'cliente_id'     => 'required|exists:clientes,id',
             'veiculo_id'     => 'required|exists:veiculos,id',
