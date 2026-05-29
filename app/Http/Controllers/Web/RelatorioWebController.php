@@ -6,7 +6,6 @@ use App\Exports\FinanceiroExport;
 use App\Exports\FluxoCaixaExport;
 use App\Exports\LucroServicosExport;
 use App\Http\Controllers\Controller;
-use App\Jobs\ExportarRelatorioJob;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\PagamentoOs;
 use App\Models\PagamentoSaida;
@@ -64,61 +63,36 @@ class RelatorioWebController extends Controller
 
     public function exportFinanceiro(Request $request)
     {
-        $inicio = Carbon::parse($request->inicio ?? now()->startOfMonth());
-        $fim    = Carbon::parse($request->fim    ?? now()->endOfDay());
-        $tenant = app('tenant');
-        $key    = uniqid('fin_');
-
+        $inicio   = Carbon::parse($request->inicio ?? now()->startOfMonth());
+        $fim      = Carbon::parse($request->fim    ?? now()->endOfDay());
         $entradas = (float) PagamentoOs::whereHas('ordemServico')->whereBetween('created_at', [$inicio, $fim])->sum('valor');
         $saidas   = (float) PagamentoSaida::whereBetween('data_pagamento', [$inicio, $fim])->sum('valor');
 
-        ExportarRelatorioJob::dispatch(
-            FinanceiroExport::class,
-            [$entradas, $saidas, $inicio, $fim],
+        return Excel::download(
+            new FinanceiroExport($entradas, $saidas, $inicio, $fim),
             'financeiro-' . $inicio->format('Y-m-d') . '-' . $fim->format('Y-m-d') . '.xlsx',
-            $tenant->id,
-            $key,
         );
-
-        $downloadUrl = route('exports.download', $key);
-        return back()->with('info', "Seu relatório está sendo gerado. <a href='{$downloadUrl}' id='export-link'>Clique aqui para baixar</a> em alguns instantes.");
     }
 
     public function exportFluxoCaixa(Request $request)
     {
-        $meses  = (int) ($request->meses ?? 6);
-        $tenant = app('tenant');
-        $key    = uniqid('flx_');
+        $meses = (int) ($request->meses ?? 6);
 
-        ExportarRelatorioJob::dispatch(
-            FluxoCaixaExport::class,
-            [$meses],
+        return Excel::download(
+            new FluxoCaixaExport($meses),
             "fluxo-caixa-{$meses}meses.xlsx",
-            $tenant->id,
-            $key,
         );
-
-        $downloadUrl = route('exports.download', $key);
-        return back()->with('info', "Seu relatório está sendo gerado. <a href='{$downloadUrl}' id='export-link'>Clique aqui para baixar</a> em alguns instantes.");
     }
 
     public function exportLucroServico(Request $request)
     {
         $inicio = Carbon::parse($request->inicio ?? now()->startOfMonth());
         $fim    = Carbon::parse($request->fim    ?? now()->endOfDay());
-        $tenant = app('tenant');
-        $key    = uniqid('luc_');
 
-        ExportarRelatorioJob::dispatch(
-            LucroServicosExport::class,
-            [$inicio, $fim],
+        return Excel::download(
+            new LucroServicosExport($inicio, $fim),
             'receita-servicos-' . $inicio->format('Y-m-d') . '-' . $fim->format('Y-m-d') . '.xlsx',
-            $tenant->id,
-            $key,
         );
-
-        $downloadUrl = route('exports.download', $key);
-        return back()->with('info', "Seu relatório está sendo gerado. <a href='{$downloadUrl}' id='export-link'>Clique aqui para baixar</a> em alguns instantes.");
     }
 
     public function exportFinanceiroPdf(Request $request)
