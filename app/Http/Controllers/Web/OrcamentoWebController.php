@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Concerns\ChecksTrialLimits;
 use App\Http\Controllers\Controller;
+use App\Jobs\NotificarRevisaoValorJob;
 use App\Models\Orcamento;
+use App\Models\OrcamentoInteracao;
 use App\Models\OrcamentoServico;
 use App\Models\OrcamentoPeca;
 use App\Models\OrcamentoMaoDeObra;
@@ -205,10 +207,41 @@ class OrcamentoWebController extends Controller
 
     private function recalcularTotal(Orcamento $orcamento): void
     {
+        $valorAntes = (float) $orcamento->valor_total;
+
         $total = $orcamento->servicos()->sum('valor')
                + $orcamento->pecas()->sum(DB::raw('quantidade * preco_unitario'))
                + $orcamento->maoDeObra()->sum('valor');
+
         $orcamento->update(['valor_total' => $total]);
+
+        // FR-010: se valor mudou após aprovação → reverte para re-aprovação
+        if ($orcamento->status === 'aprovado' && abs($total - $valorAntes) > 0.001) {
+            $orcamento->update([
+                'status'               => 'orcamento',
+                'aprovado_em'          => null,
+                'aprovado_por_canal'   => null,
+                'aprovado_ip'          => null,
+                'aprovado_user_agent'  => null,
+            ]);
+
+            OrcamentoInteracao::create([
+                'tenant_id'    => $orcamento->tenant_id,
+                'orcamento_id' => $orcamento->id,
+                'tipo'         => OrcamentoInteracao::TIPO_REVISAO_VALOR,
+                'dados_json'   => [
+                    'valor_antes' => $valorAntes,
+                    'valor_novo'  => $total,
+                    'delta'       => round($total - $valorAntes, 2),
+                ],
+                'usuario_id'   => auth()->id(),
+            ]);
+
+            NotificarRevisaoValorJob::dispatch($orcamento->id, $valorAntes, $total);
+
+            // Invalida a OS gerada (se existir) pois o orçamento voltou ao início
+            $orcamento->ordemServico()->update(['status' => 'cancelado']);
+        }
     }
 
     public function destroy(Orcamento $orcamento)
