@@ -196,6 +196,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'super.admin'])->gro
     Route::post('/tenants/{tenant}/toggle-ativo', [AdminTenantController::class, 'toggleAtivo'])->name('tenants.toggle-ativo');
     // Conta do super admin
     Route::get('/conta', [\App\Http\Controllers\Admin\AdminContaController::class, 'edit'])->name('conta');
+    Route::put('/conta/perfil', [\App\Http\Controllers\Admin\AdminContaController::class, 'updatePerfil'])->name('conta.perfil');
     Route::put('/conta/senha', [\App\Http\Controllers\Admin\AdminContaController::class, 'updateSenha'])->name('conta.senha');
 });
 

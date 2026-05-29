@@ -14,6 +14,23 @@ class AdminContaController extends Controller
         return view('admin.conta');
     }
 
+    public function updatePerfil(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'name'  => 'required|string|max:100',
+            'email' => 'required|email|max:150|unique:users,email,' . $user->id,
+        ]);
+
+        $user->update([
+            'name'  => $request->name,
+            'email' => $request->email,
+        ]);
+
+        return back()->with('success', 'Dados atualizados com sucesso.');
+    }
+
     public function updateSenha(Request $request)
     {
         $request->validate([
