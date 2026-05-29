@@ -3,8 +3,16 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\NotificarAprovacaoJob;
+use App\Jobs\NotificarRejeicaoJob;
 use App\Models\Orcamento;
+use App\Models\OrcamentoInteracao;
 use App\Models\OrdemServico;
+use App\Services\OrcamentoService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class AcompanhamentoPublicoController extends Controller
 {
@@ -15,6 +23,28 @@ class AcompanhamentoPublicoController extends Controller
         'concluido'  => ['icone' => '🎉', 'titulo' => 'Serviço Concluído!',     'desc' => 'Seu veículo está pronto! Pode vir buscá-lo. Obrigado pela preferência!', 'cor' => '#28a745'],
         'cancelado'  => ['icone' => '❌', 'titulo' => 'Serviço Cancelado',      'desc' => 'Este serviço foi cancelado. Entre em contato para mais informações.', 'cor' => '#dc3545'],
     ];
+
+    /**
+     * Resolve o orçamento a partir do token público.
+     * Busca primeiro pela OS (novo fluxo), depois fallback no orçamento (legado AutoFix).
+     * Reusado por show(), aprovar() e rejeitar().
+     */
+    private function resolveOrcamentoByToken(string $token): Orcamento
+    {
+        $os = OrdemServico::withoutGlobalScope('tenant')
+            ->with(['orcamento.cliente', 'orcamento.veiculo', 'orcamento.servicos'])
+            ->where('token_publico', $token)
+            ->first();
+
+        if ($os && $os->orcamento) {
+            return $os->orcamento;
+        }
+
+        return Orcamento::withoutGlobalScope('tenant')
+            ->with(['cliente', 'veiculo', 'servicos'])
+            ->where('token_publico', $token)
+            ->firstOrFail();
+    }
 
     public function show(string $token)
     {
@@ -42,9 +72,121 @@ class AcompanhamentoPublicoController extends Controller
         $posAtual = array_search($status, $ordem);
 
         return response()
-            ->view('pitstop.acompanhamento', compact('orcamento', 'etapa', 'etapas', 'ordem', 'posAtual'))
+            ->view('pitstop.acompanhamento', compact('orcamento', 'etapa', 'etapas', 'ordem', 'posAtual', 'token'))
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');
+    }
+
+    /**
+     * Aprovação online do orçamento pelo cliente (portal público).
+     * FR-001 a FR-007, FR-050.
+     */
+    public function aprovar(Request $request, string $token): RedirectResponse
+    {
+        $orcamento = $this->resolveOrcamentoByToken($token);
+
+        // Guard: só aprova orçamento ainda aguardando aprovação (idempotência + FR-006/FR-007)
+        if ($orcamento->status !== 'orcamento') {
+            return redirect()
+                ->route('acompanhar.publico', $token)
+                ->with('warning', 'Este orçamento não está mais disponível para aprovação.');
+        }
+
+        // AC2: aceite de termos obrigatório
+        $request->validate([
+            'aceite_termos' => 'accepted',
+        ], [
+            'aceite_termos.accepted' => 'Você precisa marcar que leu e aceita os itens do orçamento.',
+        ]);
+
+        $ip        = $request->ip();
+        $userAgent = (string) $request->userAgent();
+
+        DB::transaction(function () use ($orcamento, $ip, $userAgent) {
+            // AC3: atualiza campos de aprovação (NÃO altera valor_total nem itens — AC10)
+            $orcamento->update([
+                'status'              => 'aprovado',
+                'aprovado_em'         => now(),
+                'aprovado_por_canal'  => Orcamento::CANAL_PORTAL,
+                'aprovado_ip'         => $ip,
+                'aprovado_user_agent' => Str::limit($userAgent, 500, ''),
+            ]);
+
+            // AC4: registro de interação (evidência legal), usuario_id = NULL (cliente externo)
+            OrcamentoInteracao::create([
+                'tenant_id'    => $orcamento->tenant_id,
+                'orcamento_id' => $orcamento->id,
+                'tipo'         => OrcamentoInteracao::TIPO_APROVACAO,
+                'dados_json'   => [
+                    'ip'            => $ip,
+                    'user_agent'    => $userAgent,
+                    'aceite_termos' => true,
+                    'timestamp'     => now()->toIso8601String(),
+                ],
+                'usuario_id'   => null,
+            ]);
+
+            // Gera a OS automaticamente a partir do orçamento aprovado
+            app(OrcamentoService::class)->gerarOs($orcamento);
+        });
+
+        // AC5: notificação interna (fora da transação — efeito colateral assíncrono)
+        NotificarAprovacaoJob::dispatch($orcamento->id);
+
+        return redirect()
+            ->route('acompanhar.publico', $token)
+            ->with('success', 'Orçamento aprovado! Em breve seu veículo entrará em serviço.');
+    }
+
+    /**
+     * Solicitação de revisão / rejeição do orçamento pelo cliente (portal público).
+     * FR-004, FR-031, FR-050. NÃO altera o status do orçamento.
+     */
+    public function rejeitar(Request $request, string $token): RedirectResponse
+    {
+        $orcamento = $this->resolveOrcamentoByToken($token);
+
+        // Só faz sentido pedir revisão enquanto está como orçamento
+        if ($orcamento->status !== 'orcamento') {
+            return redirect()
+                ->route('acompanhar.publico', $token)
+                ->with('warning', 'Este orçamento não está mais disponível para solicitação de revisão.');
+        }
+
+        // AC8: validação de tamanho mínimo no backend (retorna 422 ao falhar)
+        $validated = $request->validate([
+            'motivo' => 'required|string|min:10|max:2000',
+        ], [
+            'motivo.required' => 'Por favor, descreva o motivo da revisão.',
+            'motivo.min'      => 'O motivo deve ter no mínimo 10 caracteres.',
+        ]);
+
+        // AC7: sanitização contra XSS (Risco R6) — texto puro
+        $motivo    = trim(strip_tags($validated['motivo']));
+        $ip        = $request->ip();
+        $userAgent = (string) $request->userAgent();
+
+        // AC3: rejeição NÃO altera o status do orçamento (permanece 'orcamento')
+        OrcamentoInteracao::create([
+            'tenant_id'    => $orcamento->tenant_id,
+            'orcamento_id' => $orcamento->id,
+            'tipo'         => OrcamentoInteracao::TIPO_REJEICAO,
+            'dados_json'   => [
+                'motivo'           => $motivo,
+                'ip'               => $ip,
+                'user_agent'       => $userAgent,
+                'orcamento_numero' => '#' . $orcamento->id,
+                'timestamp'        => now()->toIso8601String(),
+            ],
+            'usuario_id'   => null,
+        ]);
+
+        // AC5: notificação interna com motivo truncado
+        NotificarRejeicaoJob::dispatch($orcamento->id, $motivo);
+
+        return redirect()
+            ->route('acompanhar.publico', $token)
+            ->with('info', 'Sua observação foi enviada. A oficina entrará em contato em breve.');
     }
 }

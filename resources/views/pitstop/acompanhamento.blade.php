@@ -47,6 +47,26 @@
         <p>Acompanhe o andamento do seu serviço</p>
     </div>
 
+    {{-- Flash messages --}}
+    @if(session('success'))
+        <div class="alert alert-success" role="alert">{{ session('success') }}</div>
+    @endif
+    @if(session('info'))
+        <div class="alert alert-info" role="alert">{{ session('info') }}</div>
+    @endif
+    @if(session('warning'))
+        <div class="alert alert-warning" role="alert">{{ session('warning') }}</div>
+    @endif
+    @if($errors->any())
+        <div class="alert alert-danger" role="alert">
+            <ul style="margin:0;padding-left:18px">
+                @foreach($errors->all() as $erro)
+                    <li>{{ $erro }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     {{-- Progress steps --}}
     @php $ordem = ['orcamento','aprovado','em_servico','concluido']; @endphp
     <div class="steps">
@@ -102,6 +122,90 @@
         </div>
     </div>
 
+    {{-- ── Ações do cliente (Portal v2) ───────────────────────────── --}}
+    @if($orcamento->status === 'orcamento')
+        <div class="status-card" style="border-color: rgba(255,255,255,.12)">
+            <div class="status-title" style="font-size:1.1rem">O que deseja fazer?</div>
+            <div class="status-desc" style="margin-bottom:16px">Revise os itens acima e escolha uma opção.</div>
+
+            <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#modalAprovar">
+                ✅ Aprovar Orçamento
+            </button>
+            <button type="button" class="btn btn-outline-light btn-block" data-toggle="modal" data-target="#modalRevisao">
+                ❌ Solicitar Revisão
+            </button>
+        </div>
+
+        {{-- Modal: Aprovar (Story 2.2) --}}
+        <div class="modal fade" id="modalAprovar" tabindex="-1" role="dialog" aria-labelledby="modalAprovarLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content" style="background:#1a1a2e;color:#fff;border:1px solid rgba(255,255,255,.15)">
+                    <form method="POST" action="{{ route('acompanhar.aprovar', $token) }}">
+                        @csrf
+                        <div class="modal-header" style="border-color:rgba(255,255,255,.1)">
+                            <h5 class="modal-title" id="modalAprovarLabel">Aprovar Orçamento</h5>
+                            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Fechar">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p style="color:rgba(255,255,255,.75);font-size:.9rem">
+                                Ao aprovar, você autoriza a oficina a iniciar o serviço conforme os itens e o valor
+                                de <strong>R$ {{ number_format($orcamento->valor_total, 2, ',', '.') }}</strong> apresentados acima.
+                            </p>
+                            <div class="custom-control custom-checkbox mt-3">
+                                <input type="checkbox" class="custom-control-input" id="aceiteTermos" name="aceite_termos" value="1">
+                                <label class="custom-control-label" for="aceiteTermos" style="color:rgba(255,255,255,.85)">
+                                    Li e aceito os itens do orçamento
+                                </label>
+                            </div>
+                        </div>
+                        <div class="modal-footer" style="border-color:rgba(255,255,255,.1)">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success" id="btnConfirmarAprovar" disabled>Confirmar Aprovação</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {{-- Modal: Solicitar Revisão (Story 2.3) --}}
+        <div class="modal fade" id="modalRevisao" tabindex="-1" role="dialog" aria-labelledby="modalRevisaoLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content" style="background:#1a1a2e;color:#fff;border:1px solid rgba(255,255,255,.15)">
+                    <form method="POST" action="{{ route('acompanhar.rejeitar', $token) }}">
+                        @csrf
+                        <div class="modal-header" style="border-color:rgba(255,255,255,.1)">
+                            <h5 class="modal-title" id="modalRevisaoLabel">Solicitar Revisão</h5>
+                            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Fechar">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <label for="motivoRevisao" style="color:rgba(255,255,255,.85);font-size:.9rem">
+                                Conte para a oficina o motivo da revisão (mínimo 10 caracteres):
+                            </label>
+                            <textarea class="form-control" id="motivoRevisao" name="motivo" rows="4"
+                                      minlength="10" maxlength="2000" required
+                                      placeholder="Ex.: gostaria de entender melhor o valor da peça X..."></textarea>
+                            <small id="contadorMotivo" style="color:rgba(255,255,255,.4)">0 caracteres</small>
+                        </div>
+                        <div class="modal-footer" style="border-color:rgba(255,255,255,.1)">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-warning" id="btnEnviarRevisao" disabled>Enviar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @elseif($orcamento->status === 'aprovado' && $orcamento->aprovado_por_canal === 'portal')
+        <div class="status-card" style="border-color: rgba(40,167,69,.4)">
+            <button type="button" class="btn btn-success btn-block" disabled>
+                ✅ Orçamento já aprovado{{ $orcamento->aprovado_em ? ' em ' . $orcamento->aprovado_em->format('d/m/Y H:i') : '' }} via portal
+            </button>
+        </div>
+    @endif
+
     <div class="text-center">
         <button class="refresh-btn" onclick="location.reload()">
             <i class="fas fa-sync-alt mr-1"></i> Atualizar status
@@ -118,6 +222,32 @@
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Aprovação: habilita botão só com aceite de termos marcado (AC2)
+(function () {
+    var checkbox = document.getElementById('aceiteTermos');
+    var btnAprovar = document.getElementById('btnConfirmarAprovar');
+    if (checkbox && btnAprovar) {
+        checkbox.addEventListener('change', function () {
+            btnAprovar.disabled = !checkbox.checked;
+        });
+    }
+
+    // Revisão: habilita botão só com motivo >= 10 chars (AC8, validação front)
+    var motivo = document.getElementById('motivoRevisao');
+    var btnRevisao = document.getElementById('btnEnviarRevisao');
+    var contador = document.getElementById('contadorMotivo');
+    if (motivo && btnRevisao) {
+        motivo.addEventListener('input', function () {
+            var len = motivo.value.trim().length;
+            if (contador) contador.textContent = len + ' caractere' + (len === 1 ? '' : 's');
+            btnRevisao.disabled = len < 10;
+        });
+    }
+})();
+</script>
 <script>
 (function () {
     var statusAtual = '{{ $orcamento->status }}';

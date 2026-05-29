@@ -36,6 +36,11 @@ use Illuminate\Support\Facades\Storage;
 Route::middleware('throttle:30,1')->group(function () {
     Route::get('/acompanhar/{token}', [AcompanhamentoPublicoController::class, 'show'])->name('acompanhar.publico');
     Route::get('/publico/orcamento/{token}/pdf', [PdfController::class, 'orcamentoPublico'])->name('orcamentos.pdf.publico');
+
+    // Portal v2 — aprovação online (Story 2.2) e solicitação de revisão (Story 2.3).
+    // Rate limit 30/min por IP (NFR-003). CSRF ativo (NFR-004) — forms usam @csrf.
+    Route::post('/acompanhar/{token}/aprovar', [AcompanhamentoPublicoController::class, 'aprovar'])->name('acompanhar.aprovar');
+    Route::post('/acompanhar/{token}/rejeitar', [AcompanhamentoPublicoController::class, 'rejeitar'])->name('acompanhar.rejeitar');
 });
 
 // ── Onboarding self-service público (PRD 03, Story 4.2) ───────────────────
