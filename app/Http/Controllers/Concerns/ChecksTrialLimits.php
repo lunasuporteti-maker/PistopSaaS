@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Concerns;
 
 use App\Services\TrialLimitService;
+use Illuminate\Http\RedirectResponse;
 
 trait ChecksTrialLimits
 {
-    protected function verificarLimiteTrial(string $recurso): ?(\Illuminate\Http\RedirectResponse)
+    protected function verificarLimiteTrial(string $recurso): ?RedirectResponse
     {
         $tenant = app()->bound('tenant') ? app('tenant') : null;
         if (! $tenant) {

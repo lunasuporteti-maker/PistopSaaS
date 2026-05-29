@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Configuracao;
 use App\Models\Orcamento;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
@@ -35,13 +36,32 @@ class NotificarAprovacaoJob implements ShouldQueue
             return;
         }
 
-        $destinatarios = User::withoutGlobalScope('tenant')
+        // Respeita config portal_notificar_canais (Story 2.7)
+        $canais = json_decode(
+            Configuracao::getForTenant($orcamento->tenant_id, 'portal_notificar_canais', '{"email":true}'),
+            true
+        ) ?? ['email' => true];
+
+        if (! ($canais['email'] ?? true)) {
+            return;
+        }
+
+        // Respeita lista específica de destinatários (Story 2.7)
+        $idsConfig = json_decode(
+            Configuracao::getForTenant($orcamento->tenant_id, 'portal_notificar_usuarios_ids', '[]'),
+            true
+        ) ?? [];
+
+        $query = User::withoutGlobalScope('tenant')
             ->where('tenant_id', $orcamento->tenant_id)
             ->whereIn('perfil', ['admin', 'gerente'])
-            ->where('ativo', true)
-            ->pluck('email')
-            ->filter()
-            ->all();
+            ->where('ativo', true);
+
+        if (! empty($idsConfig)) {
+            $query->whereIn('id', $idsConfig);
+        }
+
+        $destinatarios = $query->pluck('email')->filter()->all();
 
         if (empty($destinatarios)) {
             return;

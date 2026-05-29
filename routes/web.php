@@ -123,6 +123,9 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico', 'che
     Route::post('orcamentos/{orcamento}/fotos', [\App\Http\Controllers\Web\FotoController::class, 'store'])->name('orcamentos.fotos.store');
     Route::delete('fotos/{foto}', [\App\Http\Controllers\Web\FotoController::class, 'destroy'])->name('fotos.destroy');
     Route::resource('mao-de-obra', MaoDeObraWebController::class)->except(['show'])->parameters(['mao-de-obra' => 'maoDeObra']);
+    // Configurações do portal público (Story 2.7)
+    Route::get('/configuracoes/portal', [\App\Http\Controllers\Web\ConfiguracaoPortalController::class, 'edit'])->name('configuracoes.portal');
+    Route::put('/configuracoes/portal', [\App\Http\Controllers\Web\ConfiguracaoPortalController::class, 'update'])->name('configuracoes.portal.update');
     Route::resource('catalogo-servicos', CatalogoServicosWebController::class)->except(['show'])->parameters(['catalogo-servicos' => 'catalogoServico']);
     Route::resource('funcionarios', FuncionarioWebController::class)->except(['show']);
     Route::resource('parceiros', ParceiroWebController::class)->except(['show']);
