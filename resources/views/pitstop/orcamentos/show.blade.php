@@ -384,7 +384,106 @@
     </div>
 </div>
 
+{{-- ── Seção de Fotos (PRD 02, Story 2.5) ─────────────────────────────── --}}
+<div class="card shadow mt-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold"><i class="fas fa-camera mr-2"></i>Fotos do Serviço</h6>
+        @can('acima_de_mecanico')
+        <button class="btn btn-sm btn-outline-primary" onclick="document.getElementById('inputFotos').click()">
+            <i class="fas fa-plus mr-1"></i> Adicionar fotos
+        </button>
+        @endcan
+    </div>
+    <div class="card-body">
+        <input type="file" id="inputFotos" multiple accept="image/jpeg,image/png,image/jpg" style="display:none">
+        <div class="form-row mb-2" id="fotoOpcoes" style="display:none">
+            <div class="col-4">
+                <select id="fotoCategoria" class="form-control form-control-sm">
+                    <option value="antes">Antes</option>
+                    <option value="durante" selected>Durante</option>
+                    <option value="depois">Depois</option>
+                    <option value="peca">Peça</option>
+                    <option value="outro">Outro</option>
+                </select>
+            </div>
+            <div class="col-6">
+                <input type="text" id="fotoLegenda" class="form-control form-control-sm" placeholder="Legenda (opcional, máx 200 chars)" maxlength="200">
+            </div>
+            <div class="col-2">
+                <button class="btn btn-primary btn-sm btn-block" onclick="uploadFotos()">Enviar</button>
+            </div>
+        </div>
+        <div id="fotoGrid" class="row" style="gap:0"></div>
+        <div id="fotoEmpty" class="text-muted text-center py-3" style="font-size:.85rem">Nenhuma foto cadastrada.</div>
+    </div>
+</div>
+
 @push('js')
+<script>
+(function() {
+    var orcId   = {{ $orcamento->id }};
+    var csrf    = document.querySelector('meta[name="csrf-token"]').content;
+    var grid    = document.getElementById('fotoGrid');
+    var empty   = document.getElementById('fotoEmpty');
+    var opcoes  = document.getElementById('fotoOpcoes');
+    var inputF  = document.getElementById('inputFotos');
+
+    function carregarFotos() {
+        fetch('/orcamentos/' + orcId + '/fotos', {headers:{'Accept':'application/json','X-CSRF-TOKEN':csrf}})
+            .then(r => r.json()).then(data => {
+                grid.innerHTML = '';
+                if (!data.fotos || !data.fotos.length) { empty.style.display=''; return; }
+                empty.style.display = 'none';
+                data.fotos.forEach(f => {
+                    var col = document.createElement('div');
+                    col.className = 'col-4 col-md-2 mb-2';
+                    col.innerHTML = '<div style="position:relative;cursor:pointer" onclick="abrirFoto(\''+f.url_original+'\')">'
+                        + '<img src="'+f.url+'" loading="lazy" style="width:100%;height:80px;object-fit:cover;border-radius:4px" alt="Foto">'
+                        + '<span style="position:absolute;top:2px;left:2px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:1px 4px;border-radius:3px">'+f.categoria+'</span>'
+                        + (f.pode_excluir ? '<button onclick="event.stopPropagation();excluirFoto('+f.id+',this)" style="position:absolute;top:2px;right:2px;background:rgba(220,0,0,.8);border:none;color:#fff;border-radius:3px;padding:0 4px;font-size:11px">×</button>' : '')
+                        + '</div>'
+                        + (f.legenda ? '<small style="display:block;font-size:10px;color:#64748b;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+f.legenda+'</small>' : '');
+                    grid.appendChild(col);
+                });
+            });
+    }
+
+    window.abrirFoto = function(url) {
+        var m = document.createElement('div');
+        m.style = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:pointer';
+        m.onclick = () => m.remove();
+        m.innerHTML = '<img src="'+url+'" style="max-width:95vw;max-height:92vh;border-radius:6px">';
+        document.body.appendChild(m);
+    };
+
+    window.excluirFoto = function(id, btn) {
+        if (!confirm('Excluir esta foto?')) return;
+        fetch('/fotos/'+id, {method:'DELETE',headers:{'X-CSRF-TOKEN':csrf,'Accept':'application/json'}})
+            .then(() => carregarFotos());
+    };
+
+    window.uploadFotos = function() {
+        var files = inputF.files;
+        if (!files.length) return;
+        var fd = new FormData();
+        for (var i=0; i<files.length; i++) fd.append('fotos[]', files[i]);
+        fd.append('categoria', document.getElementById('fotoCategoria').value);
+        fd.append('legenda', document.getElementById('fotoLegenda').value);
+        fd.append('_token', csrf);
+        fetch('/orcamentos/'+orcId+'/fotos', {method:'POST', body:fd, headers:{'Accept':'application/json'}})
+            .then(r => r.json()).then(d => {
+                if (d.ok) { opcoes.style.display='none'; inputF.value=''; carregarFotos(); }
+                else alert(d.error || 'Erro ao enviar fotos.');
+            });
+    };
+
+    inputF.addEventListener('change', function() {
+        if (this.files.length) opcoes.style.display = '';
+    });
+
+    carregarFotos();
+}());
+</script>
 <script>
 // Catálogo de serviços → preenche nome e valor
 document.getElementById('selectCatalogo')?.addEventListener('change', function () {

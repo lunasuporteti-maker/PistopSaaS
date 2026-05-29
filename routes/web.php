@@ -117,6 +117,10 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico', 'che
     Route::get('clientes/{cliente}/ficha', [ClienteWebController::class, 'ficha'])->name('clientes.ficha');
     Route::resource('veiculos', VeiculoWebController::class);
     Route::resource('pecas', PecaWebController::class);
+    // Fotos do orçamento (PRD 02, Story 2.5)
+    Route::get('orcamentos/{orcamento}/fotos', [\App\Http\Controllers\Web\FotoController::class, 'index'])->name('orcamentos.fotos.index');
+    Route::post('orcamentos/{orcamento}/fotos', [\App\Http\Controllers\Web\FotoController::class, 'store'])->name('orcamentos.fotos.store');
+    Route::delete('fotos/{foto}', [\App\Http\Controllers\Web\FotoController::class, 'destroy'])->name('fotos.destroy');
     Route::resource('mao-de-obra', MaoDeObraWebController::class)->except(['show'])->parameters(['mao-de-obra' => 'maoDeObra']);
     Route::resource('catalogo-servicos', CatalogoServicosWebController::class)->except(['show'])->parameters(['catalogo-servicos' => 'catalogoServico']);
     Route::resource('funcionarios', FuncionarioWebController::class)->except(['show']);
