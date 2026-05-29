@@ -111,7 +111,8 @@
             @php
                 $__wizardAtivo = false;
                 if (app()->bound('tenant') && auth()->check() && !auth()->user()->isSuperAdmin()
-                    && !request()->routeIs('onboarding.*', 'assine', 'logout')) {
+                    && !request()->routeIs('onboarding.*', 'assine', 'logout')
+                    && !session('wizard_adiado')) {
                     $__progRaw  = \App\Models\Configuracao::get('onboarding_progress', '');
                     $__prog     = $__progRaw ? json_decode($__progRaw, true) : [];
                     $__wizardAtivo = empty($__prog['wizard_concluido']);

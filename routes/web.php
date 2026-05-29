@@ -182,6 +182,7 @@ Route::middleware(['tenant', 'auth', 'single.session'])->prefix('onboarding')->n
     Route::get('/wizard', [OnboardingController::class, 'wizard'])->name('wizard');
     Route::put('/progress', [OnboardingController::class, 'updateProgress'])->name('progress');
     Route::post('/skip', [OnboardingController::class, 'skip'])->name('skip');
+    Route::post('/concluir', [OnboardingController::class, 'concluir'])->name('concluir');
     Route::post('/branding', [OnboardingController::class, 'saveBranding'])->name('branding');
     Route::post('/employee', [OnboardingController::class, 'saveEmployee'])->name('employee');
 });

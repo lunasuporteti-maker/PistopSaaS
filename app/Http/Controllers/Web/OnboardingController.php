@@ -64,6 +64,15 @@ class OnboardingController extends Controller
 
     public function skip()
     {
+        // "Fazer depois" — esconde só na sessão atual, não marca como concluído permanentemente
+        session(['wizard_adiado' => true]);
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function concluir()
+    {
+        // Chamado ao finalizar o passo 5 — marca como concluído permanentemente
         $progress = $this->getProgress();
         $progress['wizard_concluido'] = true;
         $this->saveProgress($progress);

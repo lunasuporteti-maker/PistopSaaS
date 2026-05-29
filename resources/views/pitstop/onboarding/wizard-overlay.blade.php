@@ -276,13 +276,15 @@
     };
 
     function wzFinish() {
-        put('{{ route("onboarding.progress") }}', { step: 'wizard_concluido' })
-            .then(function () {
-                document.getElementById('wzOverlay').remove();
-                // Remove badge do header
-                var badge = document.querySelector('[href="{{ route("onboarding.wizard") }}"]');
-                if (badge) badge.remove();
-            });
+        // Concluir permanentemente — só chamado ao finalizar o passo 5
+        fetch('{{ route("onboarding.concluir") }}', {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json', 'Content-Type': 'application/json' }
+        }).then(function () {
+            document.getElementById('wzOverlay').remove();
+            var badge = document.querySelector('[href="{{ route("onboarding.wizard") }}"]');
+            if (badge) badge.remove();
+        });
     }
 
     function goTo(step) {
