@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // Confia no Traefik/Coolify como proxy reverso
         $middleware->trustProxies(at: '*');
 
+        // Webhooks externos não enviam CSRF token — excluir da verificação
+        $middleware->validateCsrfTokens(except: [
+            '/webhooks/*',
+        ]);
+
         $middleware->alias([
             'tenant'              => \App\Http\Middleware\IdentifyTenant::class,
             'single.session'      => \App\Http\Middleware\EnsureSingleSession::class,
