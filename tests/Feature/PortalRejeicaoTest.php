@@ -18,7 +18,7 @@ use Tests\Traits\HasTenant;
  */
 class PortalRejeicaoTest extends TestCase
 {
-    use RefreshDatabase, HasTenant;
+    use HasTenant, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -30,23 +30,23 @@ class PortalRejeicaoTest extends TestCase
     {
         $cliente = Cliente::create([
             'tenant_id' => $this->tenant->id,
-            'nome'      => 'João Cliente',
-            'telefone'  => '84988888888',
+            'nome' => 'João Cliente',
+            'telefone' => '84988888888',
         ]);
 
         $veiculo = Veiculo::create([
-            'tenant_id'  => $this->tenant->id,
+            'tenant_id' => $this->tenant->id,
             'cliente_id' => $cliente->id,
-            'marca'      => 'Yamaha',
-            'modelo'     => 'Factor 150',
+            'marca' => 'Yamaha',
+            'modelo' => 'Factor 150',
         ]);
 
         return Orcamento::create([
-            'tenant_id'     => $this->tenant->id,
-            'cliente_id'    => $cliente->id,
-            'veiculo_id'    => $veiculo->id,
-            'status'        => 'orcamento',
-            'valor_total'   => 400.00,
+            'tenant_id' => $this->tenant->id,
+            'cliente_id' => $cliente->id,
+            'veiculo_id' => $veiculo->id,
+            'status' => 'orcamento',
+            'valor_total' => 400.00,
             'token_publico' => Str::uuid()->toString(),
         ]);
     }
@@ -56,17 +56,17 @@ class PortalRejeicaoTest extends TestCase
         Queue::fake();
         $orcamento = $this->criarOrcamento();
 
-        $this->post('/acompanhar/' . $orcamento->token_publico . '/rejeitar', [
+        $this->post('/acompanhar/'.$orcamento->token_publico.'/rejeitar', [
             'motivo' => 'Gostaria de entender melhor o valor da peça.',
-        ])->assertRedirect('/acompanhar/' . $orcamento->token_publico);
+        ])->assertRedirect('/acompanhar/'.$orcamento->token_publico);
 
         // Status permanece 'orcamento' — NÃO vira cancelado
         $this->assertDatabaseHas('orcamentos', [
-            'id'     => $orcamento->id,
+            'id' => $orcamento->id,
             'status' => 'orcamento',
         ]);
         $this->assertDatabaseMissing('orcamentos', [
-            'id'     => $orcamento->id,
+            'id' => $orcamento->id,
             'status' => 'cancelado',
         ]);
 
@@ -78,14 +78,14 @@ class PortalRejeicaoTest extends TestCase
         Queue::fake();
         $orcamento = $this->criarOrcamento();
 
-        $this->post('/acompanhar/' . $orcamento->token_publico . '/rejeitar', [
+        $this->post('/acompanhar/'.$orcamento->token_publico.'/rejeitar', [
             'motivo' => 'O prazo informado está muito longo para mim.',
         ]);
 
         $this->assertDatabaseHas('orcamento_interacoes', [
             'orcamento_id' => $orcamento->id,
-            'tipo'         => 'rejeicao',
-            'usuario_id'   => null,
+            'tipo' => 'rejeicao',
+            'usuario_id' => null,
         ]);
     }
 
@@ -93,13 +93,13 @@ class PortalRejeicaoTest extends TestCase
     {
         $orcamento = $this->criarOrcamento();
 
-        $this->post('/acompanhar/' . $orcamento->token_publico . '/rejeitar', [
+        $this->post('/acompanhar/'.$orcamento->token_publico.'/rejeitar', [
             'motivo' => 'curto',
         ])->assertSessionHasErrors('motivo');
 
         $this->assertDatabaseMissing('orcamento_interacoes', [
             'orcamento_id' => $orcamento->id,
-            'tipo'         => 'rejeicao',
+            'tipo' => 'rejeicao',
         ]);
     }
 
@@ -108,7 +108,7 @@ class PortalRejeicaoTest extends TestCase
         Queue::fake();
         $orcamento = $this->criarOrcamento();
 
-        $this->post('/acompanhar/' . $orcamento->token_publico . '/rejeitar', [
+        $this->post('/acompanhar/'.$orcamento->token_publico.'/rejeitar', [
             'motivo' => '<script>alert(1)</script>O preço está acima do esperado.',
         ]);
 

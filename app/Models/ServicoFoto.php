@@ -8,16 +8,20 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ServicoFoto extends Model
 {
-    use SoftDeletes, BelongsToTenant;
+    use BelongsToTenant, SoftDeletes;
 
     protected $table = 'servico_fotos';
 
     // Categorias lógicas de foto
-    public const CATEGORIA_ANTES   = 'antes';
+    public const CATEGORIA_ANTES = 'antes';
+
     public const CATEGORIA_DURANTE = 'durante';
-    public const CATEGORIA_DEPOIS  = 'depois';
-    public const CATEGORIA_PECA    = 'peca';
-    public const CATEGORIA_OUTRO   = 'outro';
+
+    public const CATEGORIA_DEPOIS = 'depois';
+
+    public const CATEGORIA_PECA = 'peca';
+
+    public const CATEGORIA_OUTRO = 'outro';
 
     protected $fillable = [
         'tenant_id',

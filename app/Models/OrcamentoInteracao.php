@@ -15,11 +15,16 @@ class OrcamentoInteracao extends Model
     public const UPDATED_AT = null;
 
     // Tipos lógicos de interação
-    public const TIPO_VISUALIZACAO  = 'visualizacao';
-    public const TIPO_APROVACAO     = 'aprovacao';
-    public const TIPO_REJEICAO      = 'rejeicao';
+    public const TIPO_VISUALIZACAO = 'visualizacao';
+
+    public const TIPO_APROVACAO = 'aprovacao';
+
+    public const TIPO_REJEICAO = 'rejeicao';
+
     public const TIPO_REVISAO_VALOR = 'revisao_valor';
-    public const TIPO_UPLOAD_FOTO   = 'upload_foto';
+
+    public const TIPO_UPLOAD_FOTO = 'upload_foto';
+
     public const TIPO_EXCLUSAO_FOTO = 'exclusao_foto';
 
     protected $fillable = [

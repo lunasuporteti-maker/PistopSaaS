@@ -19,7 +19,7 @@ use Tests\Traits\HasTenant;
  */
 class PortalV2SchemaTest extends TestCase
 {
-    use RefreshDatabase, HasTenant;
+    use HasTenant, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -31,22 +31,22 @@ class PortalV2SchemaTest extends TestCase
     {
         $cliente = Cliente::create([
             'tenant_id' => $this->tenant->id,
-            'nome'      => 'Cliente Teste',
-            'telefone'  => '84999999999',
+            'nome' => 'Cliente Teste',
+            'telefone' => '84999999999',
         ]);
 
         $veiculo = Veiculo::create([
-            'tenant_id'  => $this->tenant->id,
+            'tenant_id' => $this->tenant->id,
             'cliente_id' => $cliente->id,
-            'marca'      => 'Honda',
-            'modelo'     => 'CG 160',
+            'marca' => 'Honda',
+            'modelo' => 'CG 160',
         ]);
 
         return Orcamento::create([
-            'tenant_id'   => $this->tenant->id,
-            'cliente_id'  => $cliente->id,
-            'veiculo_id'  => $veiculo->id,
-            'status'      => 'orcamento',
+            'tenant_id' => $this->tenant->id,
+            'cliente_id' => $cliente->id,
+            'veiculo_id' => $veiculo->id,
+            'status' => 'orcamento',
             'valor_total' => 250.00,
         ]);
     }
@@ -70,18 +70,18 @@ class PortalV2SchemaTest extends TestCase
         $orcamento = $this->criarOrcamento();
 
         $orcamento->update([
-            'status'              => 'aprovado',
-            'aprovado_em'         => now(),
-            'aprovado_por_canal'  => Orcamento::CANAL_PORTAL,
-            'aprovado_ip'         => '203.0.113.42',
+            'status' => 'aprovado',
+            'aprovado_em' => now(),
+            'aprovado_por_canal' => Orcamento::CANAL_PORTAL,
+            'aprovado_ip' => '203.0.113.42',
             'aprovado_user_agent' => 'Mozilla/5.0 Test',
         ]);
 
         $this->assertDatabaseHas('orcamentos', [
-            'id'                 => $orcamento->id,
-            'status'             => 'aprovado',
+            'id' => $orcamento->id,
+            'status' => 'aprovado',
             'aprovado_por_canal' => 'portal',
-            'aprovado_ip'        => '203.0.113.42',
+            'aprovado_ip' => '203.0.113.42',
         ]);
     }
 
@@ -90,11 +90,11 @@ class PortalV2SchemaTest extends TestCase
         $orcamento = $this->criarOrcamento();
 
         $interacao = OrcamentoInteracao::create([
-            'tenant_id'    => $this->tenant->id,
+            'tenant_id' => $this->tenant->id,
             'orcamento_id' => $orcamento->id,
-            'tipo'         => OrcamentoInteracao::TIPO_APROVACAO,
-            'dados_json'   => ['ip' => '203.0.113.42', 'aceite_termos' => true],
-            'usuario_id'   => null,
+            'tipo' => OrcamentoInteracao::TIPO_APROVACAO,
+            'dados_json' => ['ip' => '203.0.113.42', 'aceite_termos' => true],
+            'usuario_id' => null,
         ]);
 
         // dados_json é castado para array
@@ -105,7 +105,7 @@ class PortalV2SchemaTest extends TestCase
         $this->assertNull(OrcamentoInteracao::UPDATED_AT);
 
         $this->assertDatabaseHas('orcamento_interacoes', [
-            'id'   => $interacao->id,
+            'id' => $interacao->id,
             'tipo' => 'aprovacao',
         ]);
     }
@@ -115,13 +115,13 @@ class PortalV2SchemaTest extends TestCase
         $orcamento = $this->criarOrcamento();
 
         $foto = ServicoFoto::create([
-            'tenant_id'     => $this->tenant->id,
-            'orcamento_id'  => $orcamento->id,
-            'categoria'     => ServicoFoto::CATEGORIA_ANTES,
+            'tenant_id' => $this->tenant->id,
+            'orcamento_id' => $orcamento->id,
+            'categoria' => ServicoFoto::CATEGORIA_ANTES,
             'path_original' => 'tenants/1/fotos/foto.jpg',
             'tamanho_bytes' => 12345,
-            'mime_type'     => 'image/jpeg',
-            'uploaded_by'   => $this->adminUser->id,
+            'mime_type' => 'image/jpeg',
+            'uploaded_by' => $this->adminUser->id,
         ]);
 
         $foto->delete();

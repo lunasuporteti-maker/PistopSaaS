@@ -47,18 +47,18 @@ class NotificarAprovacaoJob implements ShouldQueue
             return;
         }
 
-        $cliente  = $orcamento->cliente?->nome ?? 'Cliente';
-        $veiculo  = trim(($orcamento->veiculo?->marca ?? '') . ' ' . ($orcamento->veiculo?->modelo ?? ''));
-        $valor    = number_format((float) $orcamento->valor_total, 2, ',', '.');
-        $linkOrc  = url('/orcamentos/' . $orcamento->id);
+        $cliente = $orcamento->cliente?->nome ?? 'Cliente';
+        $veiculo = trim(($orcamento->veiculo?->marca ?? '').' '.($orcamento->veiculo?->modelo ?? ''));
+        $valor = number_format((float) $orcamento->valor_total, 2, ',', '.');
+        $linkOrc = url('/orcamentos/'.$orcamento->id);
 
         $corpo = "Orçamento aprovado pelo cliente no portal!\n\n"
-            . "Cliente: {$cliente}\n"
-            . "Veículo: {$veiculo}\n"
-            . "Orçamento: #{$orcamento->id}\n"
-            . "Valor: R$ {$valor}\n\n"
-            . "A OS foi gerada automaticamente.\n"
-            . "Ver no sistema: {$linkOrc}";
+            ."Cliente: {$cliente}\n"
+            ."Veículo: {$veiculo}\n"
+            ."Orçamento: #{$orcamento->id}\n"
+            ."Valor: R$ {$valor}\n\n"
+            ."A OS foi gerada automaticamente.\n"
+            ."Ver no sistema: {$linkOrc}";
 
         try {
             Mail::raw($corpo, function ($m) use ($destinatarios, $orcamento) {
@@ -66,7 +66,7 @@ class NotificarAprovacaoJob implements ShouldQueue
                     ->subject("Orçamento #{$orcamento->id} aprovado no portal");
             });
         } catch (\Throwable $e) {
-            Log::error('[NotificarAprovacao] Erro ao enviar email: ' . $e->getMessage());
+            Log::error('[NotificarAprovacao] Erro ao enviar email: '.$e->getMessage());
         }
     }
 }

@@ -50,14 +50,14 @@ class NotificarRejeicaoJob implements ShouldQueue
             return;
         }
 
-        $cliente        = $orcamento->cliente?->nome ?? 'Cliente';
+        $cliente = $orcamento->cliente?->nome ?? 'Cliente';
         $motivoTruncado = Str::limit($this->motivo, 100);
-        $linkOrc        = url('/orcamentos/' . $orcamento->id);
+        $linkOrc = url('/orcamentos/'.$orcamento->id);
 
         $corpo = "{$cliente} solicitou revisão no orçamento #{$orcamento->id}:\n\n"
-            . "\"{$motivoTruncado}\"\n\n"
-            . "O orçamento permanece aguardando aprovação. Ajuste e reenvie se necessário.\n"
-            . "Ver no sistema: {$linkOrc}";
+            ."\"{$motivoTruncado}\"\n\n"
+            ."O orçamento permanece aguardando aprovação. Ajuste e reenvie se necessário.\n"
+            ."Ver no sistema: {$linkOrc}";
 
         try {
             Mail::raw($corpo, function ($m) use ($destinatarios, $orcamento) {
@@ -65,7 +65,7 @@ class NotificarRejeicaoJob implements ShouldQueue
                     ->subject("Revisão solicitada — Orçamento #{$orcamento->id}");
             });
         } catch (\Throwable $e) {
-            Log::error('[NotificarRejeicao] Erro ao enviar email: ' . $e->getMessage());
+            Log::error('[NotificarRejeicao] Erro ao enviar email: '.$e->getMessage());
         }
     }
 }

@@ -17,11 +17,11 @@ use Illuminate\Support\Str;
 class AcompanhamentoPublicoController extends Controller
 {
     private array $etapas = [
-        'orcamento'  => ['icone' => '📋', 'titulo' => 'Orçamento em Análise',   'desc' => 'Estamos avaliando seu veículo e preparando o orçamento.', 'cor' => '#6c757d'],
-        'aprovado'   => ['icone' => '✅', 'titulo' => 'Aprovado — Aguardando Início', 'desc' => 'Orçamento aprovado! Nossa equipe iniciará o serviço em breve.', 'cor' => '#17a2b8'],
+        'orcamento' => ['icone' => '📋', 'titulo' => 'Orçamento em Análise',   'desc' => 'Estamos avaliando seu veículo e preparando o orçamento.', 'cor' => '#6c757d'],
+        'aprovado' => ['icone' => '✅', 'titulo' => 'Aprovado — Aguardando Início', 'desc' => 'Orçamento aprovado! Nossa equipe iniciará o serviço em breve.', 'cor' => '#17a2b8'],
         'em_servico' => ['icone' => '🔧', 'titulo' => 'Serviço em Andamento',   'desc' => 'Seu veículo está em nossa oficina e o serviço está sendo realizado.', 'cor' => '#e67e22'],
-        'concluido'  => ['icone' => '🎉', 'titulo' => 'Serviço Concluído!',     'desc' => 'Seu veículo está pronto! Pode vir buscá-lo. Obrigado pela preferência!', 'cor' => '#28a745'],
-        'cancelado'  => ['icone' => '❌', 'titulo' => 'Serviço Cancelado',      'desc' => 'Este serviço foi cancelado. Entre em contato para mais informações.', 'cor' => '#dc3545'],
+        'concluido' => ['icone' => '🎉', 'titulo' => 'Serviço Concluído!',     'desc' => 'Seu veículo está pronto! Pode vir buscá-lo. Obrigado pela preferência!', 'cor' => '#28a745'],
+        'cancelado' => ['icone' => '❌', 'titulo' => 'Serviço Cancelado',      'desc' => 'Este serviço foi cancelado. Entre em contato para mais informações.', 'cor' => '#dc3545'],
     ];
 
     /**
@@ -56,7 +56,7 @@ class AcompanhamentoPublicoController extends Controller
 
         if ($os) {
             $orcamento = $os->orcamento;
-            $status    = $os->status;
+            $status = $os->status;
         } else {
             // Fallback: token antigo em orcamentos (legado AutoFix)
             $orcamento = Orcamento::withoutGlobalScope('tenant')
@@ -66,9 +66,9 @@ class AcompanhamentoPublicoController extends Controller
             $status = $orcamento->status;
         }
 
-        $etapa    = $this->etapas[$status] ?? $this->etapas['orcamento'];
-        $etapas   = $this->etapas;
-        $ordem    = ['orcamento', 'aprovado', 'em_servico', 'concluido'];
+        $etapa = $this->etapas[$status] ?? $this->etapas['orcamento'];
+        $etapas = $this->etapas;
+        $ordem = ['orcamento', 'aprovado', 'em_servico', 'concluido'];
         $posAtual = array_search($status, $ordem);
 
         return response()
@@ -100,31 +100,31 @@ class AcompanhamentoPublicoController extends Controller
             'aceite_termos.accepted' => 'Você precisa marcar que leu e aceita os itens do orçamento.',
         ]);
 
-        $ip        = $request->ip();
+        $ip = $request->ip();
         $userAgent = (string) $request->userAgent();
 
         DB::transaction(function () use ($orcamento, $ip, $userAgent) {
             // AC3: atualiza campos de aprovação (NÃO altera valor_total nem itens — AC10)
             $orcamento->update([
-                'status'              => 'aprovado',
-                'aprovado_em'         => now(),
-                'aprovado_por_canal'  => Orcamento::CANAL_PORTAL,
-                'aprovado_ip'         => $ip,
+                'status' => 'aprovado',
+                'aprovado_em' => now(),
+                'aprovado_por_canal' => Orcamento::CANAL_PORTAL,
+                'aprovado_ip' => $ip,
                 'aprovado_user_agent' => Str::limit($userAgent, 500, ''),
             ]);
 
             // AC4: registro de interação (evidência legal), usuario_id = NULL (cliente externo)
             OrcamentoInteracao::create([
-                'tenant_id'    => $orcamento->tenant_id,
+                'tenant_id' => $orcamento->tenant_id,
                 'orcamento_id' => $orcamento->id,
-                'tipo'         => OrcamentoInteracao::TIPO_APROVACAO,
-                'dados_json'   => [
-                    'ip'            => $ip,
-                    'user_agent'    => $userAgent,
+                'tipo' => OrcamentoInteracao::TIPO_APROVACAO,
+                'dados_json' => [
+                    'ip' => $ip,
+                    'user_agent' => $userAgent,
                     'aceite_termos' => true,
-                    'timestamp'     => now()->toIso8601String(),
+                    'timestamp' => now()->toIso8601String(),
                 ],
-                'usuario_id'   => null,
+                'usuario_id' => null,
             ]);
 
             // Gera a OS automaticamente a partir do orçamento aprovado
@@ -159,27 +159,27 @@ class AcompanhamentoPublicoController extends Controller
             'motivo' => 'required|string|min:10|max:2000',
         ], [
             'motivo.required' => 'Por favor, descreva o motivo da revisão.',
-            'motivo.min'      => 'O motivo deve ter no mínimo 10 caracteres.',
+            'motivo.min' => 'O motivo deve ter no mínimo 10 caracteres.',
         ]);
 
         // AC7: sanitização contra XSS (Risco R6) — texto puro
-        $motivo    = trim(strip_tags($validated['motivo']));
-        $ip        = $request->ip();
+        $motivo = trim(strip_tags($validated['motivo']));
+        $ip = $request->ip();
         $userAgent = (string) $request->userAgent();
 
         // AC3: rejeição NÃO altera o status do orçamento (permanece 'orcamento')
         OrcamentoInteracao::create([
-            'tenant_id'    => $orcamento->tenant_id,
+            'tenant_id' => $orcamento->tenant_id,
             'orcamento_id' => $orcamento->id,
-            'tipo'         => OrcamentoInteracao::TIPO_REJEICAO,
-            'dados_json'   => [
-                'motivo'           => $motivo,
-                'ip'               => $ip,
-                'user_agent'       => $userAgent,
-                'orcamento_numero' => '#' . $orcamento->id,
-                'timestamp'        => now()->toIso8601String(),
+            'tipo' => OrcamentoInteracao::TIPO_REJEICAO,
+            'dados_json' => [
+                'motivo' => $motivo,
+                'ip' => $ip,
+                'user_agent' => $userAgent,
+                'orcamento_numero' => '#'.$orcamento->id,
+                'timestamp' => now()->toIso8601String(),
             ],
-            'usuario_id'   => null,
+            'usuario_id' => null,
         ]);
 
         // AC5: notificação interna com motivo truncado

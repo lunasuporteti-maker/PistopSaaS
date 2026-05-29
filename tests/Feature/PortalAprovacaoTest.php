@@ -17,7 +17,7 @@ use Tests\Traits\HasTenant;
  */
 class PortalAprovacaoTest extends TestCase
 {
-    use RefreshDatabase, HasTenant;
+    use HasTenant, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -29,23 +29,23 @@ class PortalAprovacaoTest extends TestCase
     {
         $cliente = Cliente::create([
             'tenant_id' => $this->tenant->id,
-            'nome'      => 'Maria Cliente',
-            'telefone'  => '84999999999',
+            'nome' => 'Maria Cliente',
+            'telefone' => '84999999999',
         ]);
 
         $veiculo = Veiculo::create([
-            'tenant_id'  => $this->tenant->id,
+            'tenant_id' => $this->tenant->id,
             'cliente_id' => $cliente->id,
-            'marca'      => 'Honda',
-            'modelo'     => 'CG 160',
+            'marca' => 'Honda',
+            'modelo' => 'CG 160',
         ]);
 
         return Orcamento::create([
-            'tenant_id'     => $this->tenant->id,
-            'cliente_id'    => $cliente->id,
-            'veiculo_id'    => $veiculo->id,
-            'status'        => $status,
-            'valor_total'   => 250.00,
+            'tenant_id' => $this->tenant->id,
+            'cliente_id' => $cliente->id,
+            'veiculo_id' => $veiculo->id,
+            'status' => $status,
+            'valor_total' => 250.00,
             'token_publico' => Str::uuid()->toString(),
         ]);
     }
@@ -54,7 +54,7 @@ class PortalAprovacaoTest extends TestCase
     {
         $orcamento = $this->criarOrcamento();
 
-        $this->get('/acompanhar/' . $orcamento->token_publico)
+        $this->get('/acompanhar/'.$orcamento->token_publico)
             ->assertOk()
             ->assertSee('Aprovar Orçamento')
             ->assertSee('Solicitar Revisão');
@@ -65,20 +65,20 @@ class PortalAprovacaoTest extends TestCase
         Queue::fake();
         $orcamento = $this->criarOrcamento();
 
-        $this->post('/acompanhar/' . $orcamento->token_publico . '/aprovar', [
+        $this->post('/acompanhar/'.$orcamento->token_publico.'/aprovar', [
             'aceite_termos' => '1',
-        ])->assertRedirect('/acompanhar/' . $orcamento->token_publico);
+        ])->assertRedirect('/acompanhar/'.$orcamento->token_publico);
 
         $this->assertDatabaseHas('orcamentos', [
-            'id'                 => $orcamento->id,
-            'status'             => 'aprovado',
+            'id' => $orcamento->id,
+            'status' => 'aprovado',
             'aprovado_por_canal' => 'portal',
         ]);
 
         $this->assertDatabaseHas('orcamento_interacoes', [
             'orcamento_id' => $orcamento->id,
-            'tipo'         => 'aprovacao',
-            'usuario_id'   => null,
+            'tipo' => 'aprovacao',
+            'usuario_id' => null,
         ]);
 
         // OS gerada automaticamente
@@ -93,11 +93,11 @@ class PortalAprovacaoTest extends TestCase
     {
         $orcamento = $this->criarOrcamento();
 
-        $this->post('/acompanhar/' . $orcamento->token_publico . '/aprovar', [])
+        $this->post('/acompanhar/'.$orcamento->token_publico.'/aprovar', [])
             ->assertSessionHasErrors('aceite_termos');
 
         $this->assertDatabaseHas('orcamentos', [
-            'id'     => $orcamento->id,
+            'id' => $orcamento->id,
             'status' => 'orcamento',
         ]);
     }
@@ -107,14 +107,14 @@ class PortalAprovacaoTest extends TestCase
         Queue::fake();
         $orcamento = $this->criarOrcamento('aprovado');
 
-        $this->post('/acompanhar/' . $orcamento->token_publico . '/aprovar', [
+        $this->post('/acompanhar/'.$orcamento->token_publico.'/aprovar', [
             'aceite_termos' => '1',
-        ])->assertRedirect('/acompanhar/' . $orcamento->token_publico);
+        ])->assertRedirect('/acompanhar/'.$orcamento->token_publico);
 
         // Nenhuma interação de aprovação criada
         $this->assertDatabaseMissing('orcamento_interacoes', [
             'orcamento_id' => $orcamento->id,
-            'tipo'         => 'aprovacao',
+            'tipo' => 'aprovacao',
         ]);
 
         Queue::assertNothingPushed();
@@ -126,7 +126,7 @@ class PortalAprovacaoTest extends TestCase
         $orcamento = $this->criarOrcamento();
         $valorAntes = $orcamento->valor_total;
 
-        $this->post('/acompanhar/' . $orcamento->token_publico . '/aprovar', [
+        $this->post('/acompanhar/'.$orcamento->token_publico.'/aprovar', [
             'aceite_termos' => '1',
         ]);
 

@@ -8,11 +8,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Orcamento extends Model
 {
-    use SoftDeletes, BelongsToTenant;
+    use BelongsToTenant, SoftDeletes;
 
     // Canais de aprovação
-    public const CANAL_PORTAL   = 'portal';
-    public const CANAL_INTERNO  = 'interno';
+    public const CANAL_PORTAL = 'portal';
+
+    public const CANAL_INTERNO = 'interno';
+
     public const CANAL_WHATSAPP = 'whatsapp';
 
     protected $fillable = [
@@ -24,11 +26,11 @@ class Orcamento extends Model
     ];
 
     protected $casts = [
-        'aprovado_em'   => 'datetime',
-        'iniciado_em'   => 'datetime',
-        'concluido_em'  => 'datetime',
-        'arquivado_em'  => 'datetime',
-        'valor_total'   => 'decimal:2',
+        'aprovado_em' => 'datetime',
+        'iniciado_em' => 'datetime',
+        'concluido_em' => 'datetime',
+        'arquivado_em' => 'datetime',
+        'valor_total' => 'decimal:2',
     ];
 
     public function cliente()
