@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\Orcamento;
 use App\Models\OrdemServico;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +28,15 @@ class KanbanController extends Controller
 
     public function index()
     {
+        // Orçamentos aguardando aprovação (coluna pré-OS)
+        $orcamentosEmEspera = Orcamento::with(['cliente', 'veiculo'])
+            ->where('status', 'orcamento')
+            ->whereNull('arquivado_em')
+            ->orderBy('posicao_fila')
+            ->orderBy('created_at')
+            ->get();
+
+        // OSs nas colunas de produção
         $cards = OrdemServico::with(['orcamento.cliente', 'orcamento.veiculo'])
             ->whereIn('status', array_keys($this->colunas))
             ->whereNull('arquivado_em')
@@ -38,19 +48,24 @@ class KanbanController extends Controller
         $colunas   = $this->colunas;
         $mensagens = $this->mensagens();
 
-        return view('pitstop.kanban', compact('cards', 'colunas', 'mensagens'));
+        return view('pitstop.kanban', compact('cards', 'colunas', 'mensagens', 'orcamentosEmEspera'));
     }
 
     public function estado()
     {
-        $estado = OrdemServico::whereIn('status', array_keys($this->colunas))
+        $hashOs  = OrdemServico::whereIn('status', array_keys($this->colunas))
+            ->whereNull('arquivado_em')
+            ->orderBy('updated_at', 'desc')
+            ->pluck('updated_at', 'id');
+
+        $hashOrc = Orcamento::where('status', 'orcamento')
             ->whereNull('arquivado_em')
             ->orderBy('updated_at', 'desc')
             ->pluck('updated_at', 'id');
 
         return response()->json([
-            'hash'  => md5($estado->toJson()),
-            'total' => $estado->count(),
+            'hash'  => md5($hashOs->toJson() . $hashOrc->toJson()),
+            'total' => $hashOs->count() + $hashOrc->count(),
         ]);
     }
 

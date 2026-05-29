@@ -88,6 +88,55 @@
 </div>
 
 <div class="kanban-board" id="kanbanBoard">
+
+    {{-- ── Coluna: Aguardando Aprovação (Orçamentos) ──────────────── --}}
+    <div class="kanban-col" data-status="orcamento">
+        <div class="col-header" style="background:#6c757d">
+            <h3>Aguardando Aprovação</h3>
+            <span class="col-count">{{ $orcamentosEmEspera->count() }}</span>
+        </div>
+        <div class="col-body kanban-lista" data-status="orcamento" data-tipo="orcamento">
+            @forelse($orcamentosEmEspera as $orc)
+            @php
+                $nomeCliente = $orc->cliente->nome ?? 'Cliente';
+                $nomeVeiculo = trim(($orc->veiculo->marca ?? '') . ' ' . ($orc->veiculo->modelo ?? ''));
+                $telefone    = preg_replace('/\D/', '', $orc->cliente->telefone ?? '');
+                $msgOrc      = "Ola {$nomeCliente}! Recebemos seu *{$nomeVeiculo}* aqui na *" . (app('tenant')->nome ?? 'Oficina') . "*. Ja estamos avaliando e em breve te enviamos o orcamento.\n\n_" . (app('tenant')->nome ?? 'Oficina') . "_";
+                $waUrlOrc    = $telefone ? 'https://wa.me/55' . $telefone . '?text=' . rawurlencode($msgOrc) : null;
+            @endphp
+            <div class="kanban-card"
+                 data-id="{{ $orc->id }}"
+                 data-tipo="orcamento"
+                 data-status="orcamento"
+                 data-valor="{{ $orc->valor_total }}"
+                 data-cliente="{{ $nomeCliente }}"
+                 draggable="false">
+                <div class="card-cliente">{{ $nomeCliente }}</div>
+                <div class="card-veiculo">
+                    <i class="fas fa-car"></i> {{ $nomeVeiculo ?: '—' }}
+                    @if($orc->veiculo->placa ?? null)<span style="color:#475569"> · {{ $orc->veiculo->placa }}</span>@endif
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="card-valor">R$ {{ number_format($orc->valor_total, 2, ',', '.') }}</span>
+                    <span class="card-data">{{ $orc->created_at->format('d/m') }}</span>
+                </div>
+                @if($orc->queixa_cliente)
+                <div class="card-queixa">"{{ Str::limit($orc->queixa_cliente, 60) }}"</div>
+                @endif
+                <div class="card-actions">
+                    @if($waUrlOrc)
+                    <a href="{{ $waUrlOrc }}" target="_blank" class="btn-wa"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    @endif
+                    <a href="{{ route('orcamentos.show', $orc) }}" target="_blank" class="btn-ver"><i class="fas fa-eye"></i> Ver</a>
+                </div>
+            </div>
+            @empty
+            <div class="empty-col"><i class="fas fa-inbox mb-1 d-block" style="font-size:1.5rem"></i>Vazio</div>
+            @endforelse
+        </div>
+    </div>
+
+    {{-- ── Colunas de OS (Aprovado / Em Serviço / Concluído) ──────── --}}
     @foreach($colunas as $status => $coluna)
     @php $itens = $cards->get($status, collect()); @endphp
     <div class="kanban-col" data-status="{{ $status }}">
