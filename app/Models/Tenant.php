@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Tenant extends Model
 {
@@ -43,6 +44,12 @@ class Tenant extends Model
     public function clientes()
     {
         return $this->hasMany(Cliente::class);
+    }
+
+    /** Assinatura do tenant (1 por tenant, PRD 03) */
+    public function subscription(): HasOne
+    {
+        return $this->hasOne(Subscription::class);
     }
 
     // ── Helpers de assinatura ─────────────────────────────────────────────────
