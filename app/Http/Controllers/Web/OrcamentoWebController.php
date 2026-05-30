@@ -14,6 +14,7 @@ use App\Models\Cliente;
 use App\Models\Veiculo;
 use App\Models\Peca;
 use App\Models\MaoDeObra;
+use App\Models\CatalogoServico;
 use App\Models\HistoricoKm;
 use App\Services\OrcamentoService;
 use Illuminate\Http\Request;
