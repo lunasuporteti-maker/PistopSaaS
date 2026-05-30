@@ -20,9 +20,9 @@ class KanbanController extends Controller
     {
         $nome = app('tenant')->nome ?? 'Oficina';
         return [
-            'aprovado'   => "Ola {nome}! Otima noticia! O servico do seu *{veiculo}* foi *aprovado*. Vamos iniciar em breve.\n\nAcompanhe em tempo real:\n{link}\n\n_{$nome}_",
-            'em_servico' => "Ola {nome}! Seu *{veiculo}* esta na oficina e o servico esta *em andamento* aqui na *{$nome}*.\n\nAcompanhe:\n{link}\n\n_{$nome}_",
-            'concluido'  => "Ola {nome}! Seu *{veiculo}* esta *pronto* e pode ser retirado na *{$nome}*! Foi um prazer atende-lo. Ate a proxima!\n\n_{$nome}_",
+            'aprovado'   => "Olá {nome}! Ótima notícia! O serviço do seu *{veiculo}* foi *aprovado*. Vamos iniciar em breve.\n\nAcompanhe em tempo real:\n{link}\n\n_{$nome}_",
+            'em_servico' => "Olá {nome}! Seu *{veiculo}* está na oficina e o serviço está *em andamento* aqui na *{$nome}*.\n\nAcompanhe:\n{link}\n\n_{$nome}_",
+            'concluido'  => "Olá {nome}! Seu *{veiculo}* está *pronto* e pode ser retirado na *{$nome}*! Foi um prazer atendê-lo. Até a próxima!\n\n_{$nome}_",
         ];
     }
 
@@ -139,9 +139,9 @@ class KanbanController extends Controller
         $valor    = 'R$ ' . number_format($os->valor_total, 2, ',', '.');
         $nomeTenant = app('tenant')->nome ?? 'Oficina';
 
-        $waMsg = "Ola {$cliente?->nome}! O servico do seu {$nomeVeic} foi concluido aqui na {$nomeTenant}.\n"
+        $waMsg = "Olá {$cliente?->nome}! O serviço do seu {$nomeVeic} foi concluído aqui na {$nomeTenant}.\n"
                . "OS: {$os->numero_os} — Total: {$valor}\n"
-               . "Aguardamos voce para retirada. Obrigado!";
+               . "Aguardamos você para a retirada. Obrigado!";
         $waUrl = $telefone ? 'https://wa.me/55' . $telefone . '?text=' . rawurlencode($waMsg) : null;
 
         return response()->json([

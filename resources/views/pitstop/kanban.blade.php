@@ -101,7 +101,7 @@
                 $nomeCliente = $orc->cliente->nome ?? 'Cliente';
                 $nomeVeiculo = trim(($orc->veiculo->marca ?? '') . ' ' . ($orc->veiculo->modelo ?? ''));
                 $telefone    = preg_replace('/\D/', '', $orc->cliente->telefone ?? '');
-                $msgOrc      = "Ola {$nomeCliente}! Recebemos seu *{$nomeVeiculo}* aqui na *" . (app('tenant')->nome ?? 'Oficina') . "*. Ja estamos avaliando e em breve te enviamos o orcamento.\n\n_" . (app('tenant')->nome ?? 'Oficina') . "_";
+                $msgOrc      = "Olá {$nomeCliente}! Recebemos seu *{$nomeVeiculo}* aqui na *" . (app('tenant')->nome ?? 'Oficina') . "*. Já estamos avaliando e em breve te enviamos o orçamento.\n\n_" . (app('tenant')->nome ?? 'Oficina') . "_";
                 $waUrlOrc    = $telefone ? 'https://wa.me/55' . $telefone . '?text=' . rawurlencode($msgOrc) : null;
             @endphp
             <div class="kanban-card"
