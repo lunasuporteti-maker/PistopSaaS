@@ -471,10 +471,12 @@
         fd.append('legenda', document.getElementById('fotoLegenda').value);
         fd.append('_token', csrf);
         fetch('/orcamentos/'+orcId+'/fotos', {method:'POST', body:fd, headers:{'Accept':'application/json'}})
-            .then(r => r.json()).then(d => {
+            .then(r => r.json())
+            .then(d => {
                 if (d.ok) { opcoes.style.display='none'; inputF.value=''; carregarFotos(); }
                 else alert(d.error || 'Erro ao enviar fotos.');
-            });
+            })
+            .catch(() => alert('Erro ao enviar fotos. Tente novamente.'));
     };
 
     inputF.addEventListener('change', function() {
