@@ -15,9 +15,14 @@
             @endif
         </small>
     </div>
-    <a href="{{ route('agendamentos.create') }}" class="btn btn-danger btn-sm px-3">
-        <i class="fas fa-plus mr-1"></i> Novo Agendamento
-    </a>
+    <div class="d-flex" style="gap:8px">
+        <a href="{{ route('agendamentos.semana') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-calendar-week mr-1"></i> Semana
+        </a>
+        <a href="{{ route('agendamentos.create') }}" class="btn btn-danger btn-sm px-3">
+            <i class="fas fa-plus mr-1"></i> Novo Agendamento
+        </a>
+    </div>
 </div>
 @endsection
 

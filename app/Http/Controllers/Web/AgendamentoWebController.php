@@ -27,6 +27,27 @@ class AgendamentoWebController extends Controller
         return view('pitstop.agendamentos.index', compact('agendamentos', 'dataInicio', 'dataFim'));
     }
 
+    public function semana(Request $request)
+    {
+        $inicio = Carbon::parse($request->semana ?? today()->startOfWeek()->toDateString());
+        $fim    = $inicio->copy()->endOfWeek();
+
+        $agendamentos = Agendamento::with(['cliente', 'veiculo'])
+            ->whereBetween('data_hora', [$inicio->startOfDay(), $fim->endOfDay()])
+            ->orderBy('data_hora')
+            ->get()
+            ->groupBy(fn($a) => $a->data_hora->format('Y-m-d'));
+
+        $dias = collect();
+        for ($d = $inicio->copy(); $d->lte($fim); $d->addDay()) {
+            $dias->push($d->copy());
+        }
+
+        $horas = range(7, 20);
+
+        return view('pitstop.agendamentos.semana', compact('agendamentos', 'dias', 'horas', 'inicio', 'fim'));
+    }
+
     public function concluir(Agendamento $agendamento)
     {
         $agendamento->update(['status' => 'realizado']);

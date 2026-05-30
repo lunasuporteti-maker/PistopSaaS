@@ -126,6 +126,12 @@
             <span>Lançamentos</span>
         </a>
 
+        <a href="{{ route('comissoes.index') }}"
+           class="sb-link {{ request()->routeIs('comissoes.*') ? 'active' : '' }}">
+            <span class="ic"><x-icon name="hand-coins" size="16" /></span>
+            <span>Comissões</span>
+        </a>
+
         <a href="{{ route('lembretes.index') }}"
            class="sb-link {{ request()->routeIs('lembretes.*') ? 'active' : '' }}">
             <span class="ic"><x-icon name="bell" size="16" /></span>

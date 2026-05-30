@@ -104,6 +104,7 @@ Route::middleware(['auth', 'tenant', 'single.session', 'restrict.mecanico', 'che
 
     // Operacional
     Route::get('/fila', [OrdemServicoWebController::class, 'fila'])->name('fila');
+    Route::get('/agendamentos/semana', [AgendamentoWebController::class, 'semana'])->name('agendamentos.semana');
     Route::resource('agendamentos', AgendamentoWebController::class);
     Route::patch('agendamentos/{agendamento}/concluir', [AgendamentoWebController::class, 'concluir'])->name('agendamentos.concluir');
     Route::post('agendamentos/{agendamento}/iniciar-servico', [AgendamentoWebController::class, 'iniciarServico'])->name('agendamentos.iniciar-servico');
@@ -137,6 +138,12 @@ Route::middleware(['auth', 'tenant', 'single.session', 'restrict.mecanico', 'che
     Route::resource('catalogo-servicos', CatalogoServicosWebController::class)->except(['show'])->parameters(['catalogo-servicos' => 'catalogoServico']);
     Route::resource('funcionarios', FuncionarioWebController::class)->except(['show']);
     Route::resource('parceiros', ParceiroWebController::class)->except(['show']);
+
+    // Comissões
+    Route::get('/comissoes', [\App\Http\Controllers\Web\ComissaoWebController::class, 'index'])->name('comissoes.index');
+    Route::post('/comissoes', [\App\Http\Controllers\Web\ComissaoWebController::class, 'store'])->name('comissoes.store');
+    Route::patch('/comissoes/{comissao}/pagar', [\App\Http\Controllers\Web\ComissaoWebController::class, 'pagar'])->name('comissoes.pagar');
+    Route::delete('/comissoes/{comissao}', [\App\Http\Controllers\Web\ComissaoWebController::class, 'destroy'])->name('comissoes.destroy');
 
     // Financeiro
     Route::get('/financeiro', [FinanceiroWebController::class, 'index'])->name('financeiro.index');
