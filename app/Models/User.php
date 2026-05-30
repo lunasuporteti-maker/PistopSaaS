@@ -25,6 +25,7 @@ class User extends Authenticatable
         'ativo',
         'tentativas_login',
         'bloqueado_ate',
+        'onboarding_tour_completo',
     ];
 
     protected $hidden = ['password', 'remember_token', 'session_token'];
@@ -35,7 +36,8 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password'          => 'hashed',
             'ativo'             => 'boolean',
-            'bloqueado_ate'     => 'datetime',
+            'bloqueado_ate'              => 'datetime',
+            'onboarding_tour_completo'   => 'boolean',
         ];
     }
 

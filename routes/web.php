@@ -28,6 +28,7 @@ use App\Http\Controllers\Web\PlanoController;
 use App\Http\Controllers\Web\RelatorioWebController;
 use App\Http\Controllers\Web\UsuarioWebController;
 use App\Http\Controllers\Web\OnboardingController;
+use App\Http\Controllers\Web\TourController;
 use App\Http\Controllers\Web\VeiculoWebController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -80,6 +81,10 @@ Route::middleware(['auth', 'tenant', 'single.session', 'restrict.mecanico', 'che
     Route::get('/perfil', [PerfilWebController::class, 'edit'])->name('perfil.edit');
     Route::patch('/perfil', [PerfilWebController::class, 'updateDados'])->name('perfil.update.dados');
     Route::put('/perfil', [PerfilWebController::class, 'update'])->name('perfil.update');
+
+    // Tour de onboarding
+    Route::post('/tour/concluir', [TourController::class, 'concluir'])->name('tour.concluir');
+    Route::post('/tour/resetar', [TourController::class, 'resetar'])->name('tour.resetar');
 
     // Kanban
     Route::get('/kanban', [KanbanController::class, 'index'])->name('kanban');

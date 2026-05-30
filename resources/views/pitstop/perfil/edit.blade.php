@@ -100,4 +100,28 @@
 
     </div>
 </div>
+
+{{-- Tour de onboarding --}}
+@if(auth()->user()->perfil === 'admin')
+<div class="row justify-content-center mt-2">
+    <div class="col-md-6">
+        <div class="card card-outline card-secondary shadow-sm">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-map-signs mr-2"></i>Tour de Boas-vindas</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted" style="font-size:.88rem">
+                    Refaz o tour guiado que apresenta os principais recursos do sistema.
+                </p>
+                <form method="POST" action="{{ route('tour.resetar') }}">
+                    @csrf
+                    <button type="submit" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-redo mr-1"></i> Refazer tour de onboarding
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 @endsection

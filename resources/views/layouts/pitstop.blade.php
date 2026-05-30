@@ -203,5 +203,20 @@ document.addEventListener('click', function (e) {
 @stack('js')
 @stack('scripts')
 
+{{-- Tour de onboarding: exibido para admins novos que ainda não concluíram --}}
+@php
+    $mostrarTour = auth()->check()
+        && auth()->user()->perfil === 'admin'
+        && ! auth()->user()->onboarding_tour_completo
+        && app()->bound('tenant')
+        && app('tenant')->created_at->diffInDays(now()) <= 7
+        && request()->routeIs('dashboard');
+@endphp
+@if($mostrarTour)
+    <link rel="stylesheet" href="{{ asset('css/onboarding-tour.css') }}">
+    <div id="tour-root" data-concluir-url="{{ route('tour.concluir') }}" style="display:none"></div>
+    <script src="{{ asset('js/onboarding-tour.js') }}" defer></script>
+@endif
+
 </body>
 </html>

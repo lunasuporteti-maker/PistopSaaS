@@ -54,7 +54,8 @@
         </a>
 
         <a href="{{ route('ordens.index') }}"
-           class="sb-link {{ request()->routeIs('ordens.*') ? 'active' : '' }}">
+           class="sb-link {{ request()->routeIs('ordens.*') ? 'active' : '' }}"
+           data-tour="ordens">
             <span class="ic"><x-icon name="wrench" size="16" /></span>
             <span>Ordens de Serviço</span>
         </a>
@@ -65,7 +66,8 @@
         <div class="sb-section">Cadastros</div>
 
         <a href="{{ route('clientes.index') }}"
-           class="sb-link {{ request()->routeIs('clientes.*') ? 'active' : '' }}">
+           class="sb-link {{ request()->routeIs('clientes.*') ? 'active' : '' }}"
+           data-tour="clientes">
             <span class="ic"><x-icon name="users" size="16" /></span>
             <span>Clientes</span>
         </a>
@@ -118,7 +120,8 @@
         </a>
 
         <a href="{{ route('financeiro.index') }}"
-           class="sb-link {{ request()->routeIs('financeiro.*') ? 'active' : '' }}">
+           class="sb-link {{ request()->routeIs('financeiro.*') ? 'active' : '' }}"
+           data-tour="financeiro">
             <span class="ic"><x-icon name="receipt" size="16" /></span>
             <span>Lançamentos</span>
         </a>
@@ -140,7 +143,8 @@
         <div class="sb-section">Sistema</div>
 
         <a href="{{ route('perfil.edit') }}"
-           class="sb-link {{ request()->routeIs('perfil.*') ? 'active' : '' }}">
+           class="sb-link {{ request()->routeIs('perfil.*') ? 'active' : '' }}"
+           data-tour="perfil">
             <span class="ic"><x-icon name="user" size="16" /></span>
             <span>Meu Perfil</span>
         </a>
