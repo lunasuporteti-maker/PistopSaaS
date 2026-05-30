@@ -14,10 +14,13 @@ class LogUserLogin
         try {
             $user = $event->user;
 
+            // IP hasheado com APP_KEY — LGPD: dado pessoal pseudonimizado (nunca texto puro)
+            $ipHash = hash_hmac('sha256', (string) Request::ip(), config('app.key'));
+
             UserLoginLog::create([
-                'user_id'     => $user->getKey(),
+                'user_id'      => $user->getKey(),
                 'logged_in_at' => now(),
-                'ip_address'  => Request::ip(),
+                'ip_address'   => $ipHash,
             ]);
 
             // Mantém somente os 3 registros mais recentes por usuário

@@ -10,7 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * Story 7.1 — Listener LogUserLogin: registra login e mantém apenas 3.
+ * Stories 7.1 / 7.2 — Listener LogUserLogin: registra login, mantém apenas 3, IP hasheado.
  */
 class LogUserLoginListenerTest extends TestCase
 {
@@ -76,6 +76,20 @@ class LogUserLoginListenerTest extends TestCase
             'user_id'      => $user->id,
             'logged_in_at' => now()->subDays(10)->toDateTimeString(),
         ]);
+    }
+
+    public function test_ip_armazenado_e_hash_nao_texto_puro(): void
+    {
+        $user = User::factory()->create();
+
+        $this->dispararLogin($user);
+
+        $log = UserLoginLog::where('user_id', $user->id)->first();
+
+        // Hash sha256 = 64 hex chars; nunca deve ser um IPv4/IPv6 legível
+        $this->assertSame(64, strlen($log->ip_address));
+        $this->assertMatchesRegularExpression('/^[a-f0-9]{64}$/', $log->ip_address);
+        $this->assertStringNotContainsString('.', $log->ip_address); // não é IPv4
     }
 
     public function test_listener_nao_propaga_excecao_em_caso_de_falha(): void
