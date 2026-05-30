@@ -17,21 +17,21 @@ class Tenant extends Model
     ];
 
     protected $casts = [
-        'ativo'                => 'boolean',
-        'plano_ativo'          => 'boolean',
-        'trial_ends_at'        => 'datetime',
-        'plano_vence_em'       => 'date',
-        'desconto_percentual'  => 'integer',
+        'ativo' => 'boolean',
+        'plano_ativo' => 'boolean',
+        'trial_ends_at' => 'datetime',
+        'plano_vence_em' => 'date',
+        'desconto_percentual' => 'integer',
     ];
 
     // Preços base por tier
     public const PRECOS = [
-        'pro'     => 99.90,
+        'pro' => 99.90,
         'pro_max' => 157.50,
     ];
 
     public const NOMES_PLANO = [
-        'pro'     => 'Plano Pro',
+        'pro' => 'Plano Pro',
         'pro_max' => 'Plano Pro Max',
     ];
 
@@ -59,6 +59,7 @@ class Tenant extends Model
         if (! $this->trialAtivo()) {
             return 0;
         }
+
         return (int) now()->diffInDays($this->trial_ends_at, false);
     }
 
@@ -71,17 +72,42 @@ class Tenant extends Model
         if ($this->plano_vence_em === null) {
             return true; // plano vitalício / manual
         }
+
         return $this->plano_vence_em->isFuture();
     }
 
-    /** Acesso permitido: trial ativo OU plano em dia */
+    /** Dias de atraso desde plano_vence_em (0 se futuro ou nulo) */
+    public function diasDeAtraso(): int
+    {
+        if ($this->plano_vence_em === null || $this->plano_vence_em->isFuture()) {
+            return 0;
+        }
+
+        return (int) abs(now()->startOfDay()->diffInDays(
+            $this->plano_vence_em->copy()->startOfDay()
+        ));
+    }
+
+    /** Grace period: plano ativo, vencido há 1 a 6 dias (acesso completo com banner) */
+    public function emGracePeriod(): bool
+    {
+        if (! $this->plano_ativo) {
+            return false;
+        }
+        $dias = $this->diasDeAtraso();
+
+        return $dias > 0 && $dias <= 6;
+    }
+
+    /** Acesso permitido: trial ativo OU plano em dia OU grace period */
     public function acessoPermitido(): bool
     {
         // Tenants legados (sem trial_ends_at e sem plano) → acesso livre
         if ($this->trial_ends_at === null && ! $this->plano_ativo) {
             return true;
         }
-        return $this->trialAtivo() || $this->emDia();
+
+        return $this->trialAtivo() || $this->emDia() || $this->emGracePeriod();
     }
 
     /** Tier atual (fallback para 'pro') */
@@ -106,6 +132,7 @@ class Tenant extends Model
     public function precoComDesconto(): float
     {
         $desconto = max(0, min(100, (int) ($this->desconto_percentual ?? 0)));
+
         return round($this->precoBase() * (1 - $desconto / 100), 2);
     }
 
@@ -122,11 +149,12 @@ class Tenant extends Model
             return 'Plano Ativo';
         }
         if ($this->trialAtivo()) {
-            return 'Trial (' . $this->diasTrialRestantes() . ' dias)';
+            return 'Trial ('.$this->diasTrialRestantes().' dias)';
         }
         if ($this->trial_ends_at === null && ! $this->plano_ativo) {
             return 'Legado';
         }
+
         return 'Expirado';
     }
 
@@ -143,6 +171,7 @@ class Tenant extends Model
         $partes = explode('.', $host);
         if (count($partes) >= 3) {
             $slug = $partes[0];
+
             return static::where('slug', $slug)->where('ativo', true)->first();
         }
 

@@ -53,7 +53,13 @@
             $__mostrarBanner = false;
             $__bannerMsg = '';
             $__bannerCor = 'warning';
-            if ($__tenant && $__tenant->trial_ends_at !== null && !$__tenant->emDia()) {
+            if ($__tenant && $__tenant->emGracePeriod()) {
+                // Plano vencido há 1–6 dias → grace period (aviso laranja, acesso completo)
+                $__diasAtraso = session('grace_period_dias', $__tenant->diasDeAtraso());
+                $__mostrarBanner = true;
+                $__bannerMsg  = "Seu plano venceu há <strong>{$__diasAtraso} " . ($__diasAtraso == 1 ? 'dia' : 'dias') . "</strong>. <a href=\"" . route('assine') . "\" style=\"color:inherit;font-weight:700;text-decoration:underline\">Regularize</a> para não perder o acesso.";
+                $__bannerCor  = 'warning';
+            } elseif ($__tenant && $__tenant->trial_ends_at !== null && !$__tenant->emDia()) {
                 $__dias = $__tenant->diasTrialRestantes();
                 if ($__tenant->trialAtivo() && $__dias <= 5) {
                     $__mostrarBanner = true;

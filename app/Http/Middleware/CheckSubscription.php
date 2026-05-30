@@ -46,21 +46,39 @@ class CheckSubscription
             return $next($request);
         }
 
+        // Grace period (plano vencido há 1–6 dias) → acesso completo com banner de aviso
+        if ($tenant->emGracePeriod()) {
+            session()->flash('grace_period_dias', $tenant->diasDeAtraso());
+            $response = $next($request);
+            if ($request->expectsJson() && method_exists($response, 'header')) {
+                $response->header('X-Grace-Period', 'true');
+            }
+
+            return $response;
+        }
+
+        // Mensagem de bloqueio: distingue plano vencido (grace esgotado) de trial expirado
+        $mensagemBloqueio = $tenant->plano_ativo
+            ? 'Plano vencido. Regularize seu pagamento para continuar.'
+            : 'Seu trial expirou. Assine para continuar usando o PitStop.';
+
         // Tudo expirado → modo read-only (GET liberado, escrita bloqueada)
         if ($request->expectsJson()) {
             if ($request->isMethod('GET')) {
                 return $next($request);
             }
-            return response()->json(['message' => 'Seu trial expirou. Assine para continuar usando o PitStop.'], 402);
+
+            return response()->json(['message' => $mensagemBloqueio], 402);
         }
 
         if ($request->isMethod('GET')) {
             // Leitura liberada — banner de aviso injetado via session flash
             session()->flash('trial_expirado', true);
+
             return $next($request);
         }
 
         // POST / PUT / PATCH / DELETE → bloqueado com redirect e mensagem
-        return redirect()->back()->with('error', 'Seu trial expirou. Assine para continuar usando o PitStop.');
+        return redirect()->back()->with('error', $mensagemBloqueio);
     }
 }
