@@ -158,19 +158,14 @@ class EmailConfirmationController extends Controller
     }
 
     /**
-     * Monta a URL de onboarding no subdomínio do tenant (AC6).
+     * Monta a URL de onboarding no domínio único do app (AC6).
+     * Arquitetura de domínio único — tenant identificado por user.tenant_id, não por subdomínio.
      */
     private function urlOnboarding(Tenant $tenant): string
     {
-        // Deriva o domínio base a partir do app_url configurado
-        // (ex: https://app.iaqueatende.com.br → iaqueatende.com.br).
-        $appUrl = config('pitstop.signup.app_url', 'https://app.iaqueatende.com.br');
-        $hostBase = preg_replace('#^https?://#', '', rtrim($appUrl, '/'));
-        $partes = explode('.', $hostBase);
-        // Remove o subdomínio "app" (ou outro) para obter o domínio raiz.
-        $dominioRaiz = count($partes) > 2 ? implode('.', array_slice($partes, 1)) : $hostBase;
+        $appUrl = rtrim(config('pitstop.signup.app_url', 'https://app.iaqueatende.com.br'), '/');
 
-        return "https://{$tenant->slug}.{$dominioRaiz}/onboarding/wizard";
+        return "{$appUrl}/onboarding/wizard";
     }
 
     /**

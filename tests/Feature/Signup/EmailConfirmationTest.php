@@ -48,8 +48,8 @@ class EmailConfirmationTest extends TestCase
 
         $response = $this->get('/confirmar-email/'.$signup->token_confirmacao);
 
-        // AC6 — redirect para o subdomínio do tenant / onboarding.
-        $response->assertRedirect('https://oficina-do-ze.iaqueatende.com.br/onboarding/wizard');
+        // AC6 — redirect para domínio único do app / onboarding (arquitetura de domínio único).
+        $response->assertRedirect('https://app.iaqueatende.com.br/onboarding/wizard');
 
         // AC2a — tenant criado.
         $this->assertDatabaseHas('tenants', [
@@ -84,8 +84,8 @@ class EmailConfirmationTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
-    // T8.5 (AC9) — trial_ends_at exatamente 14 dias no futuro.
-    public function test_trial_ends_at_definido_para_14_dias(): void
+    // T8.5 (AC9) — trial_ends_at exatamente 30 dias no futuro.
+    public function test_trial_ends_at_definido_para_30_dias(): void
     {
         Carbon::setTestNow('2026-05-28 12:00:00');
         $signup = $this->criarSignupPendente();
@@ -94,13 +94,13 @@ class EmailConfirmationTest extends TestCase
 
         $tenant = Tenant::where('slug', 'oficina-do-ze')->first();
         $this->assertSame(
-            '2026-06-11 12:00:00',
+            '2026-06-27 12:00:00',
             $tenant->trial_ends_at->format('Y-m-d H:i:s'),
-            'Trial deve ser 14 dias (não 30)'
+            'Trial deve ser 30 dias conforme landing page'
         );
 
         $sub = Subscription::where('tenant_id', $tenant->id)->first();
-        $this->assertSame('2026-06-11 12:00:00', $sub->trial_termina_em->format('Y-m-d H:i:s'));
+        $this->assertSame('2026-06-27 12:00:00', $sub->trial_termina_em->format('Y-m-d H:i:s'));
 
         Carbon::setTestNow();
     }
