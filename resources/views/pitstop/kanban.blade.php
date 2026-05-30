@@ -101,7 +101,13 @@
                 $nomeCliente = $orc->cliente->nome ?? 'Cliente';
                 $nomeVeiculo = trim(($orc->veiculo->marca ?? '') . ' ' . ($orc->veiculo->modelo ?? ''));
                 $telefone    = preg_replace('/\D/', '', $orc->cliente->telefone ?? '');
-                $msgOrc      = "Olá {$nomeCliente}! Recebemos seu *{$nomeVeiculo}* aqui na *" . (app('tenant')->nome ?? 'Oficina') . "*. Já estamos avaliando e em breve te enviamos o orçamento.\n\n_" . (app('tenant')->nome ?? 'Oficina') . "_";
+                $nomeOficina = app('tenant')->nome ?? 'Oficina';
+                $valorOrc    = 'R$ ' . number_format($orc->valor_total, 2, ',', '.');
+                $linkOrc     = $orc->token_publico ? url('/acompanhar/' . $orc->token_publico) : null;
+                $msgOrc      = "Olá {$nomeCliente}! O orçamento do seu *{$nomeVeiculo}* está pronto.\n\n"
+                             . "*Valor total: {$valorOrc}*\n\n"
+                             . ($linkOrc ? "Para aprovar ou solicitar alterações, acesse:\n{$linkOrc}\n\n" : '')
+                             . "_{$nomeOficina}_";
                 $waUrlOrc    = $telefone ? 'https://wa.me/55' . $telefone . '?text=' . rawurlencode($msgOrc) : null;
             @endphp
             <div class="kanban-card"
