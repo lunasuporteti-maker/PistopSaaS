@@ -104,7 +104,7 @@ class AsaasService
      * Lista cobranças de um customer na Asaas (GET /v3/payments).
      *
      * @param  array  $filtros  Filtros opcionais (ex: ['status' => 'PENDING', 'limit' => 12])
-     * @return array|null  Array de cobranças; [] sem dados/não configurado/404; null em falha de comunicação (timeout/5xx)
+     * @return array|null Array de cobranças; [] sem dados/não configurado/404; null em falha de comunicação (timeout/5xx)
      */
     public function listarPagamentos(string $customerId, array $filtros = []): ?array
     {
@@ -148,7 +148,7 @@ class AsaasService
     /**
      * Cobranças pendentes (PENDING + OVERDUE) de um customer.
      *
-     * @return array|null  Array merged de pendentes/vencidas; [] sem dados/não configurado; null em falha de comunicação
+     * @return array|null Array merged de pendentes/vencidas; [] sem dados/não configurado; null em falha de comunicação
      */
     public function pagamentosPendentes(string $customerId): ?array
     {

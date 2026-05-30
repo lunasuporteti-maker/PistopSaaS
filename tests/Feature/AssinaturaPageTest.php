@@ -198,6 +198,65 @@ class AssinaturaPageTest extends TestCase
             ->assertSee('Histórico de eventos do sistema');
     }
 
+    // ── Story 6.4 ─────────────────────────────────────────────────────────────
+
+    public function test_tenant_legado_exibe_mensagem_manual_sem_blocos_asaas(): void
+    {
+        $this->tenant->update(['plano_ativo' => true, 'plano_vence_em' => now()->addDays(10)]);
+        // Sem subscription com customer_id → legado
+        Subscription::factory()->legado()->create(['tenant_id' => $this->tenant->id]);
+
+        $this->abrirPagina()
+            ->assertOk()
+            ->assertSee('gerenciada manualmente')
+            ->assertDontSee('Não foi possível carregar suas cobranças')
+            ->assertDontSee('Pagamento pendente')
+            ->assertDontSee('Histórico de pagamentos');
+    }
+
+    public function test_api_indisponivel_exibe_aviso_dismissivel_sem_blocos(): void
+    {
+        $this->tenant->update(['plano_ativo' => true, 'plano_vence_em' => now()->addDays(10)]);
+        $this->comCustomerId();
+        // null = falha de comunicação
+        $this->mockAsaas(null, null);
+
+        $this->abrirPagina()
+            ->assertOk()
+            ->assertSee('Não foi possível carregar suas cobranças')
+            ->assertSee('data-dismiss="alert"', false)
+            ->assertDontSee('Pagamento pendente')
+            ->assertDontSee('Histórico de pagamentos');
+    }
+
+    public function test_api_funcionando_sem_aviso_de_indisponibilidade(): void
+    {
+        $this->tenant->update(['plano_ativo' => true, 'plano_vence_em' => now()->addDays(10)]);
+        $this->comCustomerId();
+        $this->mockAsaas([], [
+            ['status' => 'RECEIVED', 'value' => 99.90, 'dueDate' => '2026-04-10', 'description' => 'Pro'],
+        ]);
+
+        $this->abrirPagina()
+            ->assertOk()
+            ->assertDontSee('Não foi possível carregar suas cobranças')
+            ->assertDontSee('gerenciada manualmente')
+            ->assertSee('Histórico de pagamentos');
+    }
+
+    public function test_pagina_nao_quebra_quando_uma_chamada_falha(): void
+    {
+        $this->tenant->update(['plano_ativo' => true, 'plano_vence_em' => now()->addDays(10)]);
+        $this->comCustomerId();
+        // pendentes ok, mas histórico falhou (null) → indisponível
+        $this->mockAsaas([], null);
+
+        $this->abrirPagina()
+            ->assertOk()
+            ->assertSee('Não foi possível carregar suas cobranças')
+            ->assertDontSee('Pagamento pendente');
+    }
+
     protected function tearDown(): void
     {
         Mockery::close();

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Services\AsaasService;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -72,7 +73,7 @@ class AsaasServiceReadTest extends TestCase
     public function test_timeout_retorna_null(): void
     {
         Http::fake(function () {
-            throw new \Illuminate\Http\Client\ConnectionException('cURL error 28: timeout');
+            throw new ConnectionException('cURL error 28: timeout');
         });
 
         $this->assertNull($this->service()->listarPagamentos(self::CUSTOMER));

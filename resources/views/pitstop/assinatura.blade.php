@@ -17,6 +17,28 @@
     $dias         = $tenant->diasTrialRestantes();
 @endphp
 
+{{-- Tenant legado: assinatura manual (Story 6.4) --}}
+@if($tenantLegado)
+<div class="card card-info shadow mb-4">
+    <div class="card-body">
+        <p class="mb-0">
+            <i class="fas fa-info-circle mr-1"></i>
+            Sua assinatura é gerenciada manualmente pelo time PitStop.
+            Entre em contato com o suporte para dúvidas sobre cobrança.
+        </p>
+    </div>
+</div>
+@endif
+
+{{-- API Asaas indisponível: aviso não-bloqueante e dismissível (Story 6.4) --}}
+@if($asaasIndisponivel && !$tenantLegado)
+<div class="alert alert-warning alert-dismissible">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <i class="icon fas fa-exclamation-triangle"></i>
+    Não foi possível carregar suas cobranças agora. Tente novamente em alguns minutos.
+</div>
+@endif
+
 {{-- Pagamento pendente (Story 6.2) --}}
 @if(count($pendentes) > 0)
 <div class="card card-warning shadow mb-4">
