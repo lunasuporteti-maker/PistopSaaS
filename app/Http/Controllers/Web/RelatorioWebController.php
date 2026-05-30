@@ -7,6 +7,7 @@ use App\Exports\FluxoCaixaExport;
 use App\Exports\LucroServicosExport;
 use App\Http\Controllers\Controller;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\OrdemServico;
 use App\Models\PagamentoOs;
 use App\Models\PagamentoSaida;
 use App\Models\OrcamentoServico;
@@ -59,6 +60,48 @@ class RelatorioWebController extends Controller
             ->groupBy('servico_nome')->orderByDesc('total')->get();
 
         return view('pitstop.relatorios.lucro-servico', compact('servicos', 'inicio', 'fim'));
+    }
+
+    public function margemOs(Request $request)
+    {
+        $inicio = Carbon::parse($request->inicio ?? now()->startOfMonth());
+        $fim    = Carbon::parse($request->fim    ?? now()->endOfDay());
+
+        $ordens = OrdemServico::with(['cliente', 'veiculo', 'orcamento'])
+            ->whereNotNull('finalizado_em')
+            ->whereBetween('finalizado_em', [$inicio, $fim])
+            ->orderByDesc('finalizado_em')
+            ->get()
+            ->map(function ($os) {
+                $receita = PagamentoOs::where('os_id', $os->id)->sum('valor');
+
+                $custoPecas = DB::table('orcamento_pecas')
+                    ->join('pecas', 'pecas.id', '=', 'orcamento_pecas.peca_id')
+                    ->where('orcamento_pecas.orcamento_id', $os->orcamento_id)
+                    ->sum(DB::raw('orcamento_pecas.quantidade * pecas.preco_custo'));
+
+                $margem   = $receita - $custoPecas;
+                $pct      = $receita > 0 ? round($margem / $receita * 100, 1) : null;
+
+                return [
+                    'os'          => $os,
+                    'receita'     => (float) $receita,
+                    'custo_pecas' => (float) $custoPecas,
+                    'margem'      => (float) $margem,
+                    'margem_pct'  => $pct,
+                ];
+            });
+
+        $totais = [
+            'receita'     => $ordens->sum('receita'),
+            'custo_pecas' => $ordens->sum('custo_pecas'),
+            'margem'      => $ordens->sum('margem'),
+        ];
+        $totais['margem_pct'] = $totais['receita'] > 0
+            ? round($totais['margem'] / $totais['receita'] * 100, 1)
+            : null;
+
+        return view('pitstop.relatorios.margem-os', compact('ordens', 'totais', 'inicio', 'fim'));
     }
 
     public function exportFinanceiro(Request $request)

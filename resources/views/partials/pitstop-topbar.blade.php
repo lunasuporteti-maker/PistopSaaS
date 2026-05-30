@@ -22,10 +22,12 @@
     </div>
 
     {{-- ── Busca ───────────────────────────────────────────────── --}}
-    <div class="search-box">
+    <form action="{{ route('busca') }}" method="GET" class="search-box" role="search">
         <span class="ic"><x-icon name="search" size="14" /></span>
-        <input type="search" placeholder="Buscar…" aria-label="Buscar">
-    </div>
+        <input type="search" name="q" placeholder="Buscar cliente, placa, OS…"
+               value="{{ request('q') }}" aria-label="Buscar"
+               autocomplete="off">
+    </form>
 
     {{-- ── Ações à direita ─────────────────────────────────────── --}}
     <div class="row-flex" style="margin-left:auto;gap:4px;">

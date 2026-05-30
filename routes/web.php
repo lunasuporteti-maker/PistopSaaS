@@ -99,6 +99,9 @@ Route::middleware(['auth', 'tenant', 'single.session', 'restrict.mecanico', 'che
     Route::post('/json/clientes', [JsonController::class, 'storeCliente'])->name('json.clientes.store');
     Route::post('/json/veiculos', [JsonController::class, 'storeVeiculo'])->name('json.veiculos.store');
 
+    // Busca global
+    Route::get('/busca', [\App\Http\Controllers\Web\BuscaController::class, 'index'])->name('busca');
+
     // Operacional
     Route::get('/fila', [OrdemServicoWebController::class, 'fila'])->name('fila');
     Route::resource('agendamentos', AgendamentoWebController::class);
@@ -178,6 +181,7 @@ Route::middleware(['auth', 'tenant', 'single.session', 'restrict.mecanico', 'che
         Route::get('/lucro-servico', [RelatorioWebController::class, 'lucroServico'])->name('lucro-servico');
         Route::get('/lucro-servico/export', [RelatorioWebController::class, 'exportLucroServico'])->name('lucro-servico.export');
         Route::get('/lucro-servico/pdf', [RelatorioWebController::class, 'exportLucroServicoPdf'])->name('lucro-servico.pdf');
+        Route::get('/margem-os', [RelatorioWebController::class, 'margemOs'])->name('margem-os');
     });
 
     // Usuários

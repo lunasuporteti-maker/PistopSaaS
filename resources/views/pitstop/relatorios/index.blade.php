@@ -86,6 +86,31 @@
 
 </div>
 
+    {{-- Margem por OS --}}
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm h-100" style="border-top:3px solid #f39c12">
+            <div class="card-body d-flex flex-column">
+                <div class="mb-3 text-center">
+                    <i class="fas fa-percentage fa-3x text-warning"></i>
+                </div>
+                <h5 class="card-title text-center font-weight-bold">Margem por OS</h5>
+                <p class="card-text text-muted small text-center flex-grow-1">
+                    Receita recebida vs custo de peças por ordem de serviço. Margem bruta e percentual de cada OS concluída.
+                </p>
+                <div class="text-center mt-2">
+                    <a href="{{ route('relatorios.margem-os') }}" class="btn btn-warning btn-block">
+                        <i class="fas fa-arrow-right mr-1"></i> Gerar Relatório
+                    </a>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent text-muted" style="font-size:.78rem">
+                <i class="fas fa-filter mr-1"></i> Filtros: período (data início e fim)
+            </div>
+        </div>
+    </div>
+
+</div>
+
 <div class="text-muted text-center mt-1 small">
     <i class="fas fa-info-circle mr-1"></i>
     Selecione o tipo de relatório que deseja gerar. Todos suportam exportação em Excel e PDF.
