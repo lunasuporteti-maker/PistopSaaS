@@ -122,7 +122,7 @@
             <div class="form-group form-check">
                 <input type="checkbox" class="form-check-input" id="aceite_termos" name="aceite_termos" value="1" {{ old('aceite_termos') ? 'checked' : '' }} required>
                 <label class="form-check-label" for="aceite_termos">
-                    Li e aceito os <a href="#" target="_blank">Termos de Uso</a> e a <a href="#" target="_blank">Política de Privacidade</a>.
+                    Li e aceito os <a href="https://pitstop.iaqueatende.com.br/termos" target="_blank">Termos de Uso</a> e a <a href="https://pitstop.iaqueatende.com.br/privacidade" target="_blank">Política de Privacidade</a>.
                 </label>
             </div>
 
