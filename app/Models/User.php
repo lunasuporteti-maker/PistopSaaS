@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\BelongsToTenant;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -63,6 +64,11 @@ class User extends Authenticatable
             'tentativas_login' => 0,
             'bloqueado_ate'    => null,
         ]);
+    }
+
+    public function loginLogs(): HasMany
+    {
+        return $this->hasMany(UserLoginLog::class)->orderByDesc('logged_in_at');
     }
 
     public function isSuperAdmin(): bool { return $this->perfil === 'super_admin'; }

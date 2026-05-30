@@ -243,6 +243,7 @@
                             <th>E-mail</th>
                             <th>Perfil</th>
                             <th>Ativo</th>
+                            <th>Últimos Logins</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -262,6 +263,13 @@
                                 @else
                                     <span class="badge-inativo">Não</span>
                                 @endif
+                            </td>
+                            <td style="font-size:.75rem;color:var(--adm-muted)">
+                                @forelse($u->loginLogs->take(3) as $log)
+                                    <div>{{ $log->logged_in_at->format('d/m/Y H:i') }}</div>
+                                @empty
+                                    —
+                                @endforelse
                             </td>
                         </tr>
                         @endforeach

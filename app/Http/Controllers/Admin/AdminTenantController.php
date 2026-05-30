@@ -53,6 +53,7 @@ class AdminTenantController extends Controller
 
         $usuarios = User::withoutGlobalScope('tenant')
             ->where('tenant_id', $tenant->id)
+            ->with(['loginLogs' => fn ($q) => $q->orderByDesc('logged_in_at')->limit(3)])
             ->orderBy('name')
             ->get();
 
