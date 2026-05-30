@@ -17,6 +17,37 @@
     $dias         = $tenant->diasTrialRestantes();
 @endphp
 
+{{-- Pagamento pendente (Story 6.2) --}}
+@if(count($pendentes) > 0)
+<div class="card card-warning shadow mb-4">
+    <div class="card-header">
+        <h3 class="card-title font-weight-bold"><i class="fas fa-exclamation-circle mr-1"></i>Pagamento pendente</h3>
+    </div>
+    <div class="card-body">
+        @foreach($pendentes as $cobranca)
+            @php $vencida = ($cobranca['status'] ?? '') === 'OVERDUE'; @endphp
+            <div class="alert alert-{{ $vencida ? 'danger' : 'warning' }} d-flex flex-wrap align-items-center mb-2">
+                <span class="mr-2">
+                    <span class="badge badge-{{ $vencida ? 'danger' : 'warning' }}">{{ $vencida ? 'Vencida' : 'A vencer' }}</span>
+                    <strong class="ml-1">R$ {{ number_format($cobranca['value'] ?? 0, 2, ',', '.') }}</strong>
+                    @if(!empty($cobranca['dueDate']))
+                        — Vencimento: {{ \Carbon\Carbon::parse($cobranca['dueDate'])->format('d/m/Y') }}
+                    @endif
+                </span>
+                <span class="ml-auto">
+                    @if(!empty($cobranca['invoiceUrl']))
+                        <a href="{{ $cobranca['invoiceUrl'] }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">Pagar agora</a>
+                    @endif
+                    @if(!empty($cobranca['bankSlipUrl']))
+                        <a href="{{ $cobranca['bankSlipUrl'] }}" target="_blank" rel="noopener noreferrer" class="btn btn-link btn-sm">Baixar boleto</a>
+                    @endif
+                </span>
+            </div>
+        @endforeach
+    </div>
+</div>
+@endif
+
 <div class="row">
 
     {{-- Card de status do plano --}}
@@ -26,12 +57,23 @@
 
                 @if($planoPago)
                     <div style="font-size:2.5rem;">✅</div>
-                    <h4 class="mt-2 font-weight-bold text-success">Plano Pro</h4>
+                    <h4 class="mt-2 font-weight-bold text-success">{{ $tenant->nomePlano() }}</h4>
                     <p class="text-muted mb-1">Acesso completo ativo</p>
-                    @if($tenant->plano_vence_em)
-                        <small class="text-muted">
-                            Próximo vencimento: <strong>{{ \Carbon\Carbon::parse($tenant->plano_vence_em)->format('d/m/Y') }}</strong>
+                    @if($validade)
+                        <small class="text-muted d-block">
+                            Próximo vencimento: <strong>{{ $validade }}</strong>
                         </small>
+                    @endif
+                    @if($diasRestantes !== null)
+                        <div class="mt-2">
+                            @if($diasRestantes < 0)
+                                <span class="badge badge-danger">Vencido</span>
+                            @elseif($diasRestantes <= 5)
+                                <span class="badge badge-warning">{{ $diasRestantes }} dia(s) restante(s)</span>
+                            @else
+                                <span class="badge badge-success">{{ $diasRestantes }} dia(s)</span>
+                            @endif
+                        </div>
                     @endif
 
                 @elseif($trialAtivo)

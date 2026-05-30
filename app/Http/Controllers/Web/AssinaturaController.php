@@ -8,7 +8,9 @@ use App\Models\Orcamento;
 use App\Models\Peca;
 use App\Models\SubscriptionLog;
 use App\Models\User;
+use App\Services\AsaasService;
 use App\Services\TrialLimitService;
+use Illuminate\Support\Carbon;
 
 class AssinaturaController extends Controller
 {
@@ -33,6 +35,34 @@ class AssinaturaController extends Controller
             ];
         }
 
-        return view('pitstop.assinatura', compact('tenant', 'logs', 'uso'));
+        // ── Status estendido: validade, dias restantes e badge ────────────────
+        $dataValidade = $tenant->trialAtivo() ? $tenant->trial_ends_at : $tenant->plano_vence_em;
+
+        $validade      = $dataValidade ? Carbon::parse($dataValidade)->format('d/m/Y') : null;
+        $diasRestantes = $dataValidade
+            ? (int) now()->startOfDay()->diffInDays(Carbon::parse($dataValidade)->startOfDay(), false)
+            : null;
+
+        $statusBadge = 'success';
+        if ($diasRestantes !== null) {
+            if ($diasRestantes < 0) {
+                $statusBadge = 'danger';
+            } elseif ($diasRestantes <= 5) {
+                $statusBadge = 'warning';
+            }
+        }
+
+        // ── Cobranças pendentes na Asaas (apenas se houver customer_id) ────────
+        $pendentes = [];
+        if ($tenant->subscription && $tenant->subscription->gateway_customer_id) {
+            $asaas = app(AsaasService::class);
+            // null (API indisponível) tratado como vazio nesta story; aviso explícito vem na 6.4
+            $pendentes = $asaas->pagamentosPendentes($tenant->subscription->gateway_customer_id) ?? [];
+        }
+
+        return view('pitstop.assinatura', compact(
+            'tenant', 'logs', 'uso',
+            'pendentes', 'validade', 'diasRestantes', 'statusBadge'
+        ));
     }
 }
