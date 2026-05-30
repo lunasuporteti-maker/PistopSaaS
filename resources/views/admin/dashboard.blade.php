@@ -28,6 +28,9 @@
         <div class="adm-card h-100">
             <div class="adm-card-title">Plano Pago</div>
             <div class="adm-stat" style="color:#48bb78">{{ $planoPago }}</div>
+            @if($novosSemana > 0)
+                <div style="font-size:.7rem;color:#68d391;margin-top:.25rem">+{{ $novosSemana }} esta semana</div>
+            @endif
         </div>
     </div>
     <div class="col-md-2 col-sm-4 mb-3">
@@ -43,6 +46,39 @@
         </div>
     </div>
 </div>
+
+{{-- Top 10 mais ativos --}}
+@if($maisAtivos->isNotEmpty())
+<div class="adm-card mb-4">
+    <div class="adm-card-title mb-3">Mais ativos — últimos 30 dias</div>
+    <table class="adm-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Cliente</th>
+                <th>Plano</th>
+                <th style="text-align:right">OS / 30d</th>
+                <th>Usuários</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($maisAtivos as $i => $item)
+            <tr>
+                <td style="color:var(--adm-muted)">{{ $i + 1 }}</td>
+                <td style="font-weight:600">
+                    <a href="{{ route('admin.tenants.show', $item['tenant']) }}" style="color:var(--adm-text)">
+                        {{ $item['tenant']->nome }}
+                    </a>
+                </td>
+                <td><span style="font-size:.75rem">{{ $item['tenant']->nomePlano() }}</span></td>
+                <td style="text-align:right;font-weight:700;color:#48bb78">{{ $item['os_30d'] }}</td>
+                <td style="color:var(--adm-muted)">{{ $item['tenant']->users()->count() }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+@endif
 
 {{-- Clientes recentes --}}
 <div class="adm-card">

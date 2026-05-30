@@ -39,6 +39,7 @@
                     <th>Status</th>
                     <th>Trial até</th>
                     <th>Plano vence</th>
+                    <th>OS/mês</th>
                     <th>Criado em</th>
                     <th></th>
                 </tr>
@@ -74,6 +75,9 @@
                     </td>
                     <td style="color:var(--adm-muted)">
                         {{ $tenant->plano_vence_em ? $tenant->plano_vence_em->format('d/m/Y') : '—' }}
+                    </td>
+                    <td style="text-align:center;font-weight:600;color:{{ ($osMes[$tenant->id] ?? 0) > 0 ? '#48bb78' : 'var(--adm-muted)' }}">
+                        {{ $osMes[$tenant->id] ?? 0 }}
                     </td>
                     <td style="color:var(--adm-muted)">{{ $tenant->created_at->format('d/m/Y') }}</td>
                     <td>

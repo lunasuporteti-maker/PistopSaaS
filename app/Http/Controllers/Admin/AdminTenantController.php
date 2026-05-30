@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\OrdemServico;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Models\Cliente;
 use App\Models\Veiculo;
 use App\Models\Orcamento;
-use App\Models\OrdemServico;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -39,7 +40,17 @@ class AdminTenantController extends Controller
 
         $tenants = $query->orderByDesc('created_at')->paginate(20)->withQueryString();
 
-        return view('admin.tenants.index', compact('tenants'));
+        // Contagem de OS do mês por tenant (ids da página atual)
+        $tenantIds = $tenants->pluck('id');
+        $osMes = OrdemServico::withoutGlobalScope('tenant')
+            ->whereIn('tenant_id', $tenantIds)
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->selectRaw('tenant_id, count(*) as total')
+            ->groupBy('tenant_id')
+            ->pluck('total', 'tenant_id');
+
+        return view('admin.tenants.index', compact('tenants', 'osMes'));
     }
 
     public function show(Tenant $tenant): View

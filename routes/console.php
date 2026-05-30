@@ -13,3 +13,6 @@ Schedule::command('pitstop:arquivar-concluidos')->hourly();
 
 // Verifica expiração de trial e envia emails D-3, D-1, D0
 Schedule::command('pitstop:check-trial-expiry')->dailyAt('08:00');
+
+// Verifica vencimento de plano pago e envia emails D-7, D-3, D-1
+Schedule::command('pitstop:check-subscription-expiry')->dailyAt('08:00');
