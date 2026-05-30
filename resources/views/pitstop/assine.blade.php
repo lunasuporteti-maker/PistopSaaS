@@ -123,7 +123,7 @@
                     <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Upload de fotos por OS (antes/durante/depois)</li>
                     <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Galeria pública no portal do cliente</li>
                     <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Thumbnails automáticos</li>
-                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Até 50 fotos por orçamento</li>
+                    <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Até 5 fotos por orçamento</li>
                     <li class="py-1"><i class="fas fa-check text-success mr-2"></i>Histórico fotográfico do veículo</li>
                 </ul>
             </div>

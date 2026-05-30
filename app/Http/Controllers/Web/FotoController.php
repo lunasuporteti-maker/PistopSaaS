@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 
 class FotoController extends Controller
 {
-    private const MAX_FOTOS = 50;
+    private const MAX_FOTOS = 5;
 
     public function index(Orcamento $orcamento)
     {
@@ -49,7 +49,7 @@ class FotoController extends Controller
         }
 
         $request->validate([
-            'fotos'           => 'required|array|min:1|max:10',
+            'fotos'           => 'required|array|min:1|max:5',
             'fotos.*'         => 'file|mimes:jpeg,png,jpg|max:10240',
             'categoria'       => 'nullable|in:antes,durante,depois,peca,outro',
             'legenda'         => 'nullable|string|max:200',
