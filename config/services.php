@@ -36,10 +36,12 @@ return [
     ],
 
     'asaas' => [
-        'api_key'          => env('ASAAS_API_KEY', ''),
-        'environment'      => env('ASAAS_ENVIRONMENT', 'sandbox'),
-        'webhook_token'    => env('ASAAS_WEBHOOK_TOKEN', ''),
+        'api_key' => env('ASAAS_API_KEY', ''),
+        'environment' => env('ASAAS_ENVIRONMENT', 'sandbox'),
+        'webhook_token' => env('ASAAS_WEBHOOK_TOKEN', ''),
         'payment_link_url' => env('ASAAS_PAYMENT_LINK_URL', ''),
+        'payment_link_url_pro' => env('ASAAS_PAYMENT_LINK_URL_PRO', ''),
+        'payment_link_url_pro_max' => env('ASAAS_PAYMENT_LINK_URL_PRO_MAX', ''),
     ],
 
 ];

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 class AsaasService
 {
     private string $baseUrl;
+
     private string $apiKey;
 
     public function __construct()
@@ -26,7 +27,7 @@ class AsaasService
         return ! empty($this->apiKey);
     }
 
-    public function createOrFetchCustomer(Tenant $tenant, User $adminUser): string|null
+    public function createOrFetchCustomer(Tenant $tenant, User $adminUser): ?string
     {
         // Verifica se já temos customer_id na subscription
         $subscription = $tenant->subscription;
@@ -37,8 +38,8 @@ class AsaasService
         try {
             $response = Http::withHeaders(['access_token' => $this->apiKey])
                 ->post("{$this->baseUrl}/customers", [
-                    'name'              => $adminUser->name ?? $tenant->nome,
-                    'email'             => $adminUser->email,
+                    'name' => $adminUser->name ?? $tenant->nome,
+                    'email' => $adminUser->email,
                     'externalReference' => "tenant:{$tenant->slug}",
                 ]);
 
@@ -46,21 +47,22 @@ class AsaasService
                 $customerId = $response->json('id');
                 // Salva na subscription se existir
                 $tenant->subscription?->update(['gateway_customer_id' => $customerId]);
+
                 return $customerId;
             }
 
             Log::warning('[Asaas] Falha ao criar customer', ['status' => $response->status(), 'body' => $response->body()]);
         } catch (\Throwable $e) {
-            Log::error('[Asaas] Erro ao criar customer: ' . $e->getMessage());
+            Log::error('[Asaas] Erro ao criar customer: '.$e->getMessage());
         }
 
         return null;
     }
 
-    public function createCheckoutUrl(Tenant $tenant, User $adminUser): string|null
+    public function createCheckoutUrl(Tenant $tenant, User $adminUser): ?string
     {
         if (! $this->isConfigured()) {
-            return config('services.asaas.payment_link_url');
+            return $this->fallbackUrl($tenant);
         }
 
         $customerId = $this->createOrFetchCustomer($tenant, $adminUser);
@@ -68,11 +70,11 @@ class AsaasService
         try {
             $response = Http::withHeaders(['access_token' => $this->apiKey])
                 ->post("{$this->baseUrl}/payments", [
-                    'customer'          => $customerId,
-                    'billingType'       => 'UNDEFINED',
-                    'value'             => $tenant->precoComDesconto(),
-                    'dueDate'           => now()->addDay()->format('Y-m-d'),
-                    'description'       => 'PitStop ' . $tenant->nomePlano() . ' — acesso mensal completo',
+                    'customer' => $customerId,
+                    'billingType' => 'UNDEFINED',
+                    'value' => $tenant->precoComDesconto(),
+                    'dueDate' => now()->addDay()->format('Y-m-d'),
+                    'description' => 'PitStop '.$tenant->nomePlano().' — acesso mensal completo',
                     'externalReference' => "tenant:{$tenant->slug}:tier:{$tenant->tier()}",
                 ]);
 
@@ -82,10 +84,20 @@ class AsaasService
 
             Log::warning('[Asaas] Falha ao criar payment', ['status' => $response->status()]);
         } catch (\Throwable $e) {
-            Log::error('[Asaas] Erro ao criar payment: ' . $e->getMessage());
+            Log::error('[Asaas] Erro ao criar payment: '.$e->getMessage());
         }
 
         // Fallback para link fixo configurado no .env
-        return config('services.asaas.payment_link_url');
+        return $this->fallbackUrl($tenant);
+    }
+
+    /** URL de fallback por tier, com fallback genérico para compatibilidade retroativa */
+    private function fallbackUrl(Tenant $tenant): ?string
+    {
+        $generico = config('services.asaas.payment_link_url');
+
+        return $tenant->isProMax()
+            ? (config('services.asaas.payment_link_url_pro_max') ?: $generico)
+            : (config('services.asaas.payment_link_url_pro') ?: $generico);
     }
 }
