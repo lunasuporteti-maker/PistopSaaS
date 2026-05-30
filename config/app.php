@@ -18,6 +18,9 @@ return [
     // Slug do tenant padrão para desenvolvimento local (localhost)
     'default_tenant_slug' => env('DEFAULT_TENANT_SLUG', 'demo'),
 
+    // Token para rota de migrate helper — remover da config após uso
+    'migrate_token' => env('MIGRATE_TOKEN', ''),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

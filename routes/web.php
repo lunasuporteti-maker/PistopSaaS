@@ -33,6 +33,20 @@ use App\Http\Controllers\Web\VeiculoWebController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
+// ── Migrate helper (REMOVER APÓS USO — acessar 1x com o token correto) ──────
+Route::get('/sys/migrate/{token}', function (string $token) {
+    if ($token !== config('app.migrate_token')) {
+        abort(403);
+    }
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $output = \Illuminate\Support\Facades\Artisan::output();
+        return response('<pre style="font-family:monospace;padding:2rem">MIGRATIONS OK:<br>' . e($output) . '</pre>');
+    } catch (\Throwable $e) {
+        return response('<pre style="color:red;padding:2rem">ERRO: ' . e($e->getMessage()) . '</pre>', 500);
+    }
+})->middleware('throttle:3,60');
+
 // Rotas públicas — sem login
 Route::middleware('throttle:30,1')->group(function () {
     Route::get('/acompanhar/{token}', [AcompanhamentoPublicoController::class, 'show'])->name('acompanhar.publico');
