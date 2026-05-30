@@ -72,7 +72,7 @@ Route::middleware('throttle:3,60')->group(function () {
 Route::get('/', fn () => redirect()->route('dashboard'));
 Route::get('/home', fn () => redirect()->route('dashboard'));
 
-Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico', 'check.subscription'])->group(function () {
+Route::middleware(['auth', 'tenant', 'single.session', 'restrict.mecanico', 'check.subscription'])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -185,14 +185,14 @@ Route::middleware(['tenant', 'auth', 'single.session', 'restrict.mecanico', 'che
 });
 
 // ── Assinatura (tenant logado) ────────────────────────────────────────────
-Route::middleware(['tenant', 'auth'])->group(function () {
+Route::middleware(['auth', 'tenant'])->group(function () {
     Route::get('/assine', [PlanoController::class, 'index'])->name('assine');
     Route::post('/assine/checkout', [PlanoController::class, 'checkout'])->name('assine.checkout');
     Route::get('/assinatura', [\App\Http\Controllers\Web\AssinaturaController::class, 'index'])->name('assinatura');
 });
 
 // ── Onboarding wizard (tenant logado, sem check.subscription — acesso sempre) ─
-Route::middleware(['tenant', 'auth', 'single.session'])->prefix('onboarding')->name('onboarding.')->group(function () {
+Route::middleware(['auth', 'tenant', 'single.session'])->prefix('onboarding')->name('onboarding.')->group(function () {
     Route::get('/wizard', [OnboardingController::class, 'wizard'])->name('wizard');
     Route::put('/progress', [OnboardingController::class, 'updateProgress'])->name('progress');
     Route::post('/skip', [OnboardingController::class, 'skip'])->name('skip');
