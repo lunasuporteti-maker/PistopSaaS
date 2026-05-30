@@ -52,17 +52,39 @@ class AssinaturaController extends Controller
             }
         }
 
-        // ── Cobranças pendentes na Asaas (apenas se houver customer_id) ────────
+        // ── Cobranças na Asaas (apenas se houver customer_id) ─────────────────
         $pendentes = [];
+        $historico = [];
         if ($tenant->subscription && $tenant->subscription->gateway_customer_id) {
-            $asaas = app(AsaasService::class);
+            $asaas      = app(AsaasService::class);
+            $customerId = $tenant->subscription->gateway_customer_id;
+
             // null (API indisponível) tratado como vazio nesta story; aviso explícito vem na 6.4
-            $pendentes = $asaas->pagamentosPendentes($tenant->subscription->gateway_customer_id) ?? [];
+            $pendentes = $asaas->pagamentosPendentes($customerId) ?? [];
+
+            $historico = $asaas->listarPagamentos($customerId, ['limit' => 12]) ?? [];
+            usort($historico, fn ($a, $b) => strcmp($b['dueDate'] ?? '', $a['dueDate'] ?? ''));
         }
+
+        $mapStatus = fn (string $status): array => $this->mapStatusAsaas($status);
 
         return view('pitstop.assinatura', compact(
             'tenant', 'logs', 'uso',
-            'pendentes', 'validade', 'diasRestantes', 'statusBadge'
+            'pendentes', 'historico', 'mapStatus',
+            'validade', 'diasRestantes', 'statusBadge'
         ));
+    }
+
+    /** Mapeia status Asaas → rótulo + classe de badge (FR-057) */
+    private function mapStatusAsaas(string $status): array
+    {
+        return match ($status) {
+            'CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH' => ['label' => 'Pago', 'badge' => 'success'],
+            'PENDING'                                    => ['label' => 'Pendente', 'badge' => 'warning'],
+            'OVERDUE'                                    => ['label' => 'Atrasado', 'badge' => 'danger'],
+            'REFUNDED', 'REFUND_REQUESTED'               => ['label' => 'Estornado', 'badge' => 'secondary'],
+            'DELETED'                                    => ['label' => 'Cancelado', 'badge' => 'secondary'],
+            default                                      => ['label' => 'Em processamento', 'badge' => 'light'],
+        };
     }
 }

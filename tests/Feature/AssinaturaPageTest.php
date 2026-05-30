@@ -112,6 +112,92 @@ class AssinaturaPageTest extends TestCase
             ->assertSee('Uso do Trial');
     }
 
+    // ── Story 6.3 ─────────────────────────────────────────────────────────────
+
+    public function test_historico_exibe_tabela_com_cobrancas(): void
+    {
+        $this->tenant->update(['plano_ativo' => true, 'plano_vence_em' => now()->addDays(10)]);
+        $this->comCustomerId();
+        $this->mockAsaas([], [
+            ['status' => 'RECEIVED', 'value' => 99.90, 'dueDate' => '2026-04-10', 'paymentDate' => '2026-04-09', 'description' => 'PitStop Plano Pro', 'transactionReceiptUrl' => 'https://asaas.com/r/1'],
+            ['status' => 'OVERDUE', 'value' => 99.90, 'dueDate' => '2026-05-10', 'description' => 'PitStop Plano Pro', 'invoiceUrl' => 'https://asaas.com/i/2'],
+        ]);
+
+        $this->abrirPagina()
+            ->assertOk()
+            ->assertSee('Histórico de pagamentos')
+            ->assertSee('PitStop Plano Pro');
+    }
+
+    public function test_cobranca_paga_exibe_badge_verde_e_ver_recibo(): void
+    {
+        $this->tenant->update(['plano_ativo' => true, 'plano_vence_em' => now()->addDays(10)]);
+        $this->comCustomerId();
+        $this->mockAsaas([], [
+            ['status' => 'CONFIRMED', 'value' => 157.50, 'dueDate' => '2026-04-10', 'paymentDate' => '2026-04-10', 'description' => 'Pro Max', 'transactionReceiptUrl' => 'https://asaas.com/r/abc'],
+        ]);
+
+        $this->abrirPagina()
+            ->assertOk()
+            ->assertSee('badge-success', false)
+            ->assertSee('Pago')
+            ->assertSee('Ver recibo')
+            ->assertSee('https://asaas.com/r/abc');
+    }
+
+    public function test_cobranca_overdue_exibe_badge_vermelho_e_pagar(): void
+    {
+        $this->tenant->update(['plano_ativo' => true, 'plano_vence_em' => now()->addDays(10)]);
+        $this->comCustomerId();
+        $this->mockAsaas([], [
+            ['status' => 'OVERDUE', 'value' => 99.90, 'dueDate' => '2026-05-01', 'description' => 'Pro', 'invoiceUrl' => 'https://asaas.com/i/over'],
+        ]);
+
+        $this->abrirPagina()
+            ->assertOk()
+            ->assertSee('badge-danger', false)
+            ->assertSee('Atrasado')
+            ->assertSee('https://asaas.com/i/over');
+    }
+
+    public function test_status_desconhecido_exibe_em_processamento(): void
+    {
+        $this->tenant->update(['plano_ativo' => true, 'plano_vence_em' => now()->addDays(10)]);
+        $this->comCustomerId();
+        $this->mockAsaas([], [
+            ['status' => 'AWAITING_RISK_ANALYSIS', 'value' => 99.90, 'dueDate' => '2026-05-20', 'description' => 'Pro'],
+        ]);
+
+        $this->abrirPagina()
+            ->assertOk()
+            ->assertSee('Em processamento')
+            ->assertSee('badge-light', false);
+    }
+
+    public function test_subscription_log_presente_e_colapsado_por_padrao(): void
+    {
+        $this->tenant->update(['plano_ativo' => true, 'plano_vence_em' => now()->addDays(10)]);
+        $this->comCustomerId();
+        $this->mockAsaas([], []);
+
+        $this->abrirPagina()
+            ->assertOk()
+            ->assertSee('Histórico de eventos do sistema')
+            ->assertSee('collapsed-card', false);
+    }
+
+    public function test_sem_customer_id_tabela_historico_ausente_log_presente(): void
+    {
+        $this->tenant->update(['plano_ativo' => true, 'plano_vence_em' => now()->addDays(10)]);
+        // sem subscription / customer_id — não mocka (não deve chamar Asaas)
+        $this->mockAsaas([], []);
+
+        $this->abrirPagina()
+            ->assertOk()
+            ->assertDontSee('Histórico de pagamentos')
+            ->assertSee('Histórico de eventos do sistema');
+    }
+
     protected function tearDown(): void
     {
         Mockery::close();

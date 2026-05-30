@@ -150,43 +150,9 @@
     </div>
     @endif
 
-    {{-- Detalhes e histórico --}}
+    {{-- Contato --}}
     <div class="col-md-7 mb-4">
         <div class="card shadow">
-            <div class="card-header">
-                <h6 class="m-0 font-weight-bold">Histórico de eventos</h6>
-            </div>
-            <div class="card-body p-0">
-                @if($logs->isEmpty())
-                    <p class="text-muted text-center py-4">Nenhum evento registrado.</p>
-                @else
-                <table class="table table-sm table-borderless mb-0">
-                    <tbody>
-                    @foreach($logs as $log)
-                        <tr>
-                            <td class="pl-3" style="font-size:.8rem;color:#64748b;white-space:nowrap;">
-                                {{ $log->created_at->format('d/m/Y H:i') }}
-                            </td>
-                            <td style="font-size:.85rem;">
-                                {{ match($log->evento) {
-                                    'payment_confirmed'          => '✅ Pagamento confirmado',
-                                    'payment_canceled'           => '❌ Pagamento cancelado',
-                                    'payment_overdue'            => '⚠️ Pagamento em atraso',
-                                    'email_trial_expirando_3_dias' => '📧 Email: trial expira em 3 dias',
-                                    'email_trial_expirando_1_dia'  => '📧 Email: trial expira amanhã',
-                                    'email_trial_expirado'         => '📧 Email: trial expirado',
-                                    default                        => $log->evento,
-                                } }}
-                            </td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-                @endif
-            </div>
-        </div>
-
-        <div class="card shadow mt-3">
             <div class="card-body" style="font-size:.85rem;">
                 <strong>Dúvidas sobre sua assinatura?</strong><br>
                 Entre em contato: <a href="mailto:iaqueatende@gmail.com">iaqueatende@gmail.com</a>
@@ -194,5 +160,84 @@
         </div>
     </div>
 
+</div>
+
+{{-- Histórico de pagamentos (Story 6.3) --}}
+@if(count($historico) > 0)
+<div class="card shadow mb-4">
+    <div class="card-header">
+        <h6 class="m-0 font-weight-bold">Histórico de pagamentos</h6>
+    </div>
+    <div class="card-body table-responsive p-0">
+        <table class="table table-striped table-sm mb-0">
+            <thead>
+                <tr><th class="pl-3">Data</th><th>Descrição</th><th>Valor</th><th>Status</th><th>Ação</th></tr>
+            </thead>
+            <tbody>
+                @foreach($historico as $p)
+                    @php
+                        $statusAsaas = $p['status'] ?? '';
+                        $dataBruta   = !empty($p['paymentDate']) ? $p['paymentDate'] : ($p['dateCreated'] ?? null);
+                        $dataFmt     = $dataBruta ? \Carbon\Carbon::parse($dataBruta)->format('d/m/Y') : '—';
+                        $statusInfo  = $mapStatus($statusAsaas);
+                        $pago        = in_array($statusAsaas, ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH'], true);
+                        $aPagar      = in_array($statusAsaas, ['PENDING', 'OVERDUE'], true);
+                    @endphp
+                    <tr>
+                        <td class="pl-3" style="white-space:nowrap;">{{ $dataFmt }}</td>
+                        <td style="font-size:.85rem;">{{ $p['description'] ?? '—' }}</td>
+                        <td style="white-space:nowrap;">R$ {{ number_format($p['value'] ?? 0, 2, ',', '.') }}</td>
+                        <td><span class="badge badge-{{ $statusInfo['badge'] }}">{{ $statusInfo['label'] }}</span></td>
+                        <td>
+                            @if($pago && !empty($p['transactionReceiptUrl']))
+                                <a href="{{ $p['transactionReceiptUrl'] }}" target="_blank" rel="noopener noreferrer">Ver recibo</a>
+                            @elseif($aPagar && !empty($p['invoiceUrl']))
+                                <a href="{{ $p['invoiceUrl'] }}" target="_blank" rel="noopener noreferrer">Pagar</a>
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+@endif
+
+{{-- Histórico de eventos do sistema — seção secundária colapsável (Story 6.3) --}}
+<div class="card card-secondary collapsed-card shadow mb-4">
+    <div class="card-header" data-card-widget="collapse" style="cursor:pointer;">
+        <h6 class="card-title m-0 font-weight-bold">Histórico de eventos do sistema</h6>
+        <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
+        </div>
+    </div>
+    <div class="card-body p-0" style="display:none;">
+        @if($logs->isEmpty())
+            <p class="text-muted text-center py-4">Nenhum evento registrado.</p>
+        @else
+        <table class="table table-sm table-borderless mb-0">
+            <tbody>
+            @foreach($logs as $log)
+                <tr>
+                    <td class="pl-3" style="font-size:.8rem;color:#64748b;white-space:nowrap;">
+                        {{ $log->created_at->format('d/m/Y H:i') }}
+                    </td>
+                    <td style="font-size:.85rem;">
+                        {{ match($log->evento) {
+                            'payment_confirmed'          => '✅ Pagamento confirmado',
+                            'payment_canceled'           => '❌ Pagamento cancelado',
+                            'payment_overdue'            => '⚠️ Pagamento em atraso',
+                            'email_trial_expirando_3_dias' => '📧 Email: trial expira em 3 dias',
+                            'email_trial_expirando_1_dia'  => '📧 Email: trial expira amanhã',
+                            'email_trial_expirado'         => '📧 Email: trial expirado',
+                            default                        => $log->evento,
+                        } }}
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+        @endif
+    </div>
 </div>
 @endsection
