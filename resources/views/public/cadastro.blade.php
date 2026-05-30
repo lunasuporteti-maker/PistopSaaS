@@ -38,7 +38,7 @@
 <div class="signup-wrap">
     <div class="signup-card">
         <div class="brand">PitStop</div>
-        <div class="subtitle">Crie sua conta e comece seu trial gratuito de 14 dias.</div>
+        <div class="subtitle">Crie sua conta e comece seu trial gratuito de 30 dias.</div>
 
         @if($errors->any())
             <div class="alert alert-danger">

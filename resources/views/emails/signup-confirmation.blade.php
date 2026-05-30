@@ -20,7 +20,7 @@
                             <p style="margin:0 0 16px;font-size:16px;">Olá, {{ $nome }}!</p>
                             <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#374151;">
                                 Recebemos o cadastro da oficina <strong>{{ $nomeOficina }}</strong> no PitStop.
-                                Para ativar seu trial gratuito de 14 dias, confirme seu e-mail clicando no botão abaixo.
+                                Para ativar seu trial gratuito de 30 dias, confirme seu e-mail clicando no botão abaixo.
                             </p>
                             <p style="margin:24px 0;text-align:center;">
                                 <a href="{{ $link }}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:8px;font-size:15px;font-weight:600;">
