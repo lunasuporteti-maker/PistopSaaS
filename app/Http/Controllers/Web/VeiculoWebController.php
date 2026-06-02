@@ -17,7 +17,9 @@ class VeiculoWebController extends Controller
                 $q->where('placa', 'like', "%{$request->search}%")
                   ->orWhere('modelo', 'like', "%{$request->search}%")
                   ->orWhereHas('cliente', fn($c) => $c->where('nome', 'like', "%{$request->search}%"))
-            )->orderBy('id', 'desc')->paginate(20);
+            )
+            ->when($request->tipo, fn($q) => $q->where('tipo_veiculo', $request->tipo))
+            ->orderBy('id', 'desc')->paginate(20);
 
         return view('pitstop.veiculos.index', compact('veiculos'));
     }

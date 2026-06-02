@@ -4,8 +4,8 @@
 @section('content_header')
 <div class="d-flex justify-content-between align-items-center">
     <div>
-        <h1 class="m-0 font-weight-bold"><i class="fas fa-car mr-2 text-danger"></i>Veículos</h1>
-        <small class="text-muted">{{ $veiculos->total() }} veículo(s) cadastrado(s)</small>
+        <h1 class="m-0 font-weight-bold"><i class="fas fa-car mr-2 text-danger"></i>Veículos e Motos</h1>
+        <small class="text-muted">{{ $veiculos->total() }} cadastrado(s)</small>
     </div>
     <a href="{{ route('veiculos.create') }}" class="btn btn-danger btn-sm px-3">
         <i class="fas fa-plus mr-1"></i> Novo Veículo
@@ -17,8 +17,8 @@
 
 <div class="card shadow-sm">
     <div class="card-header py-2">
-        <form method="GET" class="d-flex align-items-center" style="gap:8px">
-            <div class="input-group input-group-sm" style="max-width:300px">
+        <form method="GET" class="d-flex align-items-center flex-wrap" style="gap:8px">
+            <div class="input-group input-group-sm" style="max-width:260px">
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fas fa-search text-muted"></i></span>
                 </div>
@@ -26,8 +26,16 @@
                        placeholder="Placa, modelo ou cliente..."
                        value="{{ request('search') }}">
             </div>
-            <button class="btn btn-sm btn-danger">Buscar</button>
-            @if(request('search'))
+            <select name="tipo" class="form-control form-control-sm" style="width:auto">
+                <option value="">Todos os tipos</option>
+                <option value="carro"    {{ request('tipo') === 'carro'    ? 'selected' : '' }}>🚗 Carro</option>
+                <option value="moto"     {{ request('tipo') === 'moto'     ? 'selected' : '' }}>🏍️ Moto</option>
+                <option value="caminhao" {{ request('tipo') === 'caminhao' ? 'selected' : '' }}>🚚 Caminhão</option>
+                <option value="van"      {{ request('tipo') === 'van'      ? 'selected' : '' }}>🚐 Van</option>
+                <option value="outro"    {{ request('tipo') === 'outro'    ? 'selected' : '' }}>🚜 Outro</option>
+            </select>
+            <button class="btn btn-sm btn-danger">Filtrar</button>
+            @if(request('search') || request('tipo'))
             <a href="{{ route('veiculos.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-times"></i></a>
             @endif
         </form>
@@ -54,7 +62,17 @@
                         </span>
                     </td>
                     <td>
-                        <span class="font-weight-600">{{ $v->marca }}</span>
+                        @php
+                            $tipoIcon = match($v->tipo_veiculo ?? 'carro') {
+                                'moto'     => '<i class="fas fa-motorcycle text-warning" title="Moto"></i>',
+                                'caminhao' => '<i class="fas fa-truck text-secondary" title="Caminhão"></i>',
+                                'van'      => '<i class="fas fa-shuttle-van text-info" title="Van"></i>',
+                                'outro'    => '<i class="fas fa-cog text-muted" title="Outro"></i>',
+                                default    => '<i class="fas fa-car text-danger" title="Carro"></i>',
+                            };
+                        @endphp
+                        {!! $tipoIcon !!}
+                        <span class="font-weight-600 ml-1">{{ $v->marca }}</span>
                         {{ $v->modelo }}
                     </td>
                     <td class="text-muted">{{ $v->ano ?? '—' }}</td>

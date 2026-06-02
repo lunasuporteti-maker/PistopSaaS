@@ -14,12 +14,27 @@
 @section('content')
 <div class="row">
     <div class="col-md-4">
+        @php
+            $tipoLabel = match($veiculo->tipo_veiculo ?? 'carro') {
+                'moto'     => ['🏍️ Moto',     'fas fa-motorcycle', 'text-warning'],
+                'caminhao' => ['🚚 Caminhão',  'fas fa-truck',      'text-secondary'],
+                'van'      => ['🚐 Van/Kombi', 'fas fa-shuttle-van','text-info'],
+                'outro'    => ['🚜 Outro',     'fas fa-cog',        'text-muted'],
+                default    => ['🚗 Carro',     'fas fa-car',        'text-danger'],
+            };
+        @endphp
         <div class="card card-danger card-outline">
-            <div class="card-header"><h3 class="card-title"><i class="fas fa-car mr-1"></i> Dados do Veículo</h3></div>
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="{{ $tipoLabel[1] }} {{ $tipoLabel[2] }} mr-1"></i> Dados do Veículo
+                </h3>
+            </div>
             <div class="card-body">
                 <dl class="row mb-0">
                     <dt class="col-5">Cliente</dt>
                     <dd class="col-7"><a href="{{ route('clientes.show', $veiculo->cliente) }}">{{ $veiculo->cliente->nome }}</a></dd>
+                    <dt class="col-5">Tipo</dt>
+                    <dd class="col-7">{{ $tipoLabel[0] }}</dd>
                     <dt class="col-5">Placa</dt><dd class="col-7">{{ $veiculo->placa ?? '—' }}</dd>
                     <dt class="col-5">Marca</dt><dd class="col-7">{{ $veiculo->marca ?? '—' }}</dd>
                     <dt class="col-5">Modelo</dt><dd class="col-7">{{ $veiculo->modelo ?? '—' }}</dd>
