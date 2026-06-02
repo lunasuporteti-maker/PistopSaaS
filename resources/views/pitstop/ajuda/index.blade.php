@@ -366,11 +366,11 @@
         <i class="fas fa-headset fa-2x text-muted mb-2 d-block"></i>
         <p class="mb-1 font-weight-bold">Não encontrou o que procurava?</p>
         <p class="text-muted mb-3" style="font-size:.9rem">
-            Entre em contato com o suporte — respondemos pelo WhatsApp em horário comercial.
+            Entre em contato com o suporte — respondemos em horário comercial.
         </p>
-        <a href="https://wa.me/5581998114585" target="_blank"
-           class="btn btn-success btn-sm px-4">
-            <i class="fab fa-whatsapp mr-1"></i> Falar com o Suporte
+        <a href="https://iaqueatende.com.br/suporte" target="_blank"
+           class="btn btn-primary btn-sm px-4">
+            <i class="fas fa-headset mr-1"></i> Acessar Suporte
         </a>
     </div>
 </div>
