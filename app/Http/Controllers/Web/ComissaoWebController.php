@@ -17,8 +17,13 @@ class ComissaoWebController extends Controller
         $mes          = $request->mes ?? now()->format('Y-m');
         $funcionarioId = $request->funcionario_id;
 
+        // Filtra por mês sem depender de whereHas (mais seguro com BelongsToTenant)
+        [$anoStr, $mesStr] = explode('-', $mes);
+        $inicio = \Carbon\Carbon::createFromDate((int) $anoStr, (int) $mesStr, 1)->startOfMonth();
+        $fim    = $inicio->copy()->endOfMonth();
+
         $query = Comissao::with(['funcionario', 'ordemServico.cliente', 'ordemServico.veiculo'])
-            ->whereHas('ordemServico', fn($q) => $q->whereRaw("TO_CHAR(finalizado_em, 'YYYY-MM') = ?", [$mes]));
+            ->whereBetween('created_at', [$inicio, $fim]);
 
         if ($funcionarioId) {
             $query->where('funcionario_id', $funcionarioId);
@@ -26,10 +31,12 @@ class ComissaoWebController extends Controller
 
         $comissoes = $query->orderByDesc('created_at')->paginate(30);
 
-        $totais = Comissao::whereHas('ordemServico', fn($q) => $q->whereRaw("TO_CHAR(finalizado_em, 'YYYY-MM') = ?", [$mes]))
-            ->when($funcionarioId, fn($q) => $q->where('funcionario_id', $funcionarioId))
-            ->selectRaw('SUM(valor) as total, SUM(CASE WHEN pago THEN valor ELSE 0 END) as total_pago')
-            ->first();
+        $totaisQuery = Comissao::whereBetween('created_at', [$inicio, $fim])
+            ->when($funcionarioId, fn($q) => $q->where('funcionario_id', $funcionarioId));
+
+        $total      = (float) ($totaisQuery->sum('valor'));
+        $totalPago  = (float) ($totaisQuery->where('pago', true)->sum('valor'));
+        $totais     = (object) ['total' => $total, 'total_pago' => $totalPago];
 
         $funcionarios = Funcionario::where('ativo', true)->orderBy('nome')->get();
         $ordens       = OrdemServico::whereNotNull('finalizado_em')
