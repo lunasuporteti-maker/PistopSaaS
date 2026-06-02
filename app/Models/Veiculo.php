@@ -12,7 +12,7 @@ class Veiculo extends Model
 
     protected $fillable = [
         'tenant_id', 'is_example', 'cliente_id', 'marca', 'modelo', 'ano',
-        'placa', 'cor', 'km_atual',
+        'placa', 'cor', 'km_atual', 'tipo_veiculo',
     ];
 
     public function cliente()

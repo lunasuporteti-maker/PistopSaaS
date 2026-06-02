@@ -87,7 +87,7 @@
         <i class="fas fa-users mr-2 text-primary"></i><strong>Clientes e Veículos</strong>
         <i class="fas fa-chevron-down float-right mt-1"></i>
     </div>
-    <div id="sec-clientes" class="collapse">
+    <div id="sec-clientes" class="collapse" style="display:none">
         <div class="card-body">
 
             <div class="ajuda-item border-bottom pb-3 mb-3" data-tags="cliente cadastrar novo adicionar">
@@ -134,7 +134,7 @@
         <i class="fas fa-file-invoice mr-2 text-warning"></i><strong>Orçamentos</strong>
         <i class="fas fa-chevron-down float-right mt-1"></i>
     </div>
-    <div id="sec-orcamentos" class="collapse">
+    <div id="sec-orcamentos" class="collapse" style="display:none">
         <div class="card-body">
 
             <div class="ajuda-item border-bottom pb-3 mb-3" data-tags="orçamento criar novo peça mão de obra serviço">
@@ -193,7 +193,7 @@
         <i class="fas fa-wrench mr-2 text-secondary"></i><strong>Ordens de Serviço (OS)</strong>
         <i class="fas fa-chevron-down float-right mt-1"></i>
     </div>
-    <div id="sec-os" class="collapse">
+    <div id="sec-os" class="collapse" style="display:none">
         <div class="card-body">
 
             <div class="ajuda-item border-bottom pb-3 mb-3" data-tags="ordem serviço OS criar gerar aprovação">
@@ -240,7 +240,7 @@
         <i class="fas fa-columns mr-2 text-info"></i><strong>Kanban</strong>
         <i class="fas fa-chevron-down float-right mt-1"></i>
     </div>
-    <div id="sec-kanban" class="collapse">
+    <div id="sec-kanban" class="collapse" style="display:none">
         <div class="card-body">
 
             <div class="ajuda-item border-bottom pb-3 mb-3" data-tags="kanban etapas status fluxo">
@@ -288,7 +288,7 @@
         <i class="fas fa-dollar-sign mr-2 text-success"></i><strong>Financeiro e Relatórios</strong>
         <i class="fas fa-chevron-down float-right mt-1"></i>
     </div>
-    <div id="sec-financeiro" class="collapse">
+    <div id="sec-financeiro" class="collapse" style="display:none">
         <div class="card-body">
 
             <div class="ajuda-item border-bottom pb-3 mb-3" data-tags="caixa abrir fechar financeiro">
@@ -335,7 +335,7 @@
         <i class="fas fa-user-shield mr-2 text-danger"></i><strong>Usuários e Permissões</strong>
         <i class="fas fa-chevron-down float-right mt-1"></i>
     </div>
-    <div id="sec-usuarios" class="collapse">
+    <div id="sec-usuarios" class="collapse" style="display:none">
         <div class="card-body">
 
             <div class="ajuda-item border-bottom pb-3 mb-3" data-tags="usuário perfil permissão admin gerente operador mecânico">
@@ -388,7 +388,7 @@
         <i class="fas fa-credit-card mr-2" style="color:#7c3aed"></i><strong>Assinatura e Planos</strong>
         <i class="fas fa-chevron-down float-right mt-1"></i>
     </div>
-    <div id="sec-planos" class="collapse">
+    <div id="sec-planos" class="collapse" style="display:none">
         <div class="card-body">
 
             <div class="ajuda-item border-bottom pb-3 mb-3" data-tags="plano pro max assinar pagamento preço">
@@ -440,7 +440,7 @@
         <p class="text-muted mb-3" style="font-size:.9rem">
             Entre em contato com o suporte — respondemos pelo WhatsApp em horário comercial.
         </p>
-        <a href="https://wa.me/5581999999999" target="_blank"
+        <a href="https://wa.me/5581998114585" target="_blank"
            class="btn btn-success btn-sm px-4">
             <i class="fab fa-whatsapp mr-1"></i> Falar com o Suporte
         </a>

@@ -9,6 +9,8 @@ class Comissao extends Model
 {
     use BelongsToTenant;
 
+    protected $table = 'comissoes';
+
     protected $fillable = [
         'tenant_id', 'funcionario_id', 'os_id',
         'percentual', 'valor', 'data_pagamento', 'pago',

@@ -22,6 +22,23 @@
             @if($veiculo->exists) @method('PUT') @endif
 
             <div class="row">
+                {{-- Tipo de Veículo --}}
+                <div class="col-md-12 mb-2">
+                    <div class="form-group mb-0">
+                        <label class="mb-1">Tipo de Veículo <span class="text-danger">*</span></label>
+                        <div class="d-flex flex-wrap" style="gap:8px">
+                            @foreach(['carro' => ['🚗','Carro'], 'moto' => ['🏍️','Moto'], 'caminhao' => ['🚚','Caminhão'], 'van' => ['🚐','Van/Kombi'], 'outro' => ['🚜','Outro']] as $val => $info)
+                            <label class="btn btn-outline-secondary btn-sm px-3 py-2 mb-0 tipo-btn {{ old('tipo_veiculo', $veiculo->tipo_veiculo ?? 'carro') === $val ? 'active btn-secondary text-white' : '' }}" style="cursor:pointer">
+                                <input type="radio" name="tipo_veiculo" value="{{ $val }}" class="d-none"
+                                    {{ old('tipo_veiculo', $veiculo->tipo_veiculo ?? 'carro') === $val ? 'checked' : '' }}>
+                                {{ $info[0] }} {{ $info[1] }}
+                            </label>
+                            @endforeach
+                        </div>
+                        @error('tipo_veiculo')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                    </div>
+                </div>
+
                 {{-- Cliente com botão novo --}}
                 <div class="col-md-6">
                     <div class="form-group">
@@ -66,14 +83,21 @@
                     </div>
                 </div>
 
-                {{-- Marca com select --}}
+                {{-- Marca com select (muda conforme tipo) --}}
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>Marca <span class="text-danger">*</span></label>
                         <select id="sel-marca" name="marca" class="form-control @error('marca') is-invalid @enderror" required>
                             <option value="">Selecione a marca...</option>
-                            @foreach(['Agrale','BMW','BYD','Caoa Chery','Chevrolet','Chrysler','Citroën','Dodge','Fiat','Ford','GWM','Honda','Hyundai','JAC','Jeep','Kia','Land Rover','Lexus','Mercedes-Benz','Mitsubishi','Nissan','Peugeot','Renault','Subaru','Suzuki','Toyota','Troller','Volkswagen','Volvo'] as $marca)
-                            <option value="{{ $marca }}" {{ old('marca', $veiculo->marca) === $marca ? 'selected' : '' }}>{{ $marca }}</option>
+                            @php
+                                $marcaAtual = old('marca', $veiculo->marca ?? '');
+                                $tipoAtual  = old('tipo_veiculo', $veiculo->tipo_veiculo ?? 'carro');
+                                $marcasCarros = ['Agrale','BMW','BYD','Caoa Chery','Chevrolet','Chrysler','Citroën','Dodge','Fiat','Ford','GWM','Honda','Hyundai','JAC','Jeep','Kia','Land Rover','Lexus','Mercedes-Benz','Mitsubishi','Nissan','Peugeot','Renault','Subaru','Suzuki','Toyota','Troller','Volkswagen','Volvo'];
+                                $marcasMotos = ['Bajaj','BMW Motorrad','CF Moto','Dafra','Haojue','Harley-Davidson','Honda','Kawasaki','KTM','Royal Enfield','Shineray','Suzuki','Traxx','Triumph','Yamaha'];
+                                $marcas = $tipoAtual === 'moto' ? $marcasMotos : $marcasCarros;
+                            @endphp
+                            @foreach($marcas as $marca)
+                            <option value="{{ $marca }}" {{ $marcaAtual === $marca ? 'selected' : '' }}>{{ $marca }}</option>
                             @endforeach
                         </select>
                         @error('marca')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -162,6 +186,10 @@
 
 @push('js')
 <script>
+// ── Marcas por tipo ────────────────────────────────────────────────────────
+var MARCAS_CARRO = ['Agrale','BMW','BYD','Caoa Chery','Chevrolet','Chrysler','Citroën','Dodge','Fiat','Ford','GWM','Honda','Hyundai','JAC','Jeep','Kia','Land Rover','Lexus','Mercedes-Benz','Mitsubishi','Nissan','Peugeot','Renault','Subaru','Suzuki','Toyota','Troller','Volkswagen','Volvo'];
+var MARCAS_MOTO  = ['Bajaj','BMW Motorrad','CF Moto','Dafra','Haojue','Harley-Davidson','Honda','Kawasaki','KTM','Royal Enfield','Shineray','Suzuki','Traxx','Triumph','Yamaha'];
+
 // ── Modelos por marca ──────────────────────────────────────────────────────
 var MODELOS = {
     'Chevrolet': ['Onix','Onix Plus','Tracker','Cruze','S10','Trailblazer','Spin','Montana','Prisma','Cobalt','Celta','Classic'],
@@ -182,9 +210,20 @@ var MODELOS = {
     'Mercedes-Benz':['A 200','C 180','C 200','E 250','GLA 200','GLC 250','GLE 400','Sprinter'],
     'Volkswagen':['Gol','Polo','Virtus','T-Cross','Nivus','Taos','Saveiro','Amarok'],
     'Subaru':    ['Impreza','Forester','Outback','XV','WRX','BRZ','Legacy'],
-    'Suzuki':    ['Jimny','Swift','S-Cross','Vitara','Grand Vitara'],
+    'Suzuki':    ['Jimny','Swift','S-Cross','Vitara','Grand Vitara','GSX-R750','GSX-S750','V-Strom 650'],
     'Land Rover':['Defender','Discovery','Discovery Sport','Range Rover','Evoque'],
     'BYD':       ['Dolphin','Seal','Han','Song Plus','Yuan Plus','Atto 3'],
+    // Motos
+    'Honda':       ['Biz 110i','CG 160','CG 160 Fan','CG 160 Titan','CB 300R','CB 500F','CB 650R','CB 1000R','CBR 600RR','CBR 1000RR','PCX 150','XRE 300','NXR 160 Bros','Twister 250','Africa Twin'],
+    'Yamaha':      ['YBR 150','Factor 150','Fazer 250','MT-03','MT-07','MT-09','R3','R1','XTZ 150 Crosser','XTZ 250 Lander','NMAX 160','Tenere 700'],
+    'Kawasaki':    ['Z300','Z400','Z650','Z900','Ninja 300','Ninja 400','Ninja 650','Ninja 1000','Versys 650','Versys 1000'],
+    'Bajaj':       ['Pulsar 150','Pulsar 180','Pulsar 200NS','Pulsar RS200','Dominar 400'],
+    'BMW Motorrad':['G 310 R','G 310 GS','F 750 GS','F 850 GS','R 1250 GS','S 1000 RR'],
+    'Haojue':      ['NK 150','DR 160 S','DK 150S'],
+    'Dafra':       ['Speed 150','Apache 200','Kansas 150','Riva 150'],
+    'Royal Enfield':['Meteor 350','Classic 350','Himalayan','Interceptor 650'],
+    'Harley-Davidson':['Sportster 883','Iron 883','Street 750','Softail','Fat Boy','Road King','Touring'],
+    'Triumph':     ['Street Triple','Tiger 900','Speed Triple','Bonneville','Scrambler'],
 };
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -206,6 +245,42 @@ document.addEventListener('DOMContentLoaded', function () {
             if (inpModelo) inpModelo.placeholder = 'Selecione a marca primeiro...';
         }
     }
+
+    // ── Tipo de veículo → trocar marcas ─────────────────────────────────────
+    var tipoBtns = document.querySelectorAll('.tipo-btn');
+    function getTipoAtual() {
+        var checked = document.querySelector('input[name=tipo_veiculo]:checked');
+        return checked ? checked.value : 'carro';
+    }
+    function atualizarMarcas() {
+        var tipo   = getTipoAtual();
+        var marcas = tipo === 'moto' ? MARCAS_MOTO : MARCAS_CARRO;
+        var valorAtual = selMarca ? selMarca.value : '';
+        if (selMarca) {
+            selMarca.innerHTML = '<option value="">Selecione a marca...</option>';
+            marcas.forEach(function (m) {
+                var opt = document.createElement('option');
+                opt.value = m; opt.textContent = m;
+                if (m === valorAtual) opt.selected = true;
+                selMarca.appendChild(opt);
+            });
+            // Só limpa a seleção se a marca atual não existe na nova lista
+            if (!marcas.includes(valorAtual)) {
+                selMarca.value = '';
+                if (inpModelo) inpModelo.value = '';
+            }
+        }
+        atualizarModelos();
+    }
+    tipoBtns.forEach(function (label) {
+        label.addEventListener('click', function () {
+            tipoBtns.forEach(function (l) { l.classList.remove('active','btn-secondary','text-white'); });
+            this.classList.add('active','btn-secondary','text-white');
+            var radio = this.querySelector('input[type=radio]');
+            if (radio) radio.checked = true;
+            atualizarMarcas();
+        });
+    });
 
     if (selMarca) {
         selMarca.addEventListener('change', function () {

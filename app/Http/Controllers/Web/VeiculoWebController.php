@@ -31,13 +31,14 @@ class VeiculoWebController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'cliente_id' => 'required|exists:clientes,id',
-            'marca'      => 'required|string|max:60',
-            'modelo'     => 'required|string|max:60',
-            'ano'        => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
-            'placa'      => 'required|string|max:7|unique:veiculos,placa|regex:/^[A-Z0-9]{7}$/',
-            'cor'        => 'nullable|string|max:40',
-            'km_atual'   => 'nullable|integer|min:0|max:9999999',
+            'cliente_id'    => 'required|exists:clientes,id',
+            'tipo_veiculo'  => 'required|in:carro,moto,caminhao,van,outro',
+            'marca'         => 'required|string|max:60',
+            'modelo'        => 'required|string|max:60',
+            'ano'           => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
+            'placa'         => 'required|string|max:7|unique:veiculos,placa|regex:/^[A-Z0-9]{7}$/',
+            'cor'           => 'nullable|string|max:40',
+            'km_atual'      => 'nullable|integer|min:0|max:9999999',
         ], [
             'placa.regex' => 'Placa inválida. Use o formato ABC1234 ou ABC1D23 (7 caracteres, sem traço).',
         ]);
@@ -70,12 +71,13 @@ class VeiculoWebController extends Controller
     public function update(Request $request, Veiculo $veiculo)
     {
         $data = $request->validate([
-            'marca'    => 'required|string|max:60',
-            'modelo'   => 'required|string|max:60',
-            'ano'      => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
-            'placa'    => 'required|string|max:7|unique:veiculos,placa,' . $veiculo->id . '|regex:/^[A-Z0-9]{7}$/',
-            'cor'      => 'nullable|string|max:40',
-            'km_atual' => 'nullable|integer|min:0|max:9999999',
+            'tipo_veiculo' => 'required|in:carro,moto,caminhao,van,outro',
+            'marca'        => 'required|string|max:60',
+            'modelo'       => 'required|string|max:60',
+            'ano'          => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
+            'placa'        => 'required|string|max:7|unique:veiculos,placa,' . $veiculo->id . '|regex:/^[A-Z0-9]{7}$/',
+            'cor'          => 'nullable|string|max:40',
+            'km_atual'     => 'nullable|integer|min:0|max:9999999',
         ], [
             'placa.regex' => 'Placa inválida. Use o formato ABC1234 ou ABC1D23 (7 caracteres, sem traço).',
         ]);
