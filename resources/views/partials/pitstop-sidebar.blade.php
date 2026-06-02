@@ -155,6 +155,12 @@
             <span>Meu Perfil</span>
         </a>
 
+        <a href="{{ route('ajuda') }}"
+           class="sb-link {{ request()->routeIs('ajuda') ? 'active' : '' }}">
+            <span class="ic"><x-icon name="help" size="16" /></span>
+            <span>Ajuda</span>
+        </a>
+
         @can('acima_de_mecanico')
         <a href="{{ route('usuarios.index') }}"
            class="sb-link {{ request()->routeIs('usuarios.*') ? 'active' : '' }}">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Concerns\ChecksTrialLimits;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\PlanLimitService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -37,7 +38,10 @@ class UsuarioWebController extends Controller
 
         $usuarios = $query->orderBy('name')->paginate(20)->withQueryString();
 
-        return view('pitstop.usuarios.index', compact('usuarios'));
+        $tenant    = app()->bound('tenant') ? app('tenant') : null;
+        $slotsInfo = $tenant ? app(PlanLimitService::class)->infoSlots($tenant) : null;
+
+        return view('pitstop.usuarios.index', compact('usuarios', 'slotsInfo'));
     }
 
     public function create()
@@ -53,6 +57,12 @@ class UsuarioWebController extends Controller
 
         if ($redirect = $this->verificarLimiteTrial('usuarios')) {
             return $redirect;
+        }
+
+        // Verifica limite de usuários do plano pago (Pro: 6, Pro Max: 10)
+        $tenant = app()->bound('tenant') ? app('tenant') : null;
+        if ($tenant && app(PlanLimitService::class)->atingiuLimiteUsuarios($tenant)) {
+            return back()->with('error', app(PlanLimitService::class)->mensagemLimite($tenant));
         }
 
         $perfisPermitidos = $this->perfisDisponiveis();

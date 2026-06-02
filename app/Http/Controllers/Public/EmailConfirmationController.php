@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendWelcomeTrialEmailJob;
 use App\Models\Subscription;
 use App\Models\Tenant;
 use App\Models\TenantSignup;
@@ -95,6 +96,9 @@ class EmailConfirmationController extends Controller
         if (class_exists($seedJob)) {
             $seedJob::dispatch($tenant->id);
         }
+
+        // Email de boas-vindas — informa URL de acesso, login e data fim do trial.
+        SendWelcomeTrialEmailJob::dispatch($tenant->id, $user->id)->delay(now()->addSeconds(5));
 
         // T5.1 (AC5) — Login passivo no guard web.
         Auth::login($user);

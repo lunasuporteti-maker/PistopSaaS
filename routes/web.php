@@ -7,6 +7,7 @@ use App\Http\Controllers\Public\EmailConfirmationController;
 use App\Http\Controllers\Public\PublicSignupController;
 use App\Http\Controllers\Web\AcompanhamentoPublicoController;
 use App\Http\Controllers\Web\AgendamentoWebController;
+use App\Http\Controllers\Web\AjudaController;
 use App\Http\Controllers\Web\CaixaWebController;
 use App\Http\Controllers\Web\CatalogoServicosWebController;
 use App\Http\Controllers\Web\ClienteWebController;
@@ -69,6 +70,10 @@ Route::middleware('throttle:signup')->group(function () {
 Route::middleware('throttle:3,60')->group(function () {
     Route::post('/cadastro/reenviar-email', [PublicSignupController::class, 'reenviarEmail'])->name('cadastro.reenviar-email');
 });
+
+// Páginas legais — públicas, sem autenticação
+Route::get('/termos', fn () => view('public.termos'))->name('termos');
+Route::get('/privacidade', fn () => view('public.privacidade'))->name('privacidade');
 
 Route::get('/', fn () => redirect()->route('dashboard'));
 Route::get('/home', fn () => redirect()->route('dashboard'));
@@ -194,6 +199,9 @@ Route::middleware(['auth', 'tenant', 'single.session', 'restrict.mecanico', 'che
     // Usuários
     Route::resource('usuarios', UsuarioWebController::class)->except(['show']);
     Route::post('usuarios/{usuario}/desbloquear', [UsuarioWebController::class, 'desbloquear'])->name('usuarios.desbloquear');
+
+    // Central de Ajuda
+    Route::get('/ajuda', [AjudaController::class, 'index'])->name('ajuda');
 
     // Configurações (apenas admin)
     Route::get('/configuracoes', [ConfiguracaoWebController::class, 'index'])->name('configuracoes.index');

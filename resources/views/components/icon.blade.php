@@ -65,6 +65,9 @@ $icons = [
     'star'         => '<path d="m12 2 3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/>',
     'fornecedor'   => '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
     'estoque'      => '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+    'help'         => '<circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 0 1 5.1 2.1c0 1.4-1.6 2.4-2.1 3.4"/><circle cx="12" cy="17" r=".5" fill="currentColor" stroke="none"/>',
+    'credit-card'  => '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>',
+    'hand-coins'   => '<path d="M11 15h2a2 2 0 1 0 0-4H9l-2-1M5 9l2 1M7 7H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h3"/><path d="M16 13h4a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1h-4"/>',
 ];
 
 $svg = $icons[$name] ?? '<circle cx="12" cy="12" r="2"/>';

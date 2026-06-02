@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendPagamentoConfirmadoJob;
 use App\Models\Subscription;
 use App\Models\SubscriptionLog;
 use App\Models\Tenant;
@@ -92,6 +93,11 @@ class WebhookAsaasController extends Controller
         ]);
 
         Log::info("[Asaas] Plano Pro ativado para {$tenant->nome} até {$vencimento}");
+
+        // Envia email de confirmação de pagamento ao admin do tenant
+        $nomePlano = $tenant->fresh()->nomePlano();
+        $valor     = (float) ($payment['value'] ?? 0);
+        SendPagamentoConfirmadoJob::dispatch($tenant->id, $nomePlano, $valor, $vencimento);
     }
 
     private function marcarAtrasado(Tenant $tenant, array $payment): void

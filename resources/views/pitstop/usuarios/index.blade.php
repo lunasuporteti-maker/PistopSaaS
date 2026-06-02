@@ -5,7 +5,13 @@
 <div class="d-flex justify-content-between align-items-center">
     <div>
         <h1 class="m-0 font-weight-bold text-dark"><i class="fas fa-users-cog mr-2 text-danger"></i>Usuários do Sistema</h1>
+        @if($slotsInfo)
+        <small class="text-{{ $slotsInfo['cor'] === 'success' ? 'muted' : $slotsInfo['cor'] }}">
+            <i class="fas fa-users mr-1"></i>{{ $slotsInfo['label'] }}
+        </small>
+        @else
         <small class="text-muted">Gerenciamento de acessos e permissões</small>
+        @endif
     </div>
     @can('gerente_ou_admin')
     <a href="{{ route('usuarios.create') }}" class="btn btn-danger btn-sm px-3 shadow-sm">
