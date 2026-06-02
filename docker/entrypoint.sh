@@ -3,10 +3,22 @@ set -e
 
 cd /var/www/html
 
-# Aguarda PostgreSQL estar pronto
-echo "Aguardando banco de dados..."
-until php artisan db:show > /dev/null 2>&1; do
-    echo "DB não disponível ainda, aguardando..."
+echo "=== PitStop entrypoint ==="
+echo "DB_HOST=${DB_HOST} | DB_PORT=${DB_PORT:-5432} | DB_DATABASE=${DB_DATABASE} | DB_USERNAME=${DB_USERNAME}"
+echo "APP_ENV=${APP_ENV} | APP_KEY definida: $([ -n "$APP_KEY" ] && echo SIM || echo NAO)"
+
+# Aguarda PostgreSQL via pg_isready (teste TCP direto, sem PHP)
+echo "Aguardando banco de dados em ${DB_HOST}:${DB_PORT:-5432}..."
+MAX=30
+COUNT=0
+until pg_isready -h "${DB_HOST}" -p "${DB_PORT:-5432}" -U "${DB_USERNAME}" -d "${DB_DATABASE}" -t 3 2>/dev/null; do
+    COUNT=$((COUNT + 1))
+    if [ "$COUNT" -ge "$MAX" ]; then
+        echo "ERRO: banco não acessível após ${MAX} tentativas."
+        echo "Verifique: DB_HOST=${DB_HOST} DB_PORT=${DB_PORT:-5432}"
+        exit 1
+    fi
+    echo "Aguardando DB... (${COUNT}/${MAX})"
     sleep 3
 done
 echo "Banco de dados pronto."
@@ -14,7 +26,7 @@ echo "Banco de dados pronto."
 # Roda migrations
 php artisan migrate --force
 
-# Optimiza para produção (|| true = não falha se der erro)
+# Optimiza para produção
 php artisan config:cache
 php artisan route:cache || echo "⚠️  route:cache ignorado"
 php artisan view:cache  || echo "⚠️  view:cache ignorado"
