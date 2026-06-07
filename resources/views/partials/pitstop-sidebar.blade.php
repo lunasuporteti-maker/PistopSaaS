@@ -1,18 +1,61 @@
+<style>
+.sb-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+}
+.sb-toggle .sb-chevron {
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+    color: var(--sb-text-muted, rgba(255,255,255,0.4));
+    margin-left: 4px;
+}
+.sb-toggle.collapsed .sb-chevron {
+    transform: rotate(-90deg);
+}
+.sb-group {
+    overflow: hidden;
+    transition: max-height 0.25s ease, opacity 0.2s ease;
+    max-height: 800px;
+    opacity: 1;
+}
+.sb-group.collapsed {
+    max-height: 0;
+    opacity: 0;
+}
+.sb-version {
+    font-size: 9px;
+    color: var(--brand-400);
+    letter-spacing: 0.06em;
+    line-height: 1;
+    margin-top: 2px;
+}
+</style>
+
 <aside class="sidebar" id="mainSidebar">
 
     {{-- ── Logo ──────────────────────────────────────────────── --}}
     <div class="sb-brand">
         <a href="{{ route('dashboard') }}" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;">
-            {{-- PitStop mark: cronômetro com cunha laranja --}}
             <svg width="22" height="22" viewBox="0 0 32 32" fill="none" aria-hidden="true">
                 <circle cx="16" cy="16" r="13" stroke="#fff" stroke-width="2"/>
                 <rect x="15" y="1" width="2" height="4" rx="0.5" fill="#fff"/>
                 <path d="M16 16 L16 5 A 11 11 0 0 1 27 16 Z" fill="var(--brand-500)"/>
                 <circle cx="16" cy="16" r="2" fill="#fff"/>
             </svg>
-            <span class="wordmark" style="font-weight:700;font-size:15px;letter-spacing:-0.02em;color:#fff;line-height:1;">
-                pit<span style="color:var(--brand-400)">stop</span>
-            </span>
+            <div style="display:flex;flex-direction:column;gap:1px;">
+                <span class="wordmark" style="font-weight:700;font-size:15px;letter-spacing:-0.02em;color:#fff;line-height:1;">
+                    pit<span style="color:var(--brand-400)">stop</span>
+                </span>
+                <span class="sb-version">v1.0</span>
+            </div>
         </a>
     </div>
 
@@ -20,166 +63,171 @@
     <nav class="sb-nav">
 
         {{-- Seção: Operação --}}
-        <div class="sb-section">Operação</div>
-
-        <a href="{{ route('dashboard') }}"
-           class="sb-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-            <span class="ic"><x-icon name="dashboard" size="16" /></span>
-            <span>Dashboard</span>
-        </a>
-
-        <a href="{{ route('kanban') }}" target="_blank"
-           class="sb-link {{ request()->routeIs('kanban') ? 'active' : '' }}">
-            <span class="ic"><x-icon name="kanban" size="16" /></span>
-            <span>Kanban</span>
-        </a>
-
-        <a href="{{ route('fila') }}"
-           class="sb-link {{ request()->routeIs('fila') ? 'active' : '' }}">
-            <span class="ic"><x-icon name="filter" size="16" /></span>
-            <span>Fila de Serviço</span>
-        </a>
-
-        <a href="{{ route('agendamentos.index') }}"
-           class="sb-link {{ request()->routeIs('agendamentos.*') ? 'active' : '' }}">
-            <span class="ic"><x-icon name="calendar" size="16" /></span>
-            <span>Agendamentos</span>
-        </a>
-
-        @can('acima_de_mecanico')
-        <a href="{{ route('orcamentos.index') }}"
-           class="sb-link {{ request()->routeIs('orcamentos.*') ? 'active' : '' }}">
-            <span class="ic"><x-icon name="receipt" size="16" /></span>
-            <span>Orçamentos</span>
-        </a>
-
-        <a href="{{ route('ordens.index') }}"
-           class="sb-link {{ request()->routeIs('ordens.*') ? 'active' : '' }}"
-           data-tour="ordens">
-            <span class="ic"><x-icon name="wrench" size="16" /></span>
-            <span>Ordens de Serviço</span>
-        </a>
-        @endcan
+        <button class="sb-section sb-toggle" data-group="operacao">
+            <span>Operação</span>
+            <svg class="sb-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+        <div class="sb-group" id="sg-operacao">
+            <a href="{{ route('dashboard') }}"
+               class="sb-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                <span class="ic"><x-icon name="dashboard" size="16" /></span>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ route('kanban') }}" target="_blank"
+               class="sb-link {{ request()->routeIs('kanban') ? 'active' : '' }}">
+                <span class="ic"><x-icon name="kanban" size="16" /></span>
+                <span>Kanban</span>
+            </a>
+            <a href="{{ route('fila') }}"
+               class="sb-link {{ request()->routeIs('fila') ? 'active' : '' }}">
+                <span class="ic"><x-icon name="filter" size="16" /></span>
+                <span>Fila de Serviço</span>
+            </a>
+            <a href="{{ route('agendamentos.index') }}"
+               class="sb-link {{ request()->routeIs('agendamentos.*') ? 'active' : '' }}">
+                <span class="ic"><x-icon name="calendar" size="16" /></span>
+                <span>Agendamentos</span>
+            </a>
+            @can('acima_de_mecanico')
+            <a href="{{ route('orcamentos.index') }}"
+               class="sb-link {{ request()->routeIs('orcamentos.*') ? 'active' : '' }}">
+                <span class="ic"><x-icon name="receipt" size="16" /></span>
+                <span>Orçamentos</span>
+            </a>
+            <a href="{{ route('ordens.index') }}"
+               class="sb-link {{ request()->routeIs('ordens.*') ? 'active' : '' }}"
+               data-tour="ordens">
+                <span class="ic"><x-icon name="wrench" size="16" /></span>
+                <span>Ordens de Serviço</span>
+            </a>
+            @endcan
+        </div>
 
         {{-- Seção: Cadastros --}}
         @can('acima_de_mecanico')
-        <div class="sb-section">Cadastros</div>
-
-        <a href="{{ route('clientes.index') }}"
-           class="sb-link {{ request()->routeIs('clientes.*') ? 'active' : '' }}"
-           data-tour="clientes">
-            <span class="ic"><x-icon name="users" size="16" /></span>
-            <span>Clientes</span>
-        </a>
-
-        <a href="{{ route('veiculos.index') }}"
-           class="sb-link {{ request()->routeIs('veiculos.*') ? 'active' : '' }}">
-            <span class="ic"><x-icon name="car" size="16" /></span>
-            <span>Veículos</span>
-        </a>
-
-        <a href="{{ route('pecas.index') }}"
-           class="sb-link {{ request()->routeIs('pecas.*') ? 'active' : '' }}">
-            <span class="ic"><x-icon name="box" size="16" /></span>
-            <span>Peças & Estoque</span>
-        </a>
-
-        <a href="{{ route('mao-de-obra.index') }}"
-           class="sb-link {{ request()->routeIs('mao-de-obra.*') ? 'active' : '' }}">
-            <span class="ic"><x-icon name="wrench" size="16" /></span>
-            <span>Mão de Obra</span>
-        </a>
-
-        <a href="{{ route('catalogo-servicos.index') }}"
-           class="sb-link {{ request()->routeIs('catalogo-servicos.*') ? 'active' : '' }}">
-            <span class="ic"><x-icon name="layers" size="16" /></span>
-            <span>Catálogo de Serviços</span>
-        </a>
-
-        <a href="{{ route('funcionarios.index') }}"
-           class="sb-link {{ request()->routeIs('funcionarios.*') ? 'active' : '' }}">
-            <span class="ic"><x-icon name="user" size="16" /></span>
-            <span>Funcionários</span>
-        </a>
-
-        <a href="{{ route('parceiros.index') }}"
-           class="sb-link {{ request()->routeIs('parceiros.*') ? 'active' : '' }}">
-            <span class="ic"><x-icon name="users" size="16" /></span>
-            <span>Parceiros</span>
-        </a>
+        <button class="sb-section sb-toggle" data-group="cadastros">
+            <span>Cadastros</span>
+            <svg class="sb-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+        <div class="sb-group" id="sg-cadastros">
+            <a href="{{ route('clientes.index') }}"
+               class="sb-link {{ request()->routeIs('clientes.*') ? 'active' : '' }}"
+               data-tour="clientes">
+                <span class="ic"><x-icon name="users" size="16" /></span>
+                <span>Clientes</span>
+            </a>
+            <a href="{{ route('veiculos.index') }}"
+               class="sb-link {{ request()->routeIs('veiculos.*') ? 'active' : '' }}">
+                <span class="ic"><x-icon name="car" size="16" /></span>
+                <span>Veículos</span>
+            </a>
+            <a href="{{ route('pecas.index') }}"
+               class="sb-link {{ request()->routeIs('pecas.*') ? 'active' : '' }}">
+                <span class="ic"><x-icon name="box" size="16" /></span>
+                <span>Peças & Estoque</span>
+            </a>
+            <a href="{{ route('mao-de-obra.index') }}"
+               class="sb-link {{ request()->routeIs('mao-de-obra.*') ? 'active' : '' }}">
+                <span class="ic"><x-icon name="wrench" size="16" /></span>
+                <span>Mão de Obra</span>
+            </a>
+            <a href="{{ route('catalogo-servicos.index') }}"
+               class="sb-link {{ request()->routeIs('catalogo-servicos.*') ? 'active' : '' }}">
+                <span class="ic"><x-icon name="layers" size="16" /></span>
+                <span>Catálogo de Serviços</span>
+            </a>
+            <a href="{{ route('funcionarios.index') }}"
+               class="sb-link {{ request()->routeIs('funcionarios.*') ? 'active' : '' }}">
+                <span class="ic"><x-icon name="user" size="16" /></span>
+                <span>Funcionários</span>
+            </a>
+            <a href="{{ route('parceiros.index') }}"
+               class="sb-link {{ request()->routeIs('parceiros.*') ? 'active' : '' }}">
+                <span class="ic"><x-icon name="users" size="16" /></span>
+                <span>Parceiros</span>
+            </a>
+        </div>
         @endcan
 
         {{-- Seção: Financeiro --}}
         @can('acima_de_mecanico')
-        <div class="sb-section">Financeiro</div>
-
-        <a href="{{ route('caixa.index') }}"
-           class="sb-link {{ request()->routeIs('caixa.*') ? 'active' : '' }}">
-            <span class="ic"><x-icon name="cash" size="16" /></span>
-            <span>Caixa</span>
-        </a>
-
-        <a href="{{ route('financeiro.index') }}"
-           class="sb-link {{ request()->routeIs('financeiro.*') ? 'active' : '' }}"
-           data-tour="financeiro">
-            <span class="ic"><x-icon name="receipt" size="16" /></span>
-            <span>Lançamentos</span>
-        </a>
-
-        <a href="{{ route('comissoes.index') }}"
-           class="sb-link {{ request()->routeIs('comissoes.*') ? 'active' : '' }}">
-            <span class="ic"><x-icon name="hand-coins" size="16" /></span>
-            <span>Comissões</span>
-        </a>
-
-        <a href="{{ route('lembretes.index') }}"
-           class="sb-link {{ request()->routeIs('lembretes.*') ? 'active' : '' }}">
-            <span class="ic"><x-icon name="bell" size="16" /></span>
-            <span>Lembretes</span>
-        </a>
-
-        <a href="{{ route('relatorios.index') }}"
-           class="sb-link {{ request()->routeIs('relatorios.*') ? 'active' : '' }}">
-            <span class="ic"><x-icon name="chart" size="16" /></span>
-            <span>Relatórios</span>
-        </a>
+        <button class="sb-section sb-toggle" data-group="financeiro">
+            <span>Financeiro</span>
+            <svg class="sb-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+        <div class="sb-group" id="sg-financeiro">
+            <a href="{{ route('caixa.index') }}"
+               class="sb-link {{ request()->routeIs('caixa.*') ? 'active' : '' }}">
+                <span class="ic"><x-icon name="cash" size="16" /></span>
+                <span>Caixa</span>
+            </a>
+            <a href="{{ route('financeiro.index') }}"
+               class="sb-link {{ request()->routeIs('financeiro.*') ? 'active' : '' }}"
+               data-tour="financeiro">
+                <span class="ic"><x-icon name="receipt" size="16" /></span>
+                <span>Lançamentos</span>
+            </a>
+            <a href="{{ route('comissoes.index') }}"
+               class="sb-link {{ request()->routeIs('comissoes.*') ? 'active' : '' }}">
+                <span class="ic"><x-icon name="hand-coins" size="16" /></span>
+                <span>Comissões</span>
+            </a>
+            <a href="{{ route('lembretes.index') }}"
+               class="sb-link {{ request()->routeIs('lembretes.*') ? 'active' : '' }}">
+                <span class="ic"><x-icon name="bell" size="16" /></span>
+                <span>Lembretes</span>
+            </a>
+            <a href="{{ route('relatorios.index') }}"
+               class="sb-link {{ request()->routeIs('relatorios.*') ? 'active' : '' }}">
+                <span class="ic"><x-icon name="chart" size="16" /></span>
+                <span>Relatórios</span>
+            </a>
+        </div>
         @endcan
 
         {{-- Seção: Sistema --}}
-        <div class="sb-section">Sistema</div>
-
-        <a href="{{ route('perfil.edit') }}"
-           class="sb-link {{ request()->routeIs('perfil.*') ? 'active' : '' }}"
-           data-tour="perfil">
-            <span class="ic"><x-icon name="user" size="16" /></span>
-            <span>Meu Perfil</span>
-        </a>
-
-        <a href="{{ route('ajuda') }}"
-           class="sb-link {{ request()->routeIs('ajuda') ? 'active' : '' }}">
-            <span class="ic"><x-icon name="help" size="16" /></span>
-            <span>Ajuda</span>
-        </a>
-
-        @can('acima_de_mecanico')
-        <a href="{{ route('usuarios.index') }}"
-           class="sb-link {{ request()->routeIs('usuarios.*') ? 'active' : '' }}">
-            <span class="ic"><x-icon name="users" size="16" /></span>
-            <span>Usuários</span>
-        </a>
-
-        <a href="{{ route('configuracoes.index') }}"
-           class="sb-link {{ request()->routeIs('configuracoes.*') ? 'active' : '' }}">
-            <span class="ic"><x-icon name="settings" size="16" /></span>
-            <span>Configurações</span>
-        </a>
-
-        <a href="{{ route('assinatura') }}"
-           class="sb-link {{ request()->routeIs('assinatura') ? 'active' : '' }}">
-            <span class="ic"><x-icon name="credit-card" size="16" /></span>
-            <span>Assinatura</span>
-        </a>
-        @endcan
+        <button class="sb-section sb-toggle" data-group="sistema">
+            <span>Sistema</span>
+            <svg class="sb-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+        <div class="sb-group" id="sg-sistema">
+            <a href="{{ route('perfil.edit') }}"
+               class="sb-link {{ request()->routeIs('perfil.*') ? 'active' : '' }}"
+               data-tour="perfil">
+                <span class="ic"><x-icon name="user" size="16" /></span>
+                <span>Meu Perfil</span>
+            </a>
+            <a href="{{ route('ajuda') }}"
+               class="sb-link {{ request()->routeIs('ajuda') ? 'active' : '' }}">
+                <span class="ic"><x-icon name="help" size="16" /></span>
+                <span>Ajuda</span>
+            </a>
+            @can('acima_de_mecanico')
+            <a href="{{ route('usuarios.index') }}"
+               class="sb-link {{ request()->routeIs('usuarios.*') ? 'active' : '' }}">
+                <span class="ic"><x-icon name="users" size="16" /></span>
+                <span>Usuários</span>
+            </a>
+            <a href="{{ route('configuracoes.index') }}"
+               class="sb-link {{ request()->routeIs('configuracoes.*') ? 'active' : '' }}">
+                <span class="ic"><x-icon name="settings" size="16" /></span>
+                <span>Dados da Oficina</span>
+            </a>
+            <a href="{{ route('assinatura') }}"
+               class="sb-link {{ request()->routeIs('assinatura') ? 'active' : '' }}">
+                <span class="ic"><x-icon name="credit-card" size="16" /></span>
+                <span>Assinatura</span>
+            </a>
+            @endcan
+        </div>
 
     </nav>
 
@@ -204,3 +252,39 @@
     </div>
 
 </aside>
+
+<script>
+(function () {
+    var toggles = document.querySelectorAll('.sb-toggle[data-group]');
+
+    function getState() {
+        try { return JSON.parse(localStorage.getItem('sb_acc') || '{}'); } catch (e) { return {}; }
+    }
+    function saveState(state) {
+        try { localStorage.setItem('sb_acc', JSON.stringify(state)); } catch (e) {}
+    }
+
+    toggles.forEach(function (btn) {
+        var groupId = btn.dataset.group;
+        var group = document.getElementById('sg-' + groupId);
+        if (!group) return;
+
+        var hasActive = !!group.querySelector('.sb-link.active');
+        var state = getState();
+        var isOpen = hasActive ? true : (state[groupId] !== undefined ? state[groupId] : false);
+
+        if (!isOpen) {
+            group.classList.add('collapsed');
+            btn.classList.add('collapsed');
+        }
+
+        btn.addEventListener('click', function () {
+            var nowCollapsed = group.classList.toggle('collapsed');
+            btn.classList.toggle('collapsed', nowCollapsed);
+            var s = getState();
+            s[groupId] = !nowCollapsed;
+            saveState(s);
+        });
+    });
+}());
+</script>
