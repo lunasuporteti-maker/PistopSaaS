@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\OrdemServico;
 use App\Models\Orcamento;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OrdemServicoWebController extends Controller
 {
@@ -36,21 +37,51 @@ class OrdemServicoWebController extends Controller
 
     public function finalizar(Request $request, OrdemServico $ordem)
     {
+        // Idempotência: evita pagamento duplicado se a OS já foi finalizada
+        // (reenvio do form, corrida com a conclusão pelo Kanban, etc.)
+        if ($ordem->finalizado_em) {
+            return redirect()->route('ordens.show', $ordem)
+                ->with('info', 'Esta OS já foi finalizada.');
+        }
+
         $request->validate([
             'pagamentos'         => 'required|array|min:1',
             'pagamentos.*.forma' => 'required|string',
             'pagamentos.*.valor' => 'required|numeric|min:0.01',
         ]);
 
-        foreach ($request->pagamentos as $pag) {
-            $ordem->pagamentos()->create($pag);
-        }
+        DB::transaction(function () use ($request, $ordem) {
+            foreach ($request->pagamentos as $pag) {
+                $ordem->pagamentos()->create([
+                    'forma' => $pag['forma'],
+                    'valor' => $pag['valor'],
+                ]);
+            }
 
-        $ordem->update(['finalizado_em' => now()]);
+            // Mesma conclusão do Kanban: marca a OS como concluída de fato
+            $ordem->update([
+                'status'        => 'concluido',
+                'concluido_em'  => now(),
+                'finalizado_em' => now(),
+            ]);
 
-        if ($ordem->orcamento) {
-            $ordem->orcamento->update(['status' => 'concluido', 'concluido_em' => now()]);
-        }
+            // Baixa estoque das peças do orçamento, se ainda não foi feito
+            // (no fluxo normal o gerarOs já baixou — a guarda evita baixa dupla)
+            if ($ordem->pecas()->doesntExist() && $ordem->orcamento) {
+                foreach ($ordem->orcamento->pecas()->with('peca')->get() as $item) {
+                    $item->peca->decrement('quantidade', $item->quantidade);
+                    $ordem->pecas()->create([
+                        'peca_id'        => $item->peca_id,
+                        'quantidade'     => $item->quantidade,
+                        'preco_unitario' => $item->preco_unitario,
+                    ]);
+                }
+            }
+
+            if ($ordem->orcamento) {
+                $ordem->orcamento->update(['status' => 'concluido', 'concluido_em' => now()]);
+            }
+        });
 
         return redirect()->route('ordens.show', $ordem)
             ->with('success', 'OS finalizada com sucesso!')

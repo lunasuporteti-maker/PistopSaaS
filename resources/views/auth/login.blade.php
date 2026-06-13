@@ -255,8 +255,7 @@
 
     {{-- Footer --}}
     <div class="login-footer">
-        <p>Desenvolvido por <a href="#">IAQueAtende</a> · Jonathan Luna</p>
-        <p style="margin-top:4px">(81) 99811-4585</p>
+        <p>Desenvolvido por <a href="https://iaqueatende.com.br" target="_blank" rel="noopener">IAQueAtende</a></p>
     </div>
 
 </div>

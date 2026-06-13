@@ -221,13 +221,12 @@ document.addEventListener('click', function (e) {
 @stack('js')
 @stack('scripts')
 
-{{-- Tour de onboarding: exibido para admins novos que ainda não concluíram --}}
+{{-- Tour de onboarding: exibido para todo usuário no primeiro acesso (qualquer perfil) --}}
 @php
     $mostrarTour = auth()->check()
-        && auth()->user()->perfil === 'admin'
+        && ! auth()->user()->isSuperAdmin()
         && ! auth()->user()->onboarding_tour_completo
         && app()->bound('tenant')
-        && app('tenant')->created_at->diffInDays(now()) <= 7
         && request()->routeIs('dashboard');
 @endphp
 @if($mostrarTour)

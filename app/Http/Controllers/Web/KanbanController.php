@@ -129,6 +129,12 @@ class KanbanController extends Controller
                     ]);
                 }
             }
+
+            // Marca o orçamento como concluído (consistência com relatórios:
+            // tempo médio e conversão usam orcamento.concluido_em)
+            if ($os->orcamento) {
+                $os->orcamento->update(['status' => 'concluido', 'concluido_em' => now()]);
+            }
         });
 
         $orc      = $os->orcamento;

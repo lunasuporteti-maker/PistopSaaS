@@ -18,7 +18,9 @@ class AuthController extends Controller
             'device_name' => 'required|string|max:100',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        // Ignora o scope de tenant no login — o tenant é resolvido depois,
+        // pelo tenant_id do usuário autenticado via token (igual ao login web).
+        $user = User::withoutGlobalScope('tenant')->where('email', $request->email)->first();
 
         if (! $user) {
             throw ValidationException::withMessages([

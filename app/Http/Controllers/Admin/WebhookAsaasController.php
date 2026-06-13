@@ -15,10 +15,13 @@ class WebhookAsaasController extends Controller
 {
     public function handle(Request $request): JsonResponse
     {
-        // Autentica via header access_token (configurar no painel Asaas)
-        $token = config('services.asaas.webhook_token');
-        if ($token && $request->header('asaas-access-token') !== $token) {
-            Log::warning('[Asaas Webhook] Token inválido');
+        // Autentica via header access_token (configurar no painel Asaas).
+        // Falha FECHADA: sem token configurado, rejeita tudo — caso contrário
+        // qualquer um poderia forjar PAYMENT_CONFIRMED e ativar plano de graça.
+        $token   = config('services.asaas.webhook_token');
+        $enviado = (string) $request->header('asaas-access-token');
+        if (empty($token) || ! hash_equals($token, $enviado)) {
+            Log::warning('[Asaas Webhook] Token ausente ou inválido');
             return response()->json(['ok' => false], 401);
         }
 

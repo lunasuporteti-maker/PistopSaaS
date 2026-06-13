@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Jobs\NotificarAprovacaoJob;
 use App\Jobs\NotificarRejeicaoJob;
+use App\Models\Configuracao;
 use App\Models\Orcamento;
 use App\Models\OrcamentoInteracao;
 use App\Models\OrdemServico;
@@ -73,6 +74,10 @@ class AcompanhamentoPublicoController extends Controller
         $ordem = ['orcamento', 'aprovado', 'em_servico', 'concluido'];
         $posAtual = array_search($status, $ordem);
 
+        // Identidade da oficina (portal público — sem tenant bound, busca pelo tenant do orçamento)
+        $nomeOficina     = Configuracao::getForTenant($orcamento->tenant_id, 'nome_oficina', 'PitStop');
+        $telefoneOficina = Configuracao::getForTenant($orcamento->tenant_id, 'telefone_oficina', '');
+
         // Galeria de fotos (Story 2.6)
         $fotos = ServicoFoto::withoutGlobalScope('tenant')
             ->where('orcamento_id', $orcamento->id)
@@ -90,7 +95,7 @@ class AcompanhamentoPublicoController extends Controller
             ]);
 
         return response()
-            ->view('pitstop.acompanhamento', compact('orcamento', 'etapa', 'etapas', 'ordem', 'posAtual', 'token', 'fotos'))
+            ->view('pitstop.acompanhamento', compact('orcamento', 'etapa', 'etapas', 'ordem', 'posAtual', 'token', 'fotos', 'nomeOficina', 'telefoneOficina'))
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');

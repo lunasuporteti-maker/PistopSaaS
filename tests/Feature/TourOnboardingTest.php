@@ -43,26 +43,29 @@ class TourOnboardingTest extends TestCase
             ->assertDontSee('onboarding-tour.js');
     }
 
-    public function test_tour_nao_aparece_para_tenant_antigo(): void
+    public function test_tour_aparece_independente_da_idade_do_tenant(): void
     {
+        // O tour é por usuário (onboarding_tour_completo), não depende da
+        // idade do tenant — todo usuário vê no primeiro acesso.
         $this->tenant->forceFill(['created_at' => now()->subDays(10)])->save();
         $this->adminUser->update(['onboarding_tour_completo' => false]);
 
         $this->actingAs($this->adminUser)
             ->get('/dashboard')
             ->assertOk()
-            ->assertDontSee('onboarding-tour.js');
+            ->assertSee('onboarding-tour.js');
     }
 
-    public function test_tour_nao_aparece_para_gerente(): void
+    public function test_tour_aparece_para_gerente_no_primeiro_acesso(): void
     {
+        // Tour exibido para todos os perfis (não só admin) no primeiro login.
         $this->tenant->forceFill(['created_at' => now()])->save();
         $this->gerenteUser->update(['onboarding_tour_completo' => false]);
 
         $this->actingAs($this->gerenteUser)
             ->get('/dashboard')
             ->assertOk()
-            ->assertDontSee('onboarding-tour.js');
+            ->assertSee('onboarding-tour.js');
     }
 
     public function test_concluir_tour_salva_flag(): void

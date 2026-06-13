@@ -38,6 +38,18 @@
   var csrfToken  = document.querySelector('meta[name="csrf-token"]').content;
 
   function init() {
+    // Mantém apenas passos cujo elemento existe no DOM.
+    // Perfis diferentes (admin, gerente, operador) enxergam menus distintos,
+    // então o tour se adapta ao que cada usuário realmente vê.
+    steps = steps.filter(function (s) {
+      return document.querySelector(s.selector);
+    });
+
+    if (!steps.length) {
+      finish();
+      return;
+    }
+
     overlay = document.createElement('div');
     overlay.id = 'tour-overlay';
     document.body.appendChild(overlay);
@@ -118,8 +130,8 @@
   function finish() {
     // Remove elementos do DOM
     if (highlighted) highlighted.classList.remove('tour-highlight');
-    overlay.remove();
-    tooltip.remove();
+    if (overlay) overlay.remove();
+    if (tooltip) tooltip.remove();
 
     // Salva via AJAX
     fetch(concluirUrl, {

@@ -13,6 +13,13 @@ class IdentifyTenant
     {
         $user = auth()->user();
 
+        // Requisições de API (Bearer token): o guard sanctum ainda não rodou
+        // neste ponto da pilha. Resolvemos o usuário do token para pegar o
+        // tenant_id correto, em vez de cair no fallback (que vazaria entre tenants).
+        if (! $user && $request->bearerToken()) {
+            $user = auth('sanctum')->user();
+        }
+
         // Super admin não pertence a tenant — acesso irrestrito ao /admin
         if ($user && $user->isSuperAdmin()) {
             return $next($request);

@@ -84,8 +84,6 @@
         </div>
     </div>
 
-</div>
-
     {{-- Margem por OS --}}
     <div class="col-md-4 mb-4">
         <div class="card shadow-sm h-100" style="border-top:3px solid #f39c12">

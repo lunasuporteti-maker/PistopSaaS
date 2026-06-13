@@ -191,7 +191,9 @@ var MARCAS_CARRO = ['Agrale','BMW','BYD','Caoa Chery','Chevrolet','Chrysler','Ci
 var MARCAS_MOTO  = ['Bajaj','BMW Motorrad','CF Moto','Dafra','Haojue','Harley-Davidson','Honda','Kawasaki','KTM','Royal Enfield','Shineray','Suzuki','Traxx','Triumph','Yamaha'];
 
 // ── Modelos por marca ──────────────────────────────────────────────────────
-var MODELOS = {
+// Separados por tipo: carro e moto compartilham nomes de marca (Honda, Suzuki,
+// BMW, Yamaha...), então cada tipo tem seu próprio dicionário para não misturar.
+var MODELOS_CARRO = {
     'Chevrolet': ['Onix','Onix Plus','Tracker','Cruze','S10','Trailblazer','Spin','Montana','Prisma','Cobalt','Celta','Classic'],
     'Fiat':      ['Argo','Cronos','Mobi','Pulse','Fastback','Strada','Toro','Uno','Palio','Siena','Bravo','Punto','500','Ducato'],
     'Volkswagen':['Gol','Polo','Virtus','T-Cross','Nivus','Taos','Saveiro','Amarok','Fox','Voyage','Jetta','Passat','Tiguan'],
@@ -208,14 +210,16 @@ var MODELOS = {
     'Kia':       ['Sportage','Stinger','Sorento','Carnival','Cerato','Picanto','Soul','Niro'],
     'BMW':       ['116i','118i','120i','320i','328i','330i','520i','X1','X3','X5','X6','Z4','M3'],
     'Mercedes-Benz':['A 200','C 180','C 200','E 250','GLA 200','GLC 250','GLE 400','Sprinter'],
-    'Volkswagen':['Gol','Polo','Virtus','T-Cross','Nivus','Taos','Saveiro','Amarok'],
     'Subaru':    ['Impreza','Forester','Outback','XV','WRX','BRZ','Legacy'],
-    'Suzuki':    ['Jimny','Swift','S-Cross','Vitara','Grand Vitara','GSX-R750','GSX-S750','V-Strom 650'],
+    'Suzuki':    ['Jimny','Swift','S-Cross','Vitara','Grand Vitara'],
     'Land Rover':['Defender','Discovery','Discovery Sport','Range Rover','Evoque'],
     'BYD':       ['Dolphin','Seal','Han','Song Plus','Yuan Plus','Atto 3'],
-    // Motos
+};
+
+var MODELOS_MOTO = {
     'Honda':       ['Biz 110i','CG 160','CG 160 Fan','CG 160 Titan','CB 300R','CB 500F','CB 650R','CB 1000R','CBR 600RR','CBR 1000RR','PCX 150','XRE 300','NXR 160 Bros','Twister 250','Africa Twin'],
     'Yamaha':      ['YBR 150','Factor 150','Fazer 250','MT-03','MT-07','MT-09','R3','R1','XTZ 150 Crosser','XTZ 250 Lander','NMAX 160','Tenere 700'],
+    'Suzuki':      ['GSX-R750','GSX-S750','V-Strom 650','Hayabusa','GSX-S1000','DL 1000'],
     'Kawasaki':    ['Z300','Z400','Z650','Z900','Ninja 300','Ninja 400','Ninja 650','Ninja 1000','Versys 650','Versys 1000'],
     'Bajaj':       ['Pulsar 150','Pulsar 180','Pulsar 200NS','Pulsar RS200','Dominar 400'],
     'BMW Motorrad':['G 310 R','G 310 GS','F 750 GS','F 850 GS','R 1250 GS','S 1000 RR'],
@@ -233,9 +237,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function atualizarModelos() {
         var marca = selMarca ? selMarca.value : '';
+        var dict  = getTipoAtual() === 'moto' ? MODELOS_MOTO : MODELOS_CARRO;
         datalist.innerHTML = '';
-        if (marca && MODELOS[marca]) {
-            MODELOS[marca].forEach(function (m) {
+        if (marca && dict[marca]) {
+            dict[marca].forEach(function (m) {
                 var opt = document.createElement('option');
                 opt.value = m.toUpperCase();
                 datalist.appendChild(opt);

@@ -21,13 +21,20 @@ class BuscaController extends Controller
 
         $like = '%' . $q . '%';
 
-        $clientes = Cliente::where('nome', 'ilike', $like)
-            ->orWhere('telefone', 'ilike', $like)
-            ->orWhere('email', 'ilike', $like)
+        // IMPORTANTE: agrupar os OR num where(fn) para o global scope de tenant
+        // não ser anulado. Sem o agrupamento, "tenant_id = X AND a OR b" vira
+        // "(tenant_id = X AND a) OR b" e vaza registros de outros tenants.
+        $clientes = Cliente::where(function ($sq) use ($like) {
+                $sq->where('nome', 'ilike', $like)
+                   ->orWhere('telefone', 'ilike', $like)
+                   ->orWhere('email', 'ilike', $like);
+            })
             ->limit(10)->get();
 
-        $veiculos = Veiculo::where('placa', 'ilike', $like)
-            ->orWhere('modelo', 'ilike', $like)
+        $veiculos = Veiculo::where(function ($sq) use ($like) {
+                $sq->where('placa', 'ilike', $like)
+                   ->orWhere('modelo', 'ilike', $like);
+            })
             ->with('cliente')
             ->limit(10)->get();
 
@@ -35,10 +42,12 @@ class BuscaController extends Controller
             ->with(['cliente', 'veiculo'])
             ->limit(10)->get();
 
-        $orcamentos = Orcamento::where('id', is_numeric($q) ? (int) $q : 0)
-            ->orWhereHas('cliente', fn($sq) => $sq->where('nome', 'ilike', $like))
-            ->with(['cliente', 'veiculo'])
+        $orcamentos = Orcamento::where(function ($sq) use ($q, $like) {
+                $sq->where('id', is_numeric($q) ? (int) $q : 0)
+                   ->orWhereHas('cliente', fn($cq) => $cq->where('nome', 'ilike', $like));
+            })
             ->whereNotIn('status', ['concluido', 'cancelado'])
+            ->with(['cliente', 'veiculo'])
             ->limit(10)->get();
 
         $resultados = [

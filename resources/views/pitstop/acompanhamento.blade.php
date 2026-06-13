@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Acompanhe seu Serviço — AutoFix</title>
+    <title>Acompanhe seu Serviço — {{ $nomeOficina }}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
@@ -43,7 +43,7 @@
 
     <div class="logo-box">
         <div class="icon"><i class="fas fa-wrench"></i></div>
-        <h1>AutoFix</h1>
+        <h1>{{ $nomeOficina }}</h1>
         <p>Acompanhe o andamento do seu serviço</p>
     </div>
 
@@ -213,7 +213,7 @@
     </div>
 
     <div class="footer-txt">
-        <p>AutoFix · (84) 99672-2453 · AutoFix.atendimento@gmail.com</p>
+        <p>{{ $nomeOficina }}@if($telefoneOficina) · {{ $telefoneOficina }}@endif</p>
         <p style="margin-top:4px">Sistema desenvolvido por IAQueAtende</p>
         <p id="refresh-timer" style="margin-top:8px;color:rgba(255,255,255,.2);font-size:.7rem">
             Atualizando em <span id="countdown">30</span>s
