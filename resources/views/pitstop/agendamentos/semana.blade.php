@@ -97,6 +97,4 @@
     <span><span class="ag-chip cancelado d-inline-block" style="width:60px;text-align:center">Cancelado</span></span>
 </div>
 
-@endpush
-
 @endsection
