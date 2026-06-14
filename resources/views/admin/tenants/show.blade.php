@@ -281,4 +281,45 @@
     </div>
 </div>
 
+{{-- ── Zona de manutenção: reset de movimentação (super admin) ─────────── --}}
+<div class="adm-card mb-3" style="border:1px solid #f1aeb5;background:#fff8f8">
+    <div class="adm-card-title mb-2" style="color:#b02a37">
+        <i class="fas fa-triangle-exclamation mr-1"></i> Zona de manutenção — Resetar movimentação
+    </div>
+    <p style="font-size:.82rem;color:var(--adm-muted);margin-bottom:1rem">
+        Remove <strong>toda a movimentação</strong> desta oficina (orçamentos, ordens de serviço,
+        pagamentos, caixa, comissões, saídas, agendamentos, lembretes e fotos de serviço).
+        <strong>Preserva</strong> os cadastros: clientes, veículos, peças/estoque, serviços,
+        funcionários, fornecedores, configurações e usuários. Um backup é salvo no servidor antes de apagar.
+    </p>
+
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem 1.5rem;font-size:.8rem;margin-bottom:1rem">
+        @foreach($movimentacao as $label => $n)
+            <span style="color:var(--adm-muted)">{{ $label }}: <strong style="color:var(--adm-text,#212529)">{{ $n }}</strong></span>
+        @endforeach
+    </div>
+
+    @if($movimentacaoTotal === 0)
+        <div style="font-size:.82rem;color:#198754"><i class="fas fa-check-circle mr-1"></i> Não há movimentação para remover — a oficina já está limpa.</div>
+    @else
+        <form method="POST" action="{{ route('admin.tenants.reset-movimentacao', $tenant) }}"
+              onsubmit="return confirm('ATENÇÃO: isto vai apagar {{ $movimentacaoTotal }} registros de movimentação da oficina {{ $tenant->nome }}. Os cadastros serão mantidos. Deseja continuar?');">
+            @csrf
+            <label style="font-size:.8rem;display:block;margin-bottom:.35rem">
+                Para confirmar, digite o identificador da oficina:
+                <strong style="font-family:monospace">{{ $tenant->slug }}</strong>
+            </label>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
+                <input type="text" name="confirmacao_slug" autocomplete="off" required
+                       placeholder="{{ $tenant->slug }}"
+                       style="padding:.45rem .7rem;border:1px solid #ccc;border-radius:6px;font-family:monospace;font-size:.85rem;min-width:200px">
+                <button type="submit"
+                        style="padding:.45rem 1rem;background:#b02a37;color:#fff;border:none;border-radius:6px;font-size:.82rem;font-weight:600;cursor:pointer">
+                    <i class="fas fa-trash-can mr-1"></i> Apagar movimentação ({{ $movimentacaoTotal }})
+                </button>
+            </div>
+        </form>
+    @endif
+</div>
+
 @endsection

@@ -234,6 +234,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'super.admin'])->gro
     Route::post('/tenants/{tenant}/toggle-plano', [AdminTenantController::class, 'togglePlano'])->name('tenants.toggle-plano');
     Route::post('/tenants/{tenant}/toggle-ativo', [AdminTenantController::class, 'toggleAtivo'])->name('tenants.toggle-ativo');
     Route::post('/tenants/{tenant}/plano-desconto', [AdminTenantController::class, 'updatePlanoDesconto'])->name('tenants.plano-desconto');
+    Route::post('/tenants/{tenant}/reset-movimentacao', [AdminTenantController::class, 'resetMovimentacao'])->name('tenants.reset-movimentacao');
     // Conta do super admin
     Route::get('/conta', [\App\Http\Controllers\Admin\AdminContaController::class, 'edit'])->name('conta');
     Route::put('/conta/perfil', [\App\Http\Controllers\Admin\AdminContaController::class, 'updatePerfil'])->name('conta.perfil');

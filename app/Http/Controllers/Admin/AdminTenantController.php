@@ -9,8 +9,10 @@ use App\Models\User;
 use App\Models\Cliente;
 use App\Models\Veiculo;
 use App\Models\Orcamento;
+use App\Services\ResetMovimentacaoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -68,10 +70,43 @@ class AdminTenantController extends Controller
             ->orderBy('name')
             ->get();
 
+        // Prévia da movimentação que um reset removeria (apenas leitura)
+        $movimentacao      = app(ResetMovimentacaoService::class)->contar($tenant);
+        $movimentacaoTotal = array_sum($movimentacao);
+
         return view('admin.tenants.show', compact(
             'tenant', 'totalUsuarios', 'totalClientes', 'totalVeiculos',
-            'totalOrcamentos', 'totalOS', 'usuarios'
+            'totalOrcamentos', 'totalOS', 'usuarios',
+            'movimentacao', 'movimentacaoTotal'
         ));
+    }
+
+    /**
+     * Remove toda a movimentação (orçamentos, OS, pagamentos, caixa, agendamentos…)
+     * de uma oficina, preservando os cadastros. Restrito a super admin (grupo de rotas).
+     * Exige digitar o slug da oficina como confirmação.
+     */
+    public function resetMovimentacao(Request $request, Tenant $tenant, ResetMovimentacaoService $service): RedirectResponse
+    {
+        $request->validate([
+            'confirmacao_slug' => 'required|string',
+        ]);
+
+        if ($request->confirmacao_slug !== $tenant->slug) {
+            return back()->with('error', 'Confirmação inválida: o texto digitado não corresponde ao identificador da oficina.');
+        }
+
+        $resultado = $service->executar($tenant);
+
+        Log::warning('[Admin] Reset de movimentação executado', [
+            'tenant_id' => $tenant->id,
+            'tenant'    => $tenant->slug,
+            'por_user'  => $request->user()?->id,
+            'total'     => $resultado['total'],
+            'backup'    => $resultado['backup'],
+        ]);
+
+        return back()->with('success', "Movimentação removida: {$resultado['total']} registros apagados. Cadastros preservados. Backup salvo no servidor.");
     }
 
     /** Define a data final do trial do tenant */
