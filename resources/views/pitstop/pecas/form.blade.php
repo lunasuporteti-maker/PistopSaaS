@@ -19,6 +19,14 @@
                        value="{{ old('nome', $peca->nome) }}" required>
                 @error('nome')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
+            <div class="form-group">
+                <label>Especificações / Aplicações</label>
+                <textarea name="especificacoes" rows="3"
+                          class="form-control @error('especificacoes') is-invalid @enderror"
+                          placeholder="Ex.: VW CrossFox 1.6 8v, Polo Total Flex 1.6 8v, Gol 1.0 8v">{{ old('especificacoes', $peca->especificacoes) }}</textarea>
+                <small class="form-text text-muted">Em quais veículos/modelos esta peça serve. Opcional.</small>
+                @error('especificacoes')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
             <div class="row">
                 <div class="col-6">
                     <div class="form-group">

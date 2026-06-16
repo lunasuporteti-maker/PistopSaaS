@@ -12,7 +12,7 @@ class Peca extends Model
     use HasFactory, SoftDeletes, BelongsToTenant;
 
     protected $fillable = [
-        'tenant_id', 'is_example', 'nome', 'quantidade', 'preco_custo', 'preco_venda', 'estoque_minimo',
+        'tenant_id', 'is_example', 'nome', 'especificacoes', 'quantidade', 'preco_custo', 'preco_venda', 'estoque_minimo',
     ];
 
     protected $casts = [

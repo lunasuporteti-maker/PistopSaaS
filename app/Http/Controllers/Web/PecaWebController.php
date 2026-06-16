@@ -12,7 +12,9 @@ class PecaWebController extends Controller
     use ChecksTrialLimits;
     public function index(Request $request)
     {
-        $pecas = Peca::when($request->search, fn($q) => $q->where('nome', 'like', "%{$request->search}%"))
+        $pecas = Peca::when($request->search, fn($q) => $q->where(fn($s) => $s
+                ->where('nome', 'like', "%{$request->search}%")
+                ->orWhere('especificacoes', 'like', "%{$request->search}%")))
             ->when($request->estoque_baixo, fn($q) => $q->whereColumn('quantidade', '<=', 'estoque_minimo'))
             ->orderBy('nome')->paginate(20);
 
@@ -32,6 +34,7 @@ class PecaWebController extends Controller
 
         $data = $request->validate([
             'nome'           => 'required|string|max:200',
+            'especificacoes' => 'nullable|string|max:2000',
             'quantidade'     => 'nullable|integer|min:0',
             'preco_custo'    => 'nullable|numeric|min:0',
             'preco_venda'    => 'nullable|numeric|min:0',
@@ -56,6 +59,7 @@ class PecaWebController extends Controller
     {
         $data = $request->validate([
             'nome'           => 'required|string|max:200',
+            'especificacoes' => 'nullable|string|max:2000',
             'quantidade'     => 'nullable|integer|min:0',
             'preco_custo'    => 'nullable|numeric|min:0',
             'preco_venda'    => 'nullable|numeric|min:0',

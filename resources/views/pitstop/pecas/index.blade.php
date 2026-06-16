@@ -59,7 +59,14 @@
                 @forelse($pecas as $peca)
                 @php $baixo = $peca->quantidade <= $peca->estoque_minimo @endphp
                 <tr class="{{ $baixo ? 'bg-danger-subtle' : '' }}">
-                    <td class="pl-3 font-weight-600">{{ $peca->nome }}</td>
+                    <td class="pl-3 font-weight-600">
+                        {{ $peca->nome }}
+                        @if($peca->especificacoes)
+                        <small class="d-block text-muted font-weight-normal" style="font-size:.78rem">
+                            <i class="fas fa-car-side mr-1"></i>{{ $peca->especificacoes }}
+                        </small>
+                        @endif
+                    </td>
                     <td>
                         <span class="font-weight-700 {{ $baixo ? 'text-danger' : 'text-success' }}">
                             {{ $peca->quantidade }}
