@@ -64,7 +64,8 @@ class PdfController extends Controller
         $logoBase64 = $this->logoBase64();
 
         $pdf = Pdf::loadView('pitstop.pdf.orcamento', compact('orcamento', 'empresa', 'logoBase64'))
-            ->setPaper('a4', 'portrait');
+            ->setPaper('a4', 'portrait')
+            ->setOption('isFontSubsettingEnabled', true);
 
         return $pdf->download("orcamento-{$orcamento->id}.pdf");
     }
@@ -77,7 +78,8 @@ class PdfController extends Controller
         $logoBase64 = $this->logoBase64();
 
         $pdf = Pdf::loadView('pitstop.pdf.orcamento', compact('orcamento', 'empresa', 'logoBase64'))
-            ->setPaper('a4', 'portrait');
+            ->setPaper('a4', 'portrait')
+            ->setOption('isFontSubsettingEnabled', true);
 
         return $pdf->download("orcamento-{$orcamento->id}.pdf");
     }
@@ -89,7 +91,8 @@ class PdfController extends Controller
         $logoBase64 = $this->logoBase64();
 
         $pdf = Pdf::loadView('pitstop.pdf.ordem-servico', compact('ordem', 'empresa', 'logoBase64'))
-            ->setPaper('a4', 'portrait');
+            ->setPaper('a4', 'portrait')
+            ->setOption('isFontSubsettingEnabled', true);
 
         return $pdf->download("os-{$ordem->numero_os}.pdf");
     }

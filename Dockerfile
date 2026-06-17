@@ -47,6 +47,9 @@ COPY docker/supervisord.conf /etc/supervisord.conf
 # Configuração PHP
 COPY docker/php.ini /usr/local/etc/php/conf.d/pitstop.ini
 
+# Pool php-fpm (controle de memória — ondemand, limita processos)
+COPY docker/php-fpm-pool.conf /usr/local/etc/php-fpm.d/zz-pitstop.conf
+
 # Entrypoint (migrations + cache + supervisord)
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
