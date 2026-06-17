@@ -41,7 +41,9 @@ tr:nth-child(even) td { background: #fafafa; }
 
 <div class="header">
     <div style="display:flex;align-items:center">
-        <img src="{{ 'file://' . public_path('images/logo_autofix.png') }}" class="header-logo" alt="Logo">
+        @if(!empty($logoBase64))
+        <img src="{{ $logoBase64 }}" class="header-logo" alt="Logo">
+        @endif
         <div>
             <h1>{{ $empresa['nome'] }}</h1>
             <div class="sub">{{ $empresa['endereco'] }}</div>

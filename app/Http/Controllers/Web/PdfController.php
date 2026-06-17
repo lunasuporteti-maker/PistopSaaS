@@ -10,6 +10,28 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class PdfController extends Controller
 {
+    /**
+     * Lê o logo da oficina e devolve um data URI base64 para embutir no PDF.
+     * Retorna null se o arquivo não existir ou falhar — o PDF gera sem o logo
+     * em vez de quebrar (resiliência: nunca derruba a geração por causa da imagem).
+     */
+    private function logoBase64(): ?string
+    {
+        try {
+            $path = public_path('images/logo_autofix.png');
+            if (! is_file($path) || ! is_readable($path)) {
+                return null;
+            }
+            $conteudo = @file_get_contents($path);
+            if ($conteudo === false) {
+                return null;
+            }
+            return 'data:image/png;base64,' . base64_encode($conteudo);
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
     private function dadosEmpresa(): array
     {
         return [
@@ -39,8 +61,9 @@ class PdfController extends Controller
     {
         $orcamento->load(['cliente', 'veiculo', 'servicos', 'pecas.peca', 'maoDeObra.maoDeObra']);
         $empresa = $this->dadosEmpresa();
+        $logoBase64 = $this->logoBase64();
 
-        $pdf = Pdf::loadView('pitstop.pdf.orcamento', compact('orcamento', 'empresa'))
+        $pdf = Pdf::loadView('pitstop.pdf.orcamento', compact('orcamento', 'empresa', 'logoBase64'))
             ->setPaper('a4', 'portrait');
 
         return $pdf->download("orcamento-{$orcamento->id}.pdf");
@@ -51,8 +74,9 @@ class PdfController extends Controller
         $orcamento = Orcamento::where('token_publico', $token)->firstOrFail();
         $orcamento->load(['cliente', 'veiculo', 'servicos', 'pecas.peca', 'maoDeObra.maoDeObra']);
         $empresa = $this->dadosEmpresaParaTenant($orcamento->tenant_id);
+        $logoBase64 = $this->logoBase64();
 
-        $pdf = Pdf::loadView('pitstop.pdf.orcamento', compact('orcamento', 'empresa'))
+        $pdf = Pdf::loadView('pitstop.pdf.orcamento', compact('orcamento', 'empresa', 'logoBase64'))
             ->setPaper('a4', 'portrait');
 
         return $pdf->download("orcamento-{$orcamento->id}.pdf");
@@ -62,8 +86,9 @@ class PdfController extends Controller
     {
         $ordem->load(['cliente', 'veiculo', 'pecas.peca', 'pagamentos', 'orcamento.servicos']);
         $empresa = $this->dadosEmpresa();
+        $logoBase64 = $this->logoBase64();
 
-        $pdf = Pdf::loadView('pitstop.pdf.ordem-servico', compact('ordem', 'empresa'))
+        $pdf = Pdf::loadView('pitstop.pdf.ordem-servico', compact('ordem', 'empresa', 'logoBase64'))
             ->setPaper('a4', 'portrait');
 
         return $pdf->download("os-{$ordem->numero_os}.pdf");
