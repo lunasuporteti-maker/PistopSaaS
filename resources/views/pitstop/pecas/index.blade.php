@@ -18,12 +18,13 @@
 <div class="card shadow-sm">
     <div class="card-header py-2">
         <form method="GET" class="d-flex align-items-center flex-wrap" style="gap:8px">
-            <div class="input-group input-group-sm" style="max-width:280px">
+            <div class="input-group input-group-sm" style="max-width:320px">
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fas fa-search text-muted"></i></span>
                 </div>
-                <input type="text" name="search" class="form-control"
-                       placeholder="Nome da peça..."
+                <input type="text" name="search" id="buscaPeca" class="form-control"
+                       placeholder="Buscar por nome ou carro (ex.: Peugeot)..."
+                       autocomplete="off"
                        value="{{ request('search') }}">
             </div>
             <button class="btn btn-sm btn-danger">Buscar</button>
@@ -114,4 +115,29 @@
 <style>
 .bg-danger-subtle { background: #fef2f2 !important; }
 </style>
+@endpush
+
+@push('js')
+<script>
+(function () {
+    var input = document.getElementById('buscaPeca');
+    if (!input) return;
+    var form = input.form;
+
+    // Filtra ao digitar: envia a busca sozinho após uma pequena pausa (debounce).
+    var timer;
+    input.addEventListener('input', function () {
+        clearTimeout(timer);
+        timer = setTimeout(function () { form.submit(); }, 500);
+    });
+
+    // Após recarregar com busca, devolve o foco e põe o cursor no fim
+    // (pra continuar digitando sem perder o ritmo).
+    if (input.value) {
+        input.focus();
+        var fim = input.value.length;
+        input.setSelectionRange(fim, fim);
+    }
+})();
+</script>
 @endpush

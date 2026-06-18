@@ -12,9 +12,17 @@ class PecaWebController extends Controller
     use ChecksTrialLimits;
     public function index(Request $request)
     {
-        $pecas = Peca::when($request->search, fn($q) => $q->where(fn($s) => $s
-                ->where('nome', 'like', "%{$request->search}%")
-                ->orWhere('especificacoes', 'like', "%{$request->search}%")))
+        $busca = trim((string) $request->search);
+
+        $pecas = Peca::when($busca !== '', function ($q) use ($busca) {
+                // Busca insensivel a maiusc/minusc (portavel SQLite + PostgreSQL),
+                // procurando no nome E nas especificacoes (ex.: "peugeot" acha as pecas
+                // cadastradas para esses carros).
+                $termo = '%' . mb_strtolower($busca) . '%';
+                $q->where(fn($s) => $s
+                    ->whereRaw('LOWER(nome) LIKE ?', [$termo])
+                    ->orWhereRaw('LOWER(especificacoes) LIKE ?', [$termo]));
+            })
             ->when($request->estoque_baixo, fn($q) => $q->whereColumn('quantidade', '<=', 'estoque_minimo'))
             ->orderBy('nome')->paginate(20);
 
