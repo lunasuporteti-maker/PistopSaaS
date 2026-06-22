@@ -61,12 +61,13 @@
                            maxlength="120">
                 </div>
                 <div class="form-group">
-                    <label class="font-weight-600">CNPJ</label>
+                    <label class="font-weight-600">CNPJ (ou CPF)</label>
                     <input type="text" name="cnpj_oficina"
                            class="form-control"
                            value="{{ old('cnpj_oficina', $configs['cnpj_oficina']?->valor ?? '') }}"
-                           placeholder="00.000.000/0001-00"
+                           placeholder="CNPJ da oficina ou CPF do responsável"
                            maxlength="20">
+                    <small class="form-text text-muted">Se a oficina não tem CNPJ, preencha com o CPF. Necessário para emitir orçamentos e ativar a assinatura.</small>
                 </div>
                 <div class="form-group mb-0">
                     <label class="font-weight-600">Instagram</label>

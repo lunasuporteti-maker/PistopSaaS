@@ -124,6 +124,27 @@
                 </div>
             @endif
 
+            {{-- Aviso: CNPJ/CPF da oficina faltando (necessário p/ orçamentos e assinatura) --}}
+            @php
+                $__faltaCnpj = false;
+                if (app()->bound('tenant') && auth()->check() && !auth()->user()->isSuperAdmin()
+                    && auth()->user()->can('acima_de_mecanico')
+                    && !request()->routeIs('configuracoes.*', 'onboarding.*', 'logout')) {
+                    $__faltaCnpj = empty(trim((string) \App\Models\Configuracao::get('cnpj_oficina', '')));
+                }
+            @endphp
+            @if($__faltaCnpj)
+                <div class="alert alert-warning" role="alert">
+                    <x-icon name="alert" size="14" />
+                    <span>
+                        <strong>Complete os dados da sua oficina:</strong> falta o <strong>CNPJ</strong>,
+                        necessário para emitir orçamentos e ativar a assinatura.
+                        Se a oficina não tem CNPJ, preencha esse campo com o <strong>CPF</strong>.
+                        <a href="{{ route('configuracoes.index') }}" style="font-weight:600;text-decoration:underline;">Preencher agora</a>
+                    </span>
+                </div>
+            @endif
+
             {{-- Cabeçalho da página (opcional nas views) --}}
             @hasSection('content_header')
                 <div class="page-header">
