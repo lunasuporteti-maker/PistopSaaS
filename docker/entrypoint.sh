@@ -38,5 +38,11 @@ php artisan db:seed --force || echo "⚠️  seed ignorado (já executado)"
 # Cria link simbólico de storage (se não existir)
 php artisan storage:link 2>/dev/null || true
 
+# Garante que o www-data (usuario do php-fpm) seja dono das pastas graváveis.
+# As migrations/seeds/cache acima rodam como root e criam arquivos (ex.: laravel.log)
+# como root — sem este chown, o php-fpm nao consegue escrever no log e qualquer
+# Log::* estoura erro 500 (ex.: no webhook da Asaas).
+chown -R www-data:www-data storage bootstrap/cache
+
 # Inicia supervisord
 exec /usr/bin/supervisord -c /etc/supervisord.conf
