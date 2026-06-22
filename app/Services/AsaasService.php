@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Configuracao;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
@@ -36,19 +37,36 @@ class AsaasService
 
     public function createOrFetchCustomer(Tenant $tenant, User $adminUser): ?string
     {
+        // CPF/CNPJ da oficina — obrigatório na Asaas p/ criar assinatura/cobrança.
+        // Vem do cadastro "Dados da Oficina" (config 'cnpj_oficina'), só dígitos.
+        $cpfCnpj = '';
+        if ($tenant->id) {
+            $cpfCnpj = preg_replace('/\D/', '', (string) Configuracao::getForTenant((int) $tenant->id, 'cnpj_oficina', ''));
+        }
+
         // Verifica se já temos customer_id na subscription
         $subscription = $tenant->subscription;
         if ($subscription?->gateway_customer_id) {
+            // Garante que o customer existente tenha o CPF/CNPJ (necessário p/ assinatura)
+            if ($cpfCnpj !== '') {
+                $this->atualizarCustomerCpf($subscription->gateway_customer_id, $cpfCnpj);
+            }
+
             return $subscription->gateway_customer_id;
         }
 
         try {
+            $payload = [
+                'name' => $adminUser->name ?? $tenant->nome,
+                'email' => $adminUser->email,
+                'externalReference' => "tenant:{$tenant->slug}",
+            ];
+            if ($cpfCnpj !== '') {
+                $payload['cpfCnpj'] = $cpfCnpj;
+            }
+
             $response = Http::withHeaders(['access_token' => $this->apiKey])
-                ->post("{$this->baseUrl}/customers", [
-                    'name' => $adminUser->name ?? $tenant->nome,
-                    'email' => $adminUser->email,
-                    'externalReference' => "tenant:{$tenant->slug}",
-                ]);
+                ->post("{$this->baseUrl}/customers", $payload);
 
             if ($response->successful()) {
                 $customerId = $response->json('id');
@@ -66,6 +84,17 @@ class AsaasService
         return null;
     }
 
+    /** Atualiza o CPF/CNPJ de um customer já existente na Asaas (POST = update). */
+    private function atualizarCustomerCpf(string $customerId, string $cpfCnpj): void
+    {
+        try {
+            Http::withHeaders(['access_token' => $this->apiKey])
+                ->post("{$this->baseUrl}/customers/{$customerId}", ['cpfCnpj' => $cpfCnpj]);
+        } catch (\Throwable $e) {
+            Log::warning('[Asaas] Falha ao atualizar CPF do customer: '.$e->getMessage());
+        }
+    }
+
     public function createCheckoutUrl(Tenant $tenant, User $adminUser): ?string
     {
         if (! $this->isConfigured()) {
@@ -73,31 +102,62 @@ class AsaasService
         }
 
         $customerId = $this->createOrFetchCustomer($tenant, $adminUser);
+        if (! $customerId) {
+            return $this->fallbackUrl($tenant);
+        }
 
         try {
+            // Cria ASSINATURA recorrente mensal — a Asaas cobra automaticamente
+            // todo mês e o webhook (PAYMENT_CONFIRMED) renova o plano sozinho.
             $response = Http::withHeaders(['access_token' => $this->apiKey])
-                ->post("{$this->baseUrl}/payments", [
+                ->post("{$this->baseUrl}/subscriptions", [
                     'customer' => $customerId,
-                    'billingType' => 'UNDEFINED',
+                    'billingType' => 'UNDEFINED', // cliente escolhe Pix/boleto/cartão
                     'value' => $tenant->precoComDesconto(),
-                    'dueDate' => now()->addDay()->format('Y-m-d'),
-                    'description' => 'PitStop '.$tenant->nomePlano().' — acesso mensal completo',
+                    'nextDueDate' => now()->addDay()->format('Y-m-d'),
+                    'cycle' => 'MONTHLY',
+                    'description' => 'PitStop '.$tenant->nomePlano().' — assinatura mensal',
                     'externalReference' => "tenant:{$tenant->slug}:tier:{$tenant->tier()}",
                 ]);
 
             if ($response->successful()) {
                 $this->invalidarCachePagamentos($customerId);
 
-                return $response->json('invoiceUrl');
+                // Redireciona para o pagamento da 1ª cobrança da assinatura
+                $url = $this->primeiraCobrancaUrl($response->json('id'));
+                if ($url) {
+                    return $url;
+                }
             }
 
-            Log::warning('[Asaas] Falha ao criar payment', ['status' => $response->status()]);
+            Log::warning('[Asaas] Falha ao criar subscription', ['status' => $response->status(), 'body' => $response->body()]);
         } catch (\Throwable $e) {
-            Log::error('[Asaas] Erro ao criar payment: '.$e->getMessage());
+            Log::error('[Asaas] Erro ao criar subscription: '.$e->getMessage());
         }
 
         // Fallback para link fixo configurado no .env
         return $this->fallbackUrl($tenant);
+    }
+
+    /** URL de pagamento (invoiceUrl) da primeira cobrança de uma assinatura. */
+    private function primeiraCobrancaUrl(?string $subscriptionId): ?string
+    {
+        if (! $subscriptionId) {
+            return null;
+        }
+
+        try {
+            $response = Http::withHeaders(['access_token' => $this->apiKey])
+                ->get("{$this->baseUrl}/subscriptions/{$subscriptionId}/payments");
+
+            if ($response->successful()) {
+                return $response->json('data.0.invoiceUrl');
+            }
+        } catch (\Throwable $e) {
+            Log::error('[Asaas] Erro ao buscar cobrança da assinatura: '.$e->getMessage());
+        }
+
+        return null;
     }
 
     /**

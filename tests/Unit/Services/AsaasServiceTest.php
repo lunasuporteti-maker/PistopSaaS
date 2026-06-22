@@ -33,8 +33,10 @@ class AsaasServiceTest extends TestCase
     private function fakeAsaasOk(): void
     {
         Http::fake([
+            // mais específico primeiro: cobranças de uma assinatura
+            '*/subscriptions/*/payments' => Http::response(['data' => [['invoiceUrl' => 'https://sandbox.asaas.com/i/abc']]], 200),
             '*/customers' => Http::response(['id' => 'cus_123'], 200),
-            '*/payments' => Http::response(['invoiceUrl' => 'https://sandbox.asaas.com/i/abc'], 200),
+            '*/subscriptions' => Http::response(['id' => 'sub_123'], 200),
         ]);
     }
 
@@ -46,7 +48,9 @@ class AsaasServiceTest extends TestCase
         (new AsaasService)->createCheckoutUrl($this->tenant('pro'), $this->adminUser());
 
         Http::assertSent(function ($request) {
-            return str_contains($request->url(), '/payments') && $request['value'] === 99.90;
+            return str_contains($request->url(), '/subscriptions')
+                && ($request['value'] ?? null) === 99.90
+                && ($request['cycle'] ?? null) === 'MONTHLY';
         });
     }
 
@@ -58,7 +62,7 @@ class AsaasServiceTest extends TestCase
         (new AsaasService)->createCheckoutUrl($this->tenant('pro_max'), $this->adminUser());
 
         Http::assertSent(function ($request) {
-            return str_contains($request->url(), '/payments') && $request['value'] === 157.50;
+            return str_contains($request->url(), '/subscriptions') && ($request['value'] ?? null) === 157.50;
         });
     }
 
@@ -70,7 +74,7 @@ class AsaasServiceTest extends TestCase
         (new AsaasService)->createCheckoutUrl($this->tenant('pro_max', 20), $this->adminUser());
 
         Http::assertSent(function ($request) {
-            return str_contains($request->url(), '/payments') && $request['value'] === 126.00;
+            return str_contains($request->url(), '/subscriptions') && ($request['value'] ?? null) === 126.00;
         });
     }
 
@@ -99,7 +103,7 @@ class AsaasServiceTest extends TestCase
 
         Http::fake([
             '*/customers' => Http::response(['id' => 'cus_123'], 200),
-            '*/payments' => Http::response(['error' => 'fail'], 500),
+            '*/subscriptions' => Http::response(['error' => 'fail'], 500),
         ]);
 
         $url = (new AsaasService)->createCheckoutUrl($this->tenant('pro'), $this->adminUser());
