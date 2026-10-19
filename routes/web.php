@@ -130,6 +130,9 @@ Route::middleware(['auth', 'tenant', 'single.session', 'restrict.mecanico', 'che
     // Cadastros
     Route::resource('clientes', ClienteWebController::class);
     Route::get('clientes/{cliente}/ficha', [ClienteWebController::class, 'ficha'])->name('clientes.ficha');
+    // Busca interna por placa — DEVE vir antes do resource, senão
+    // veiculos/{veiculo} captura "buscar-placa" como id.
+    Route::get('veiculos/buscar-placa', [VeiculoWebController::class, 'buscarPlaca'])->name('veiculos.buscar-placa');
     Route::resource('veiculos', VeiculoWebController::class);
     Route::resource('pecas', PecaWebController::class);
     // Fotos do orçamento (PRD 02, Story 2.5)

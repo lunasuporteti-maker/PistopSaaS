@@ -7,9 +7,14 @@
         <h1 class="m-0 font-weight-bold"><i class="fas fa-car mr-2 text-danger"></i>Veículos e Motos</h1>
         <small class="text-muted">{{ $veiculos->total() }} cadastrado(s)</small>
     </div>
-    <a href="{{ route('veiculos.create') }}" class="btn btn-danger btn-sm px-3">
-        <i class="fas fa-plus mr-1"></i> Novo Veículo
-    </a>
+    <div>
+        <a href="{{ route('veiculos.buscar-placa') }}" class="btn btn-outline-danger btn-sm px-3 mr-1">
+            <i class="fas fa-search mr-1"></i> Buscar por placa
+        </a>
+        <a href="{{ route('veiculos.create') }}" class="btn btn-danger btn-sm px-3">
+            <i class="fas fa-plus mr-1"></i> Novo Veículo
+        </a>
+    </div>
 </div>
 @endsection
 

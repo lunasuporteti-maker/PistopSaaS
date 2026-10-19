@@ -52,6 +52,14 @@ class JsonController extends Controller
             'cor'        => 'nullable|string|max:30',
         ]);
 
+        // Normaliza a placa na gravação para que registros do modal rápido
+        // nunca mais entrem sujos (minúsculas/hífen/espaço). Mantém null
+        // quando não houver placa.
+        if (array_key_exists('placa', $data)) {
+            $normalizada   = Veiculo::normalizarPlaca($data['placa']);
+            $data['placa'] = $normalizada !== '' ? $normalizada : null;
+        }
+
         $veiculo = Veiculo::create($data);
 
         return response()->json($veiculo);

@@ -31,9 +31,18 @@ class BuscaController extends Controller
             })
             ->limit(10)->get();
 
-        $veiculos = Veiculo::where(function ($sq) use ($like) {
-                $sq->where('placa', 'ilike', $like)
-                   ->orWhere('modelo', 'ilike', $like);
+        // Placa: scope portável (UPPER/REPLACE) em vez de ilike, para achar
+        // o veículo digitando ABC-1234 / abc1234 igual em Postgres e SQLite.
+        // Demais campos seguem com ilike (fora do escopo desta story).
+        $placaNormalizada = Veiculo::normalizarPlaca($q);
+        $veiculos = Veiculo::where(function ($sq) use ($like, $placaNormalizada) {
+                if ($placaNormalizada !== '') {
+                    $sq->orWhereRaw(
+                        Veiculo::exprPlacaNormalizada() . ' LIKE ?',
+                        ['%' . $placaNormalizada . '%']
+                    );
+                }
+                $sq->orWhere('modelo', 'ilike', $like);
             })
             ->with('cliente')
             ->limit(10)->get();

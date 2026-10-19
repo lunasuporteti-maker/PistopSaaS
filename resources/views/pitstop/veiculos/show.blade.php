@@ -90,6 +90,29 @@
                 </table>
             </div>
         </div>
+
+        <div class="card">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-file-invoice-dollar mr-1"></i> Orçamentos</h3></div>
+            <div class="card-body p-0">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="thead-light">
+                        <tr><th>Nº</th><th>Valor</th><th>Data</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        @forelse($veiculo->orcamentos as $orc)
+                        <tr>
+                            <td><a href="{{ route('orcamentos.show', $orc) }}">#{{ $orc->id }}</a></td>
+                            <td>R$ {{ number_format($orc->valor_total, 2, ',', '.') }}</td>
+                            <td>{{ $orc->created_at->format('d/m/Y') }}</td>
+                            <td><span class="badge badge-secondary">{{ ucfirst(str_replace('_', ' ', $orc->status ?? '—')) }}</span></td>
+                        </tr>
+                        @empty
+                        <tr><td colspan="4" class="text-center text-muted py-3">Nenhum orçamento.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
