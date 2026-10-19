@@ -42,20 +42,29 @@
 <aside class="sidebar" id="mainSidebar">
 
     {{-- ── Logo ──────────────────────────────────────────────── --}}
+    @php($logoOficina = \App\Models\Configuracao::get('logo_path'))
     <div class="sb-brand">
         <a href="{{ route('dashboard') }}" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;">
-            <svg width="22" height="22" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-                <circle cx="16" cy="16" r="13" stroke="#fff" stroke-width="2"/>
-                <rect x="15" y="1" width="2" height="4" rx="0.5" fill="#fff"/>
-                <path d="M16 16 L16 5 A 11 11 0 0 1 27 16 Z" fill="var(--brand-500)"/>
-                <circle cx="16" cy="16" r="2" fill="#fff"/>
-            </svg>
-            <div style="display:flex;flex-direction:column;gap:1px;">
-                <span class="wordmark" style="font-weight:700;font-size:15px;letter-spacing:-0.02em;color:#fff;line-height:1;">
-                    pit<span style="color:var(--brand-400)">stop</span>
-                </span>
-                <span class="sb-version">v1.0</span>
-            </div>
+            @if ($logoOficina)
+                {{-- Logo que a própria oficina subiu no onboarding (white-label) --}}
+                <img src="{{ $logoOficina }}"
+                     alt="{{ optional(app('tenant'))->nome ?? 'Oficina' }}"
+                     style="max-height:34px;max-width:160px;width:auto;object-fit:contain;" />
+            @else
+                {{-- Fallback: marca PitStop --}}
+                <svg width="22" height="22" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <circle cx="16" cy="16" r="13" stroke="#fff" stroke-width="2"/>
+                    <rect x="15" y="1" width="2" height="4" rx="0.5" fill="#fff"/>
+                    <path d="M16 16 L16 5 A 11 11 0 0 1 27 16 Z" fill="var(--brand-500)"/>
+                    <circle cx="16" cy="16" r="2" fill="#fff"/>
+                </svg>
+                <div style="display:flex;flex-direction:column;gap:1px;">
+                    <span class="wordmark" style="font-weight:700;font-size:15px;letter-spacing:-0.02em;color:#fff;line-height:1;">
+                        pit<span style="color:var(--brand-400)">stop</span>
+                    </span>
+                    <span class="sb-version">v1.0</span>
+                </div>
+            @endif
         </a>
     </div>
 

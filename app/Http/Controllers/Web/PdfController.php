@@ -8,6 +8,7 @@ use App\Models\Orcamento;
 use App\Models\OrdemServico;
 use App\Models\Tenant;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
 class PdfController extends Controller
 {
@@ -15,28 +16,78 @@ class PdfController extends Controller
     private const COR_PADRAO = '#475569';
 
     /**
-     * Lê o logo da oficina (por slug do tenant) e devolve um data URI base64.
-     * Convenção: public/images/logos/{slug}.png. Retorna null se não existir —
-     * o PDF gera sem o logo em vez de quebrar (multi-tenant: cada oficina o seu).
+     * Lê o logo da oficina e devolve um data URI base64 para embutir no PDF.
+     *
+     * Preferência: a logo que a própria oficina subiu no onboarding
+     * (Configuracao 'logo_path', salva via Storage::url no disco 'public').
+     * Fallback legado: public/images/logos/{slug}.png. Retorna null se não
+     * houver — o PDF gera sem logo em vez de quebrar (multi-tenant: cada
+     * oficina a sua). Em rota pública (sem tenant no container) passe $tenantId.
      */
-    private function logoBase64(?string $slug): ?string
+    private function logoBase64(?string $slug, ?int $tenantId = null): ?string
     {
         try {
-            if (! $slug) {
-                return null;
+            // 1) Logo self-service do onboarding (por tenant)
+            $logoUrl = $tenantId
+                ? Configuracao::getForTenant($tenantId, 'logo_path')
+                : Configuracao::get('logo_path');
+
+            $data = $this->logoDataUriDoStorage($logoUrl);
+            if ($data !== null) {
+                return $data;
             }
-            $path = public_path("images/logos/{$slug}.png");
-            if (! is_file($path) || ! is_readable($path)) {
-                return null;
+
+            // 2) Fallback legado: arquivo fixo public/images/logos/{slug}.png
+            if ($slug) {
+                $path = public_path("images/logos/{$slug}.png");
+                if (is_file($path) && is_readable($path)) {
+                    $conteudo = @file_get_contents($path);
+                    if ($conteudo !== false) {
+                        return 'data:image/png;base64,' . base64_encode($conteudo);
+                    }
+                }
             }
-            $conteudo = @file_get_contents($path);
-            if ($conteudo === false) {
-                return null;
-            }
-            return 'data:image/png;base64,' . base64_encode($conteudo);
+
+            return null;
         } catch (\Throwable $e) {
             return null;
         }
+    }
+
+    /**
+     * Converte uma URL de logo salva via Storage::url (ex.:
+     * /storage/tenants/{slug}/arquivo.png) no disco 'public' em data URI base64.
+     * Null se vazia, fora do disco ou inexistente.
+     */
+    private function logoDataUriDoStorage(?string $logoUrl): ?string
+    {
+        if (empty($logoUrl)) {
+            return null;
+        }
+
+        $marcador = '/storage/';
+        $pos = strpos($logoUrl, $marcador);
+        if ($pos === false) {
+            return null;
+        }
+
+        $relativo = ltrim(substr($logoUrl, $pos + strlen($marcador)), '/');
+        if ($relativo === '' || str_contains($relativo, '..')) {
+            return null;
+        }
+
+        $disk = Storage::disk('public');
+        if (! $disk->exists($relativo)) {
+            return null;
+        }
+
+        $conteudo = $disk->get($relativo);
+        if ($conteudo === null || $conteudo === '') {
+            return null;
+        }
+
+        $mime = $disk->mimeType($relativo) ?: 'image/png';
+        return 'data:' . $mime . ';base64,' . base64_encode($conteudo);
     }
 
     /** Slug do tenant atual (rotas autenticadas), ou null se indisponível. */
@@ -92,7 +143,7 @@ class PdfController extends Controller
         $orcamento = Orcamento::where('token_publico', $token)->firstOrFail();
         $orcamento->load(['cliente', 'veiculo', 'servicos', 'pecas.peca', 'maoDeObra.maoDeObra']);
         $empresa = $this->dadosEmpresaParaTenant($orcamento->tenant_id);
-        $logoBase64 = $this->logoBase64(optional(Tenant::find($orcamento->tenant_id))->slug);
+        $logoBase64 = $this->logoBase64(optional(Tenant::find($orcamento->tenant_id))->slug, $orcamento->tenant_id);
 
         $pdf = Pdf::loadView('pitstop.pdf.orcamento', compact('orcamento', 'empresa', 'logoBase64'))
             ->setPaper('a4', 'portrait')
