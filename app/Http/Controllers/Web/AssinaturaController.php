@@ -16,6 +16,10 @@ class AssinaturaController extends Controller
 {
     public function index()
     {
+        if (! app()->bound('tenant')) {
+            return redirect()->route('dashboard');
+        }
+
         $tenant = app('tenant');
         $service = app(TrialLimitService::class);
 

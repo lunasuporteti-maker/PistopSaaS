@@ -18,7 +18,7 @@ class KanbanController extends Controller
 
     private function mensagens(): array
     {
-        $nome = app('tenant')->nome ?? 'Oficina';
+        $nome = (app()->bound('tenant') ? app('tenant')->nome : null) ?? 'Oficina';
         return [
             'aprovado'   => "Olá {nome}! Ótima notícia! O serviço do seu *{veiculo}* foi *aprovado*. Vamos iniciar em breve.\n\nAcompanhe em tempo real:\n{link}\n\n_{$nome}_",
             'em_servico' => "Olá {nome}! Seu *{veiculo}* está na oficina e o serviço está *em andamento* aqui na *{$nome}*.\n\nAcompanhe:\n{link}\n\n_{$nome}_",
@@ -143,7 +143,7 @@ class KanbanController extends Controller
         $telefone = preg_replace('/\D/', '', $cliente?->telefone ?? '');
         $nomeVeic = trim(($veiculo?->marca ?? '') . ' ' . ($veiculo?->modelo ?? ''));
         $valor    = 'R$ ' . number_format($os->valor_total, 2, ',', '.');
-        $nomeTenant = app('tenant')->nome ?? 'Oficina';
+        $nomeTenant = (app()->bound('tenant') ? app('tenant')->nome : null) ?? 'Oficina';
 
         $waMsg = "Olá {$cliente?->nome}! O serviço do seu {$nomeVeic} foi concluído aqui na {$nomeTenant}.\n"
                . "OS: {$os->numero_os} — Total: {$valor}\n"

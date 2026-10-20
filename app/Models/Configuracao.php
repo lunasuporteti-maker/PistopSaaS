@@ -16,7 +16,7 @@ class Configuracao extends Model
 
     public static function get(string $chave, string $default = ''): string
     {
-        $tenantId = app('tenant')?->id ?? 0;
+        $tenantId = (app()->bound('tenant') ? app('tenant')?->id : null) ?? 0;
         return Cache::remember("config_{$tenantId}_{$chave}", 300, function () use ($chave, $default) {
             return static::where('chave', $chave)->value('valor') ?? $default;
         });
@@ -35,7 +35,7 @@ class Configuracao extends Model
     public static function set(string $chave, string $valor): void
     {
         static::updateOrCreate(['chave' => $chave], ['valor' => $valor]);
-        $tenantId = app('tenant')?->id ?? 0;
+        $tenantId = (app()->bound('tenant') ? app('tenant')?->id : null) ?? 0;
         Cache::forget("config_{$tenantId}_{$chave}");
     }
 }

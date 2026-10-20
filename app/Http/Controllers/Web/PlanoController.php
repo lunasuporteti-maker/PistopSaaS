@@ -19,6 +19,10 @@ class PlanoController extends Controller
 
     public function checkout(\Illuminate\Http\Request $request): \Illuminate\Http\RedirectResponse
     {
+        if (! app()->bound('tenant')) {
+            return redirect()->route('dashboard');
+        }
+
         $tenant  = app('tenant');
         $user    = auth()->user();
         $service = app(AsaasService::class);

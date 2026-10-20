@@ -101,7 +101,7 @@
                 $nomeCliente = $orc->cliente->nome ?? 'Cliente';
                 $nomeVeiculo = trim(($orc->veiculo->marca ?? '') . ' ' . ($orc->veiculo->modelo ?? ''));
                 $telefone    = preg_replace('/\D/', '', $orc->cliente->telefone ?? '');
-                $nomeOficina = app('tenant')->nome ?? 'Oficina';
+                $nomeOficina = (app()->bound('tenant') ? app('tenant')->nome : null) ?? 'Oficina';
                 $valorOrc    = 'R$ ' . number_format($orc->valor_total, 2, ',', '.');
                 $linkOrc     = $orc->token_publico ? url('/acompanhar/' . $orc->token_publico) : null;
                 $msgOrc      = "Olá {$nomeCliente}! O orçamento do seu *{$nomeVeiculo}* está pronto.\n\n"
