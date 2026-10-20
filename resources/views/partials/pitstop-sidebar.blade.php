@@ -42,7 +42,7 @@
 <aside class="sidebar" id="mainSidebar">
 
     {{-- ── Logo ──────────────────────────────────────────────── --}}
-    @php($logoOficina = \App\Models\Configuracao::get('logo_path'))
+    @php($logoOficina = app()->bound('tenant') ? \App\Models\Configuracao::get('logo_path') : null)
     <div class="sb-brand">
         <a href="{{ route('dashboard') }}" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;">
             @if ($logoOficina)
