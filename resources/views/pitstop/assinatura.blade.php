@@ -124,7 +124,7 @@
                     <h4 class="mt-2 font-weight-bold text-danger">Trial Expirado</h4>
                     <p class="text-muted mb-3">Seu período gratuito encerrou.</p>
                     <a href="{{ route('assine') }}" class="btn btn-danger btn-block">
-                        <i class="fas fa-bolt mr-1"></i> Assinar Plano Pro — R$99,90/mês
+                        <i class="fas fa-bolt mr-1"></i> Assinar Plano Pro — R$127,00/mês
                     </a>
                 @endif
 

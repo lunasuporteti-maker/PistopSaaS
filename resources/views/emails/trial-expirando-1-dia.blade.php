@@ -9,7 +9,7 @@
     <p style="margin:24px 0;">
         <a href="{{ url('/assine') }}"
            style="background:#dc2626;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;">
-            Assinar agora — R$99,90/mês →
+            Assinar agora — R$127,00/mês →
         </a>
     </p>
     <p style="color:#666;font-size:13px;">Dúvidas? Responda este email.</p>

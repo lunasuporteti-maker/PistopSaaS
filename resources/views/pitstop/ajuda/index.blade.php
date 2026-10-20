@@ -110,7 +110,7 @@
 
         <div class="ajuda-item" data-tags="trial período gratuito plano dias">
             <h6 class="font-weight-bold"><i class="fas fa-hourglass-half text-info mr-2"></i>Como funciona o trial gratuito?</h6>
-            <p>Você tem <strong>30 dias gratuitos</strong> com acesso a todas as funcionalidades (com alguns limites de quantidade).
+            <p>Você tem <strong>14 dias gratuitos</strong> com acesso a todas as funcionalidades (com alguns limites de quantidade).
             Ao final do trial, o acesso entra em modo de leitura até você assinar um plano.
             Durante o trial: até 10 clientes, 20 veículos, 15 orçamentos, 2 usuários e 20 peças.</p>
         </div>
@@ -334,8 +334,8 @@
             <h6 class="font-weight-bold"><i class="fas fa-star text-warning mr-2"></i>Quais são os planos disponíveis?</h6>
             <div style="font-size:.875rem;color:#555">
                 <ul class="mb-0 pl-3">
-                    <li class="mb-2"><strong>Plano Pro — R$ 99,90/mês</strong>: todos os módulos, até 6 usuários, até 5 fotos por orçamento.</li>
-                    <li><strong>Plano Pro Max — R$ 157,50/mês</strong>: tudo do Pro + até 10 usuários.</li>
+                    <li class="mb-2"><strong>Plano Pro — R$ 127,00/mês</strong>: todos os módulos, até 6 usuários, até 5 fotos por orçamento.</li>
+                    <li><strong>Plano Pro Max — R$ 227,00/mês</strong>: tudo do Pro + até 10 usuários.</li>
                 </ul>
                 <p class="mt-2 mb-0">O pagamento é mensal via Pix ou boleto pela plataforma Asaas.</p>
             </div>

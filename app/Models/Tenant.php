@@ -27,8 +27,8 @@ class Tenant extends Model
 
     // Preços base por tier
     public const PRECOS = [
-        'pro' => 99.90,
-        'pro_max' => 157.50,
+        'pro' => 127.00,
+        'pro_max' => 227.00,
     ];
 
     public const NOMES_PLANO = [

@@ -40,7 +40,7 @@ class AsaasServiceTest extends TestCase
         ]);
     }
 
-    public function test_pro_sem_desconto_envia_value_99_90(): void
+    public function test_pro_sem_desconto_envia_value_127_00(): void
     {
         config(['services.asaas.api_key' => 'fake-key']);
         $this->fakeAsaasOk();
@@ -49,12 +49,12 @@ class AsaasServiceTest extends TestCase
 
         Http::assertSent(function ($request) {
             return str_contains($request->url(), '/subscriptions')
-                && ($request['value'] ?? null) === 99.90
+                && ($request['value'] ?? null) === 127.00
                 && ($request['cycle'] ?? null) === 'MONTHLY';
         });
     }
 
-    public function test_pro_max_sem_desconto_envia_value_157_50(): void
+    public function test_pro_max_sem_desconto_envia_value_227_00(): void
     {
         config(['services.asaas.api_key' => 'fake-key']);
         $this->fakeAsaasOk();
@@ -62,11 +62,11 @@ class AsaasServiceTest extends TestCase
         (new AsaasService)->createCheckoutUrl($this->tenant('pro_max'), $this->adminUser());
 
         Http::assertSent(function ($request) {
-            return str_contains($request->url(), '/subscriptions') && ($request['value'] ?? null) === 157.50;
+            return str_contains($request->url(), '/subscriptions') && ($request['value'] ?? null) === 227.00;
         });
     }
 
-    public function test_pro_max_com_20_porcento_envia_value_126_00(): void
+    public function test_pro_max_com_20_porcento_envia_value_181_60(): void
     {
         config(['services.asaas.api_key' => 'fake-key']);
         $this->fakeAsaasOk();
@@ -74,7 +74,7 @@ class AsaasServiceTest extends TestCase
         (new AsaasService)->createCheckoutUrl($this->tenant('pro_max', 20), $this->adminUser());
 
         Http::assertSent(function ($request) {
-            return str_contains($request->url(), '/subscriptions') && ($request['value'] ?? null) === 126.00;
+            return str_contains($request->url(), '/subscriptions') && ($request['value'] ?? null) === 181.60;
         });
     }
 

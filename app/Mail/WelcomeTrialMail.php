@@ -39,7 +39,7 @@ class WelcomeTrialMail extends Mailable
                 'login'        => $this->user->username,
                 'loginUrl'     => $appUrl . '/login',
                 'trialFim'     => $trialFim,
-                'diasTrial'    => (int) config('pitstop.signup.trial_dias', 30),
+                'diasTrial'    => (int) config('pitstop.signup.trial_dias', 14),
             ],
         );
     }

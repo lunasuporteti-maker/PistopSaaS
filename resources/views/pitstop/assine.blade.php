@@ -53,10 +53,10 @@
                 <h5 class="m-0 font-weight-bold text-white">Plano Pro</h5>
                 <div class="mt-2 text-white" style="font-size:2.2rem;font-weight:800;line-height:1">
                     @if($tenant && $desconto > 0 && $tenant->tier() === 'pro')
-                        <span style="font-size:1rem;text-decoration:line-through;opacity:.5">R$ 99,90</span><br>
+                        <span style="font-size:1rem;text-decoration:line-through;opacity:.5">R$ 127,00</span><br>
                         R$ {{ number_format($tenant->precoComDesconto(), 2, ',', '.') }}
                     @else
-                        R$ 99,90
+                        R$ 127,00
                     @endif
                     <span style="font-size:.9rem;font-weight:400;opacity:.8">/mês</span>
                 </div>
@@ -83,7 +83,7 @@
                     @csrf
                     <input type="hidden" name="plano_tier" value="pro">
                     <button type="submit" class="btn btn-block btn-lg" style="background:#2d3748;color:#fff;border:1px solid #718096">
-                        <i class="fas fa-bolt mr-1"></i> Assinar Pro — R$99,90/mês
+                        <i class="fas fa-bolt mr-1"></i> Assinar Pro — R$127,00/mês
                     </button>
                 </form>
                 @else
@@ -108,10 +108,10 @@
                 <h5 class="m-0 font-weight-bold text-white">Plano Pro Max</h5>
                 <div class="mt-2 text-white" style="font-size:2.2rem;font-weight:800;line-height:1">
                     @if($tenant && $desconto > 0 && $tenant->tier() === 'pro_max')
-                        <span style="font-size:1rem;text-decoration:line-through;opacity:.5">R$ 157,50</span><br>
+                        <span style="font-size:1rem;text-decoration:line-through;opacity:.5">R$ 227,00</span><br>
                         R$ {{ number_format($tenant->precoComDesconto(), 2, ',', '.') }}
                     @else
-                        R$ 157,50
+                        R$ 227,00
                     @endif
                     <span style="font-size:.9rem;font-weight:400;opacity:.8">/mês</span>
                 </div>
@@ -133,7 +133,7 @@
                     @csrf
                     <input type="hidden" name="plano_tier" value="pro_max">
                     <button type="submit" class="btn btn-danger btn-block btn-lg">
-                        <i class="fas fa-bolt mr-1"></i> Assinar Pro Max — R$157,50/mês
+                        <i class="fas fa-bolt mr-1"></i> Assinar Pro Max — R$227,00/mês
                     </button>
                 </form>
                 @else

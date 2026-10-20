@@ -166,8 +166,8 @@
                     <label style="font-size:.72rem;color:var(--adm-muted)">Tier do plano</label>
                     <select name="plano_tier" class="form-control form-control-sm"
                             style="background:#1a1d27;border-color:var(--adm-border);color:var(--adm-text)">
-                        <option value="pro"     {{ $tenant->tier() === 'pro'     ? 'selected' : '' }}>Plano Pro — R$ 99,90/mês</option>
-                        <option value="pro_max" {{ $tenant->tier() === 'pro_max' ? 'selected' : '' }}>Plano Pro Max — R$ 157,50/mês (fotos)</option>
+                        <option value="pro"     {{ $tenant->tier() === 'pro'     ? 'selected' : '' }}>Plano Pro — R$ 127,00/mês</option>
+                        <option value="pro_max" {{ $tenant->tier() === 'pro_max' ? 'selected' : '' }}>Plano Pro Max — R$ 227,00/mês (fotos)</option>
                     </select>
                 </div>
                 <div class="form-group mb-2">

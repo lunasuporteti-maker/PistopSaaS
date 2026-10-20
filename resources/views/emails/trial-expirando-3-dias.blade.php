@@ -5,7 +5,7 @@
     <p>Olá, <strong>{{ $tenant->nome }}</strong>!</p>
     <p>Seu período de teste gratuito do <strong>PitStop</strong> expira em <strong>3 dias</strong>
        ({{ $tenant->trial_ends_at->format('d/m/Y') }}).</p>
-    <p>Para continuar usando o sistema sem interrupção, assine agora por <strong>R$99,90/mês</strong>.</p>
+    <p>Para continuar usando o sistema sem interrupção, assine agora por <strong>R$127,00/mês</strong>.</p>
     <p style="margin:24px 0;">
         <a href="{{ url('/assine') }}"
            style="background:#2563eb;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;">

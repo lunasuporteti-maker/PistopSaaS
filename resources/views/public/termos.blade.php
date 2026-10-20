@@ -60,7 +60,7 @@
 
     <h2>3. Planos e Pagamento</h2>
     <ul>
-        <li>O trial gratuito tem duração de 30 dias e limites de uso definidos em nossa página de planos.</li>
+        <li>O trial gratuito tem duração de 14 dias e limites de uso definidos em nossa página de planos.</li>
         <li>Após o trial, é necessário assinar um plano para manter o acesso completo.</li>
         <li>O pagamento é processado mensalmente pela plataforma <strong>Asaas</strong>.</li>
         <li>Não há reembolso proporcional por cancelamento antecipado dentro do período pago.</li>
